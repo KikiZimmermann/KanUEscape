@@ -1,8 +1,13 @@
-module com.demo.kanuescape {
+module at.ac.hcw.kanuescape {
+
     requires javafx.controls;
-    requires javafx.fxml;
+    requires javafx.graphics;
+    requires java.desktop;
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.annotation;
 
 
-    opens com.demo.kanuescape to javafx.fxml;
-    exports com.demo.kanuescape;
+    opens at.ac.hcw.kanuescape to javafx.fxml;
+    exports at.ac.hcw.kanuescape;
 }

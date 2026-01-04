@@ -26,8 +26,8 @@ tasks.withType<JavaCompile> {
 }
 
 application {
-    mainModule.set("com.demo.kanuescape")
-    mainClass.set("com.demo.kanuescape.HelloApplication")
+    mainModule.set("at.ac.hcw.kanuescape")
+    mainClass.set("at.ac.hcw.kanuescape.GameApp")
 }
 
 javafx {
@@ -38,6 +38,7 @@ javafx {
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
 }
 
 tasks.withType<Test> {
