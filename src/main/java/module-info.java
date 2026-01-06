@@ -1,13 +1,11 @@
 module at.ac.hcw.kanuescape {
-
     requires javafx.controls;
-    requires javafx.graphics;
-    requires java.desktop;
+    requires javafx.fxml;
     requires com.fasterxml.jackson.databind;
-    requires com.fasterxml.jackson.core;
-    requires com.fasterxml.jackson.annotation;
+    requires java.xml;
 
 
-    opens at.ac.hcw.kanuescape to javafx.fxml;
     exports at.ac.hcw.kanuescape;
+    opens at.ac.hcw.kanuescape.controller to javafx.fxml;
+    opens at.ac.hcw.kanuescape.tiled to com.fasterxml.jackson.databind;
 }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="root"
+           maxHeight="-Infinity"
+           maxWidth="-Infinity"
+           minHeight="-Infinity"
+           minWidth="-Infinity"
+           prefHeight="640.0"
+           prefWidth="960.0"
+           style="-fx-background-color: #4e4e4e; -padding: 25;"
+           xmlns="http://javafx.com/javafx/17.0.12"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="at.ac.hcw.kanuescape.controller.GameController">
+
+   <children>
+      <Canvas fx:id="gameCanvas" height="200.0" width="200.0" />
+   </children>
+</StackPane>
