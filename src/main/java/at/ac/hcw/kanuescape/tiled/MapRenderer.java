@@ -29,7 +29,7 @@ public class MapRenderer {
      * @param firstGid         firstgid aus der Map (meist 1)
      * @param tilesetColumns   Anzahl der Spalten im Tileset
      */
-    public void renderTileLayer(
+    public RenderContext renderTileLayer(
             GraphicsContext gc,
             TiledModel.TiledMap map,
             TiledModel.TiledLayer layer,
@@ -38,7 +38,7 @@ public class MapRenderer {
             int tilesetColumns
     ) {
         // Sicherheitscheck: nur TileLayer mit Daten zeichnen
-        if (layer.data() == null) return;
+        if (layer.data() == null) return null;
 
 
         // Tile-Größe aus der Map
@@ -104,5 +104,12 @@ public class MapRenderer {
             // Tile zeichnen
             gc.drawImage(tilesetImage, sx, sy, sw, sh, dx, dy, dw, dh);
         }
+        return new RenderContext(
+                scale,
+                baseX,
+                baseY,
+                scaledTileW,
+                scaledTileH
+        );
     }
 }

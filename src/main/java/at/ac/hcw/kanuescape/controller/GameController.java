@@ -10,7 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-
+import at.ac.hcw.kanuescape.tiled.RenderContext;
 /**
  * GameController
  *
@@ -57,7 +57,8 @@ public class GameController {
 
     // Player sprite
     private Image playerSprite;
-
+    private RenderContext renderContext;
+    private TiledModel.TiledLayer interactionLayer;
 
     @FXML private StackPane root;
     @FXML private Canvas gameCanvas;
@@ -125,7 +126,13 @@ public class GameController {
     private void renderLayerByName(GraphicsContext gc, String layerName, int firstGid, int columns) {
         for (var layer : map.layers()) {
             if (layer.isTileLayer() && layerName.equals(layer.name())) {
-                renderer.renderTileLayer(gc, map, layer, tilesetImage, firstGid, columns);
+                RenderContext rc = renderer.renderTileLayer(gc, map, layer, tilesetImage, firstGid, columns);
+
+                // Wir merken uns EINEN Layer für Interaktionen
+                if ("objects".equals(layerName)) {
+                    renderContext = rc;
+                    interactionLayer = layer;
+                }
                 return;
             }
         }
@@ -187,5 +194,42 @@ public class GameController {
         dy -= (int) Math.round(scaledTileH * PLAYER_Y_ANCHOR);
 
         gc.drawImage(playerSprite, sx, sy, frameW, frameH, dx, dy, targetW, targetH);
+
+
+        gameCanvas.setOnMouseClicked(e -> {
+            handleMapClick(e.getX(), e.getY());
+        });
     }
+
+    private void handleMapClick(double mouseX, double mouseY) {
+
+        if (renderContext == null || interactionLayer == null) return;
+
+        // Klick relativ zur Map
+        double localX = mouseX - renderContext.baseX();
+        double localY = mouseY - renderContext.baseY();
+
+        if (localX < 0 || localY < 0) return;
+
+        int tileX = (int) (localX / renderContext.tileW());
+        int tileY = (int) (localY / renderContext.tileH());
+
+        if (tileX < 0 || tileY < 0 ||
+                tileX >= interactionLayer.width() ||
+                tileY >= interactionLayer.height()) {
+            return;
+        }
+
+        int index = tileY * interactionLayer.width() + tileX;
+        int gid = interactionLayer.data()[index];
+
+        onTileClicked(tileX, tileY, gid);
+    }
+
+    private void onTileClicked(int x, int y, int gid) {
+        if (gid == 0) return;
+
+        System.out.println("Tile geklickt: (" + x + "," + y + ") GID=" + gid);
+    }
+
 }
