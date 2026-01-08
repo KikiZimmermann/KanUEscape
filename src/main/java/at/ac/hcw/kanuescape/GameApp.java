@@ -40,7 +40,6 @@ public class GameApp extends Application {
         stage.getIcons().add(
                 new Image(getClass().getResourceAsStream("/assets/icon/icon.png"))
         );
-
         stage.show();
     }
 

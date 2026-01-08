@@ -16,7 +16,7 @@ import at.ac.hcw.kanuescape.tiled.RenderContext;
  *
  * - Lädt Map + Tileset + Player-Sprite aus /resources
  * - Bindet Canvas an das Fenster (resizable) mit Rahmen (Padding)
- * - Rendert Map-Layer + Player (noch ohne Bewegung)
+ * - Rendert Map-Layer + Player
  *
  * Hinweis: Parsing & Tileset-Logik steckt in MapLoader/TiledModel.
  * Rendering der TileLayer steckt in MapRenderer.
@@ -32,7 +32,7 @@ public class GameController {
 
     // Look & Layout
     private static final Color BACKGROUND = Color.web("#4e4e4e");
-    private static final double FRAME_PADDING = 25; // muss zum FXML -fx-padding passen
+    private static final double FRAME_PADDING = 10; // muss zum FXML -fx-padding passen
 
     // Sprite Sheet Setup (3x4 = 12 Frames)
     private static final int SPRITE_COLS = 3;
@@ -59,6 +59,8 @@ public class GameController {
     private Image playerSprite;
     private RenderContext renderContext;
     private TiledModel.TiledLayer interactionLayer;
+    private TiledModel.TiledLayer collisionLayer; // collisionLayer speichert die Ebene, die nur die Wände (GID 91) enthält.
+
 
     @FXML private StackPane root;
     @FXML private Canvas gameCanvas;
@@ -66,6 +68,10 @@ public class GameController {
 
     @FXML
     private void initialize() {
+
+        gameCanvas.setFocusTraversable(true);
+        gameCanvas.requestFocus();
+
 
         // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
         gameCanvas.widthProperty().bind(root.widthProperty().subtract(FRAME_PADDING * 2));
@@ -77,12 +83,50 @@ public class GameController {
         tilesetImage = MapLoader.loadImage(TILESET_IMAGE_PATH);
         playerSprite = new Image(getClass().getResourceAsStream(PLAYER_SPRITE_PATH));
 
-        // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)
-        Platform.runLater(this::render);
+
 
         // Bei Resize neu rendern (wir machen kein Game-Loop, sondern "on demand")
         gameCanvas.widthProperty().addListener((obs, oldV, newV) -> render());
         gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
+
+        gameCanvas.setOnKeyPressed(event -> handleMovement(event.getCode()));
+    }
+
+    private void handleMovement(javafx.scene.input.KeyCode code) {
+        // Wir speichern die aktuelle Position in temporären Variablen für die Berechnung.
+        int nextX = playerTileX;
+        int nextY = playerTileY;
+
+        /*
+        Platz für Implementieren von Figure Bewegung
+         */
+
+
+        // DER COLLISIONS-CHECK: Wir rufen unsere eigene Methode auf, um das Ziel-Feld zu prüfen.
+        // Nur wenn isTileBlocked "false" zurückgibt (keine Wand), aktualisieren wir die echte Position.
+        if (!isTileBlocked(nextX, nextY)) {
+            playerTileX = nextX;
+            playerTileY = nextY;
+        }
+
+        // Nachdem die Position (eventuell) geändert wurde, muss der Bildschirm neu gezeichnet werden.
+        render();
+    }
+
+    private boolean isTileBlocked(int nextX, int nextY) {
+        // Sicherheitsabfrage: Wenn der Collision-Layer nicht geladen wurde, erlauben wir die Bewegung (verhindert Absturz).
+        if (collisionLayer == null) return false;
+
+        // Boundary Check: Verhindert, dass der Spieler den Index des Arrays verlässt (außerhalb der Map).
+        if (nextX < 0 || nextX >= map.width() || nextY < 0 || nextY >= map.height()) return true;
+
+        // Umrechnung von 2D-Gitter (X/Y) in den 1D-Index für die Map-Daten-Liste.
+        int index = nextY * collisionLayer.width() + nextX;
+        // Wir holen die GID (Kachel-ID) an dieser speziellen Stelle aus den Map-Daten.
+        int gid = collisionLayer.data()[index];
+
+        // Wenn die ID 91 ist, ist dort eine Wand. Die Methode gibt "true" zurück -> Bewegung blockiert.
+        return gid == 91;
     }
 
 
@@ -114,6 +158,7 @@ public class GameController {
         renderLayerByName(gc, "objects_back", firstGid, columns);
         renderLayerByName(gc, "objects", firstGid, columns);
         renderLayerByName(gc, "objects_front", firstGid, columns);
+        renderLayerByNameForCollision(gc, "collision", firstGid, columns);
 
         // Player darüber zeichnen
         renderPlayer(gc);
@@ -132,6 +177,26 @@ public class GameController {
                 if ("objects".equals(layerName)) {
                     renderContext = rc;
                     interactionLayer = layer;
+                }
+                return;
+            }
+        }
+    }
+
+    /**
+     * Erweiterte Suche für die Map-Ebenen.
+     */
+    private void renderLayerByNameForCollision(GraphicsContext gc, String layerName, int firstGid, int columns) {
+        for (var layer : map.layers()) {
+            // Wir gehen alle Layer der Map durch, bis wir den richtigen Namen finden.
+            if (layer.isTileLayer() && layerName.equals(layer.name())) {
+                // Der MapRenderer zeichnet die Ebene auf die Canvas.
+                RenderContext rc = renderer.renderTileLayer(gc, map, layer, tilesetImage, firstGid, columns);
+
+                // Wir merken uns Layer "collision" für collision.
+                if ("collision".equals(layerName)) {
+                    renderContext = rc;
+                    collisionLayer = layer; // Hier sagen wir dem Programm: Das ist die Ebene mit den Wänden!
                 }
                 return;
             }
@@ -227,8 +292,7 @@ public class GameController {
     }
 
     private void onTileClicked(int x, int y, int gid) {
-        if (gid == 0) return;
-
+        if (gid == 0 || gid == 91) return;
         System.out.println("Tile geklickt: (" + x + "," + y + ") GID=" + gid);
     }
 
