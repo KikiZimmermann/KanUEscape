@@ -38,7 +38,7 @@ public class GameApp extends Application {
 
         // Fenster- & Taskleisten-Icon setzen
         stage.getIcons().add(
-                new Image(getClass().getResourceAsStream("/assets/icon/icon.png"))
+                new Image(getClass().getResourceAsStream("/assets/images/icon/icon.png"))
         );
 
         stage.show();

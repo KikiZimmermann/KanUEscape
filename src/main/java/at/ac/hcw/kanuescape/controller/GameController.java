@@ -26,9 +26,9 @@ public class GameController {
 
     // Ressourcenpfade
     private static final String MAP_PATH = "/assets/maps/game_screen.json";
-    private static final String TSX_PATH = "/assets/tiles/game_screen.tsx";
-    private static final String TILESET_IMAGE_PATH = "/assets/tiles/tileset.png";
-    private static final String PLAYER_SPRITE_PATH = "/assets/sprite/nerdyguy_sprite.png";
+    private static final String TSX_PATH = "/assets/tilesets/game_screen.tsx";
+    private static final String TILESET_IMAGE_PATH = "/assets/images/tileset/tileset.png";
+    private static final String PLAYER_SPRITE_PATH = "/assets/images/sprite/nerdyguy_sprite.png";
 
     // Look & Layout
     private static final Color BACKGROUND = Color.web("#4e4e4e");
