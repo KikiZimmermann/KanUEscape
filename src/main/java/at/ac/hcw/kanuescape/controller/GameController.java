@@ -5,12 +5,17 @@ import at.ac.hcw.kanuescape.tiled.MapRenderer;
 import at.ac.hcw.kanuescape.tiled.TiledModel;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import at.ac.hcw.kanuescape.tiled.RenderContext;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
 /**
  * GameController
  *
@@ -57,7 +62,14 @@ public class GameController {
 
     // Player sprite
     private Image playerSprite;
+
+    //to DoListe
+    private Stage todoStage;
+    private ToDoListeController todoController;
+
+    //render Context für größen
     private RenderContext renderContext;
+    //Die Objekt Layer wird hier gespeichert
     private TiledModel.TiledLayer interactionLayer;
 
     @FXML private StackPane root;
@@ -65,7 +77,7 @@ public class GameController {
 
 
     @FXML
-    private void initialize() {
+    private void initialize() throws Exception{
 
         // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
         gameCanvas.widthProperty().bind(root.widthProperty().subtract(FRAME_PADDING * 2));
@@ -83,6 +95,20 @@ public class GameController {
         // Bei Resize neu rendern (wir machen kein Game-Loop, sondern "on demand")
         gameCanvas.widthProperty().addListener((obs, oldV, newV) -> render());
         gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
+
+        // ToDoListe Laden
+        FXMLLoader fxmlLoader = new FXMLLoader(GameController.class.getResource("/fxml/toDoListe.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 339, 511);
+        todoController = fxmlLoader.getController();
+        scene.setFill(Color.TRANSPARENT);
+        todoStage = new Stage();
+        todoStage.setAlwaysOnTop(true);
+        todoStage.setResizable(false);
+        todoStage.initStyle(StageStyle.TRANSPARENT);
+        todoStage.setX(1000);
+        todoStage.setY(100);
+        todoStage.setTitle("ToDoListe!");
+        todoStage.setScene(scene);
     }
 
 
@@ -230,6 +256,35 @@ public class GameController {
         if (gid == 0) return;
 
         System.out.println("Tile geklickt: (" + x + "," + y + ") GID=" + gid);
+        if(gid == 60 || gid == 72){
+            if (todoStage != null) {
+                todoStage.show();
+            }
+        }
+    }
+
+    public void CheckBuecher() {
+        if (todoController != null) {
+            todoController.CheckBuecher(true);
+        }
+    }
+    @FXML
+    public void CheckKochen() {
+        if (todoController != null) {
+            todoController.CheckKochen(true);
+        }
+    }
+    @FXML
+    public void CheckMathe() {
+        if (todoController != null) {
+            todoController.CheckMathe(true);
+        }
+    }
+    @FXML
+    public void CheckProg() {
+        if (todoController != null) {
+            todoController.CheckProg(true);
+        }
     }
 
 }

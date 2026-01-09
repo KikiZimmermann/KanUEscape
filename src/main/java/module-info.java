@@ -3,6 +3,7 @@ module at.ac.hcw.kanuescape {
     requires javafx.fxml;
     requires com.fasterxml.jackson.databind;
     requires java.xml;
+    requires javafx.graphics;
 
 
     exports at.ac.hcw.kanuescape;
