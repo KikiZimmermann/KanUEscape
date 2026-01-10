@@ -1,5 +1,6 @@
 package at.ac.hcw.kanuescape.controller;
 
+import at.ac.hcw.kanuescape.game.Player; // Mvm
 import at.ac.hcw.kanuescape.tiled.MapLoader;
 import at.ac.hcw.kanuescape.tiled.MapRenderer;
 import at.ac.hcw.kanuescape.tiled.TiledModel;
@@ -12,9 +13,13 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.animation.AnimationTimer; // Mvm
 import at.ac.hcw.kanuescape.tiled.RenderContext;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.scene.input.KeyCode; // Mvm
+import java.util.EnumMap; // Mvm
+import java.util.Map; // Mvm
 
 /**
  * GameController
@@ -40,8 +45,10 @@ public class GameController {
     private static final double FRAME_PADDING = 25; // muss zum FXML -fx-padding passen
 
     // Sprite Sheet Setup (3x4 = 12 Frames)
-    private static final int SPRITE_COLS = 3;
-    private static final int SPRITE_ROWS = 4;
+//    private static final int SPRITE_COLS = 3;
+//    private static final int SPRITE_ROWS = 4;
+
+    private Player player;
 
     // "Optischer" Offset: Sprites sonst nicht "zentriert" im Tile
     private static final double PLAYER_Y_ANCHOR = 0.10;
@@ -55,10 +62,10 @@ public class GameController {
     private Image tilesetImage;
 
     // --- Player-State (aktuell fester Frame) ---
-    private int playerTileX = 5;
-    private int playerTileY = 4;
-    private int playerFrameCol = 1;
-    private int playerFrameRow = 2;
+//    private int playerTileX = 5;
+//    private int playerTileY = 4;
+//    private int playerFrameCol = 1;
+//    private int playerFrameRow = 2;
 
     // Player sprite
     private Image playerSprite;
@@ -74,7 +81,6 @@ public class GameController {
 
     @FXML private StackPane root;
     @FXML private Canvas gameCanvas;
-
 
     @FXML
     private void initialize() throws Exception{
@@ -96,6 +102,12 @@ public class GameController {
         gameCanvas.widthProperty().addListener((obs, oldV, newV) -> render());
         gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
 
+ // Fehler bei Einfügen
+        // Mvm; initialize player; start position for now (5,4)
+        player = new Player(5,4);
+        player.setSpeedTilesPerSecond(4.0);
+        player.setFrameDurationMs(120); // ms; per animation step, might have to change after test
+
         // ToDoListe Laden
         FXMLLoader fxmlLoader = new FXMLLoader(GameController.class.getResource("/fxml/toDoListe.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 339, 511);
@@ -111,8 +123,7 @@ public class GameController {
         todoStage.setScene(scene);
     }
 
-
-    /**
+    /*
      * Rendert ein komplettes Frame: Background -> Map-Layer -> Player.
      * (Kein Game-Loop, nur beim Start und beim Resize)
      */
@@ -146,8 +157,8 @@ public class GameController {
     }
 
 
-    /**
-     * Findet einen Layer anhand des Namens und rendert ihn, wenn es ein TileLayer ist.
+    /*
+     Findet einen Layer anhand des Namens und rendert ihn, wenn es ein TileLayer ist.
      */
     private void renderLayerByName(GraphicsContext gc, String layerName, int firstGid, int columns) {
         for (var layer : map.layers()) {
@@ -164,14 +175,13 @@ public class GameController {
         }
     }
 
-
     /**
      * Rendert den Player als EIN Frame aus dem Sprite Sheet.
      * Position ist Tile-basiert und wird auf das gleiche Integer-Grid gelegt wie die Map,
      * damit nichts "driftet".
      */
     private void renderPlayer(GraphicsContext gc) {
-        if (playerSprite == null || map == null) return;
+        if (playerSprite == null || map == null || player == null) return;
 
         int tileW = map.tilewidth();
         int tileH = map.tileheight();
@@ -198,33 +208,75 @@ public class GameController {
         int scaledTileH = (int) Math.round(tileH * scale);
 
         // Sprite-Frame (Quelle)
-        double frameW = playerSprite.getWidth() / SPRITE_COLS;
-        double frameH = playerSprite.getHeight() / SPRITE_ROWS;
-        double sx = playerFrameCol * frameW;
-        double sy = playerFrameRow * frameH;
+        double frameW = playerSprite.getWidth() / Player.SPRITE_COLS;
+        double frameH = playerSprite.getHeight() / Player.SPRITE_ROWS;
+        double sx = player.getFrameCol() * frameW;
+        double sy = player.getFrameRow() * frameH;
 
         // Zielgröße (1.2 Tiles hoch, proportional)
         double aspect = frameW / frameH;
         int targetH = (int) Math.round(scaledTileH * 1.2);
         int targetW = (int) Math.round(targetH * aspect);
 
-        // Tile top-left in Pixel
-        int tilePxX = baseX + playerTileX * scaledTileW;
-        int tilePxY = baseY + playerTileY * scaledTileH;
+        // Player position tiles -> px
+        double tileX = player.getTileX();
+        double tileY = player.getTileY();
+        int tilePxX = baseX + (int) Math.round(tileX * scaledTileW);
+        int tilePyY = baseY + (int) Math.round(tileY * scaledTileH);
 
-        // Zentrum im Tile
+        // Centered in tile
         int dx = tilePxX + (scaledTileW - targetW) / 2;
-        int dy = tilePxY + (scaledTileH - targetH) / 2;
+        int dy = tilePyY + (scaledTileH - targetH) / 2;
 
-        // Optischer Anchor nach oben (gegen "bottom-heavy" Eindruck - "zentriert")
+        // Optical anchor towards top (against "bottom-heavy" impression - "centered")
         dy -= (int) Math.round(scaledTileH * PLAYER_Y_ANCHOR);
-
+        // Drawing (source: sx, sy, frameW, frameH -> destination: dx, dy, targetW, targetH)
         gc.drawImage(playerSprite, sx, sy, frameW, frameH, dx, dy, targetW, targetH);
-
 
         gameCanvas.setOnMouseClicked(e -> {
             handleMapClick(e.getX(), e.getY());
         });
+    }
+
+    // Mvm
+    private final Map<KeyCode, Boolean> keys = new EnumMap<>(KeyCode.class);
+    private AnimationTimer loop;
+
+    // Mvm
+    public void init(Scene scene) {
+        // Key states (WASD)
+        scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
+        scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
+
+        // Focus: ensure that key events arrive
+        root.setOnMouseClicked( e -> root.requestFocus());
+        root.requestFocus();
+
+        // Game-loop: requests render() on every frame
+        loop = new AnimationTimer() {
+            long last = 0;
+            @Override
+            public void handle(long now) {
+                if (last == 0) {last  = now; return;}
+                double dt = (now - last) / 1_000_000_000.0; // time delta in seconds
+                last = now;
+
+                boolean up = isDown(KeyCode.W);
+                boolean down = isDown(KeyCode.S);
+                boolean left = isDown(KeyCode.A);
+                boolean right = isDown(KeyCode.D);
+                // Player update with time delta and input
+                player.update(dt, up, down, left, right);
+                // Animation (idle vs moving)
+                player.animate(now, up || down || left || right);
+                render();
+            }
+        };
+        loop.start();
+    }
+
+    private boolean isDown(KeyCode code) {
+        return keys.getOrDefault(code, false);
     }
 
     private void handleMapClick(double mouseX, double mouseY) {

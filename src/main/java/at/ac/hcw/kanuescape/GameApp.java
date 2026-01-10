@@ -1,5 +1,6 @@
 package at.ac.hcw.kanuescape;
 
+import at.ac.hcw.kanuescape.controller.GameController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -32,6 +33,9 @@ public class GameApp extends Application {
 
         Scene scene = new Scene(loader.load());
 
+        GameController controller = loader.getController();
+        controller.init(scene); // WICHTIG: aktiviert Key-Handling + Game-Loop
+
         // Fenster konfigurieren
         stage.setTitle("KanUEscape");
         stage.setScene(scene);
@@ -43,6 +47,8 @@ public class GameApp extends Application {
 
         stage.show();
     }
+
+
 
     /**
      * Klassischer Java-Einstiegspunkt.
