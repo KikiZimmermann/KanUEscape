@@ -4,6 +4,7 @@ module at.ac.hcw.kanuescape {
     requires com.fasterxml.jackson.databind;
     requires java.xml;
     requires javafx.graphics;
+    requires at.ac.hcw.kanuescape;
 
 
     exports at.ac.hcw.kanuescape;
