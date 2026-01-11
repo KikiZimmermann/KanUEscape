@@ -447,6 +447,10 @@ public class GameController {
         int endX   = (int)Math.floor(nextX + playerWidthTiles - 0.001);
         int startY = (int)Math.floor(nextY);
         int endY   = (int)Math.floor(nextY + playerHeightTiles - 0.001);
+        if(11<=nextY + playerHeightTiles - 0.001&&nextY + playerHeightTiles - 0.001<=12.4) {
+            endY=11;
+        }
+
 
         for (int y = startY; y <= endY; y++) {
             for (int x = startX; x <= endX; x++) {
@@ -454,7 +458,11 @@ public class GameController {
                     return true;
 
                 int index = y * collisionLayer.width() + x;
+
                 int gid = collisionLayer.data()[index];
+                System.out.println(nextX + playerHeightTiles - 0.001+" "+endX);
+                System.out.println(y * collisionLayer.width()+" "+x);
+                System.out.println(index+" "+gid);
                 if (gid == 91) return true; // Wand
             }
         }
