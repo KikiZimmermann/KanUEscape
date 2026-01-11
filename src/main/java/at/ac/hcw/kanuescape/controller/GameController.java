@@ -72,12 +72,19 @@ public class GameController {
 
     //to DoListe
     private Stage todoStage;
+    private Stage BuecherStage;
+    private Stage LaptopStage;
     private ToDoListeController todoController;
+    private BuecherController BuecherController;
+    private LaptopController LaptopController;
 
     //render Context für größen
     private RenderContext renderContext;
+
+    public RenderContext rc;
     //Die Objekt Layer wird hier gespeichert
     private TiledModel.TiledLayer interactionLayer;
+    private TiledModel.TiledLayer collisionLayer;
 
     @FXML private StackPane root;
     @FXML private Canvas gameCanvas;
@@ -110,17 +117,37 @@ public class GameController {
 
         // ToDoListe Laden
         FXMLLoader fxmlLoader = new FXMLLoader(GameController.class.getResource("/fxml/toDoListe.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 339, 511);
+        Scene scenetodo = new Scene(fxmlLoader.load(), 339, 511);
         todoController = fxmlLoader.getController();
-        scene.setFill(Color.TRANSPARENT);
+        scenetodo.setFill(Color.TRANSPARENT);
         todoStage = new Stage();
         todoStage.setAlwaysOnTop(true);
         todoStage.setResizable(false);
         todoStage.initStyle(StageStyle.TRANSPARENT);
-        todoStage.setX(1000);
         todoStage.setY(100);
-        todoStage.setTitle("ToDoListe!");
-        todoStage.setScene(scene);
+        todoStage.setScene(scenetodo);
+
+        FXMLLoader fxmlLoaderBuecher = new FXMLLoader(GameController.class.getResource("/fxml/Buecher.fxml"));
+        Scene sceneBuecher = new Scene(fxmlLoaderBuecher.load(), 339, 511);
+        BuecherController = fxmlLoaderBuecher.getController();
+        sceneBuecher.setFill(Color.TRANSPARENT);
+        BuecherStage = new Stage();
+        BuecherStage.setAlwaysOnTop(true);
+        BuecherStage.setResizable(false);
+        BuecherStage.initStyle(StageStyle.TRANSPARENT);
+        BuecherStage.setY(100);
+        BuecherStage.setScene(sceneBuecher);
+
+        FXMLLoader fxmlLoaderLaptop = new FXMLLoader(GameController.class.getResource("/fxml/Laptop.fxml"));
+        Scene sceneLaptop = new Scene(fxmlLoaderLaptop.load(), 339, 511);
+        LaptopController = fxmlLoaderLaptop.getController();
+        sceneLaptop.setFill(Color.TRANSPARENT);
+        LaptopStage = new Stage();
+        LaptopStage.setAlwaysOnTop(true);
+        LaptopStage.setResizable(false);
+        LaptopStage.initStyle(StageStyle.TRANSPARENT);
+        LaptopStage.setY(100);
+        LaptopStage.setScene(sceneLaptop);
     }
 
     /*
@@ -151,6 +178,7 @@ public class GameController {
         renderLayerByName(gc, "objects_back", firstGid, columns);
         renderLayerByName(gc, "objects", firstGid, columns);
         renderLayerByName(gc, "objects_front", firstGid, columns);
+        renderLayerByName(gc, "collision", firstGid, columns);
 
         // Player darüber zeichnen
         renderPlayer(gc);
@@ -163,12 +191,16 @@ public class GameController {
     private void renderLayerByName(GraphicsContext gc, String layerName, int firstGid, int columns) {
         for (var layer : map.layers()) {
             if (layer.isTileLayer() && layerName.equals(layer.name())) {
-                RenderContext rc = renderer.renderTileLayer(gc, map, layer, tilesetImage, firstGid, columns);
+                rc = renderer.renderTileLayer(gc, map, layer, tilesetImage, firstGid, columns);
 
                 // Wir merken uns EINEN Layer für Interaktionen
                 if ("objects".equals(layerName)) {
                     renderContext = rc;
                     interactionLayer = layer;
+                }
+                if ("collision".equals(layerName)) {
+                    renderContext = rc;
+                    collisionLayer = layer; // Hier sagen wir dem Programm: Das ist die Ebene mit den Wänden!
                 }
                 return;
             }
@@ -244,35 +276,68 @@ public class GameController {
 
     // Mvm
     public void init(Scene scene) {
-        // Key states (WASD)
-        scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
-        scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
+        render();
 
-        // Focus: ensure that key events arrive
-        root.setOnMouseClicked( e -> root.requestFocus());
-        root.requestFocus();
+            // Key states (WASD)
+            scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
+            scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
 
-        // Game-loop: requests render() on every frame
-        loop = new AnimationTimer() {
-            long last = 0;
-            @Override
-            public void handle(long now) {
-                if (last == 0) {last  = now; return;}
-                double dt = (now - last) / 1_000_000_000.0; // time delta in seconds
-                last = now;
+            // Focus: ensure that key events arrive
+            root.setOnMouseClicked( e -> root.requestFocus());
+            root.requestFocus();
 
-                boolean up = isDown(KeyCode.W);
-                boolean down = isDown(KeyCode.S);
-                boolean left = isDown(KeyCode.A);
-                boolean right = isDown(KeyCode.D);
-                // Player update with time delta and input
-                player.update(dt, up, down, left, right);
-                // Animation (idle vs moving)
-                player.animate(now, up || down || left || right);
-                render();
-            }
-        };
-        loop.start();
+            // Game-loop: requests render() on every frame
+            loop = new AnimationTimer() {
+                long last = 0;
+
+                @Override
+                public void handle(long now) {
+                    if (last == 0) {
+                        last = now;
+                        return;
+                    }
+                    double dt = (now - last) / 1_000_000_000.0; // time delta in seconds
+                    last = now;
+
+
+                    boolean up = isDown(KeyCode.W);
+                    boolean down = isDown(KeyCode.S);
+                    boolean left = isDown(KeyCode.A);
+                    boolean right = isDown(KeyCode.D);
+
+                    double dx = 0, dy = 0;
+                    if (up) dy = -1;
+                    else if (down) dy = 1;
+                    else if (left) dx = -1;
+                    else if (right) dx = 1;
+
+                    double nextX = player.tileX + dx;
+                    double nextY = player.tileY; // Y unverändert
+                    if (!isTileBlocked(nextX, nextY)) {
+                        player.update(dt/2, up, down, left, right);
+                        // Animation (idle vs moving)
+                        player.animate(now, up || down || left || right);
+                        render();
+                    }
+
+                    nextX = player.tileX; // X evtl. schon angepasst
+                    nextY = player.tileY + dy;
+                    if (!isTileBlocked(nextX, nextY)) {
+                        player.update(dt/2, up, down, left, right);
+                        // Animation (idle vs moving)
+                        player.animate(now, up || down || left || right);
+                        render();
+                    }
+                    nextX = player.tileX;
+                    nextY = player.tileY;
+                    if (isTileBlocked(nextX, nextY)) {
+                        // Animation (idle vs moving)
+                        player.animate(now, false);
+                        render();
+                    }
+                }
+            };
+            loop.start();
     }
 
     private boolean isDown(KeyCode code) {
@@ -304,15 +369,46 @@ public class GameController {
         onTileClicked(tileX, tileY, gid);
     }
 
-    private void onTileClicked(int x, int y, int gid) {
+    private void onTileClicked(double x, double y, int gid) {
         if (gid == 0) return;
 
-        System.out.println("Tile geklickt: (" + x + "," + y + ") GID=" + gid);
-        if(gid == 60 || gid == 72){
-            if (todoStage != null) {
-                todoStage.show();
+        double tileX = player.getTileX();
+        double tileY = player.getTileY();
+
+        double pixelX = tileX * interactionLayer.width();
+        double pixelY = tileY * interactionLayer.height();
+
+        System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
+        System.out.println("Player geklickt: (" + pixelX + "," + pixelY + ") GID=" + gid);
+
+        if (true/*Math.abs(tileX - x*32) <= x *32* 0.15*/) {
+                System.out.println("Spieler ist innerhalb von 10% des Ziels!");
+
+
+                if (gid == 60 || gid == 72) {
+                    if (todoStage != null) {
+                        todoStage.setX(rc.renderW() / 2);
+                        todoStage.show();
+                    }
+                }
+                if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
+                    if (BuecherStage != null) {
+                        BuecherStage.setX(rc.renderW() / 2);
+                        BuecherStage.show();
+                    }
+                }
+                if (gid == 50) {
+                    if (LaptopStage != null) {
+                        LaptopStage.setX(rc.renderW() / 2);
+                        LaptopStage.show();
+                    }
+                }
+                //Kiki
+                if (gid == 66) {
+                    //sachen rein schreiben (Ali Code hier)
+                }
             }
-        }
+
     }
 
     public void CheckBuecher() {
@@ -339,4 +435,29 @@ public class GameController {
         }
     }
 
+    private boolean isTileBlocked(double nextX, double nextY) {
+        // Sicherheitsabfrage: Wenn der Collision-Layer nicht geladen wurde, erlauben wir die Bewegung (verhindert Absturz).
+        if (collisionLayer == null) return false;
+
+        double playerWidthTiles = 1;
+        double playerHeightTiles = 1;
+
+        // Tiles die vom Spieler überlappt werden
+        int startX = (int)Math.floor(nextX);
+        int endX   = (int)Math.floor(nextX + playerWidthTiles - 0.001);
+        int startY = (int)Math.floor(nextY);
+        int endY   = (int)Math.floor(nextY + playerHeightTiles - 0.001);
+
+        for (int y = startY; y <= endY; y++) {
+            for (int x = startX; x <= endX; x++) {
+                if (x < 0 || y < 0 || x >= collisionLayer.width() || y >= collisionLayer.height())
+                    return true;
+
+                int index = y * collisionLayer.width() + x;
+                int gid = collisionLayer.data()[index];
+                if (gid == 91) return true; // Wand
+            }
+        }
+        return false;
+    }
 }

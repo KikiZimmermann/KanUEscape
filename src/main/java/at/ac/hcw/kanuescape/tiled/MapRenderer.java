@@ -109,7 +109,8 @@ public class MapRenderer {
                 baseX,
                 baseY,
                 scaledTileW,
-                scaledTileH
+                scaledTileH,
+                renderW
         );
     }
 }

@@ -24,8 +24,8 @@ public class Player {
     public static final int ROW_LEFT = 3;
 
     // Position in tile coordinates
-    private double tileX;
-    private double tileY;
+    public double tileX;
+    public double tileY;
 
     // Mvm speed in tiles/sec
     private double speedTilesPerSecond = 1.0;
