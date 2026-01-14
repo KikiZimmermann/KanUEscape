@@ -54,30 +54,25 @@ public class Player {
         double dx = 0.0;
         double dy = 0.0;
 
-        // With diagonal walking
-        //   if (up) dy -= 1.0;
-        //   if (down) dy += 1.0;
-        //   if (left) dx -= 1.0;
-        //   if (right) dx += 1.0;
-
         // Without diagonal walking
         if (up) {
-            dy = -1.0;
+            dy = -0.5*32;
             direction = Direction.UP;
         } else if (down) {
-            dy =  1.0;
+            dy =  0.5*32;
             direction = Direction.DOWN;
         } else if (left) {
-            dx = -1.0;
+            dx = -0.5*32;
             direction = Direction.LEFT;
         } else if (right) {
-            dx =  1.0;
+            dx =  0.5*32;
             direction = Direction.RIGHT;
         }
 
         // no direction -> IDLE in last direction of view
         tileX += dx * speedTilesPerSecond * dt;
         tileY += dy * speedTilesPerSecond * dt;
+
     }
 
     // Animation update

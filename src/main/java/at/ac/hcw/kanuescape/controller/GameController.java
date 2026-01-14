@@ -111,7 +111,7 @@ public class GameController {
 
  // Fehler bei Einfügen
         // Mvm; initialize player; start position for now (5,4)
-        player = new Player(5,4);
+        player = new Player(200,150);
         player.setSpeedTilesPerSecond(4.0);
         player.setFrameDurationMs(120); // ms; per animation step, might have to change after test
 
@@ -253,12 +253,15 @@ public class GameController {
         // Player position tiles -> px
         double tileX = player.getTileX();
         double tileY = player.getTileY();
-        int tilePxX = baseX + (int) Math.round(tileX * scaledTileW);
-        int tilePyY = baseY + (int) Math.round(tileY * scaledTileH);
+//        int tilePxX = baseX + (int) Math.round(tileX * scaledTileW);
+//        int tilePyY = baseY + (int) Math.round(tileY * scaledTileH);
 
         // Centered in tile
-        int dx = tilePxX + (scaledTileW - targetW) / 2;
-        int dy = tilePyY + (scaledTileH - targetH) / 2;
+//        int dx = tilePxX + (scaledTileW - targetW) / 2;
+//        int dy = tilePyY + (scaledTileH - targetH) / 2;
+
+        double dx = tileX + (scaledTileW - targetW) / 2;
+        double dy = tileY + (scaledTileH - targetH) / 2;
 
         // Optical anchor towards top (against "bottom-heavy" impression - "centered")
         dy -= (int) Math.round(scaledTileH * PLAYER_Y_ANCHOR);
@@ -306,15 +309,15 @@ public class GameController {
                     boolean right = isDown(KeyCode.D);
 
                     double dx = 0, dy = 0;
-                    if (up) dy = -1;
-                    else if (down) dy = 1;
-                    else if (left) dx = -1;
-                    else if (right) dx = 1;
+                    if (up) dy = -0.5;
+                    else if (down) dy = 0.5;
+                    else if (left) dx = -0.5;
+                    else if (right) dx = 0.5;
 
                     double nextX = player.tileX + dx;
                     double nextY = player.tileY; // Y unverändert
                     if (!isTileBlocked(nextX, nextY)) {
-                        player.update(dt/2, up, down, left, right);
+                        player.update(dt, up, down, left, right);
                         // Animation (idle vs moving)
                         player.animate(now, up || down || left || right);
                         render();
@@ -323,7 +326,8 @@ public class GameController {
                     nextX = player.tileX; // X evtl. schon angepasst
                     nextY = player.tileY + dy;
                     if (!isTileBlocked(nextX, nextY)) {
-                        player.update(dt/2, up, down, left, right);
+                        player.update(dt, up, down, left, right);
+                        //System.out.println(""+dt+""+down+""+left+""+right);
                         // Animation (idle vs moving)
                         player.animate(now, up || down || left || right);
                         render();
@@ -332,7 +336,7 @@ public class GameController {
                     nextY = player.tileY;
                     if (isTileBlocked(nextX, nextY)) {
                         // Animation (idle vs moving)
-                        player.animate(now, false);
+                        player.animate(now, up || down || left || right);
                         render();
                     }
                 }
@@ -366,19 +370,16 @@ public class GameController {
         int index = tileY * interactionLayer.width() + tileX;
         int gid = interactionLayer.data()[index];
 
-        onTileClicked(tileX, tileY, gid);
+        onTileClicked(localX, localY, gid);
     }
 
     private void onTileClicked(double x, double y, int gid) {
         if (gid == 0) return;
 
-        double tileX = player.getTileX();
-        double tileY = player.getTileY();
+        double pixelX = player.getTileX();
+        double pixelY = player.getTileY();
 
-        double pixelX = tileX * interactionLayer.width();
-        double pixelY = tileY * interactionLayer.height();
-
-        System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
+        System.out.println("Tile geklickt: (" + x + "," + y + ") GID=" + gid);
         System.out.println("Player geklickt: (" + pixelX + "," + pixelY + ") GID=" + gid);
 
         if (true/*Math.abs(tileX - x*32) <= x *32* 0.15*/) {
@@ -447,25 +448,38 @@ public class GameController {
         int endX   = (int)Math.floor(nextX + playerWidthTiles - 0.001);
         int startY = (int)Math.floor(nextY);
         int endY   = (int)Math.floor(nextY + playerHeightTiles - 0.001);
-        if(11<=nextY + playerHeightTiles - 0.001&&nextY + playerHeightTiles - 0.001<=12.4) {
-            endY=11;
-        }
+        double w = collisionLayer.width()*32;
+        double h = collisionLayer.height()*32;
+//        System.out.println(""+h);
+        int index = (startY/32) * collisionLayer.width() + (int)(startX/0.5/32);
+        System.out.println(index);
+//        System.out.println(startY/32);
+//        System.out.println(collisionLayer.width());
+//        System.out.println(startX/32/0.5);
+//        System.out.println(startX);
 
+        int gid = collisionLayer.data()[index];
+        System.out.println(gid);
 
-        for (int y = startY; y <= endY; y++) {
-            for (int x = startX; x <= endX; x++) {
-                if (x < 0 || y < 0 || x >= collisionLayer.width() || y >= collisionLayer.height())
-                    return true;
-
-                int index = y * collisionLayer.width() + x;
-
-                int gid = collisionLayer.data()[index];
-                System.out.println(nextX + playerHeightTiles - 0.001+" "+endX);
-                System.out.println(y * collisionLayer.width()+" "+x);
-                System.out.println(index+" "+gid);
-                if (gid == 91) return true; // Wand
-            }
-        }
+//        for (int y = startY; y <= endY; y++) {
+//            for (int x = startX; x <= endX; x++) {
+//                if (x < 0 || y < 0 || x >= w || y >= h){
+////                    System.out.println(""+collisionLayer.width()+" " +x);
+//                    return true;
+//                } else{
+//
+//
+//                    int index = (y/32) * collisionLayer.width() + (x/32);
+//
+//                    int gid = collisionLayer.data()[index];
+////                System.out.println(nextX + playerHeightTiles - 0.001+" "+endX);
+////                System.out.println(y * collisionLayer.width()+" "+x);
+////                System.out.println(index+" "+gid);
+//                    if (gid == 91) return true; // Wand
+//                }
+//            }
+//        }
+        if (gid != 0) return true;
         return false;
     }
 }
