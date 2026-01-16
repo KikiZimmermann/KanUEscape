@@ -4,20 +4,27 @@ import at.ac.hcw.kanuescape.game.Player; // Mvm
 import at.ac.hcw.kanuescape.tiled.MapLoader;
 import at.ac.hcw.kanuescape.tiled.MapRenderer;
 import at.ac.hcw.kanuescape.tiled.TiledModel;
+import at.ac.hcw.kanuescape.tiled.RenderContext;
+
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.animation.AnimationTimer; // Mvm
-import at.ac.hcw.kanuescape.tiled.RenderContext;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.input.KeyCode; // Mvm
+import javafx.util.Duration;
+
 import java.util.EnumMap; // Mvm
 import java.util.Map; // Mvm
 
@@ -36,7 +43,7 @@ public class GameController {
 
     // Ressourcenpfade
     private static final String MAP_PATH = "/assets/maps/game_screen.json";
-    private static final String TSX_PATH = "/assets/tilesets/game_screen.tsx";
+    private static final String TSX_PATH = "/assets/tileset/game_screen.tsx";
     private static final String TILESET_IMAGE_PATH = "/assets/images/tileset/tileset.png";
     private static final String PLAYER_SPRITE_PATH = "/assets/images/sprite/nerdyguy_sprite.png";
 
@@ -86,8 +93,15 @@ public class GameController {
     private TiledModel.TiledLayer interactionLayer;
     private TiledModel.TiledLayer collisionLayer;
 
+    //Dialogue Box
+    private TranslateTransition arrowBounce;
+
     @FXML private StackPane root;
     @FXML private Canvas gameCanvas;
+    @FXML private AnchorPane dialogueOverlay;
+    @FXML private ImageView dialogueBoxImage;
+    @FXML private ImageView dialogueArrow;
+    @FXML private Label dialogueText;
 
     @FXML
     private void initialize() throws Exception{
@@ -108,6 +122,22 @@ public class GameController {
         // Bei Resize neu rendern (wir machen kein Game-Loop, sondern "on demand")
         gameCanvas.widthProperty().addListener((obs, oldV, newV) -> render());
         gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
+
+        /*
+        Textfield (only when text is displayed)
+         */
+        // Textbox + Arrow Images laden
+        dialogueBoxImage.setImage(new Image(getClass().getResourceAsStream("/assets/images/gui/textfield.png")));
+        dialogueArrow.setImage(new Image(getClass().getResourceAsStream("/assets/images/gui/text_arrow.png")));
+
+        //Klick schließt textfield
+        dialogueOverlay.setOnMouseClicked(e -> hideDialogue());
+
+        //Arrow animation
+        startArrowBounce();
+        // TODO TEST: einmal anzeigen (nur zum Prüfen, kannst du später entfernen)
+        showDialogue("Test: If you can read this, the textbox overlay works.");
+
 
  // Fehler bei Einfügen
         // Mvm; initialize player; start position for now (5,4)
@@ -467,5 +497,28 @@ public class GameController {
             }
         }
         return false;
+    }
+
+    //Dialogue Box
+    private void showDialogue(String text) {
+        dialogueText.setText(text);
+        dialogueOverlay.setVisible(true);
+        if (arrowBounce != null) arrowBounce.play();
+    }
+
+    private void hideDialogue() {
+        dialogueOverlay.setVisible(false);
+        if (arrowBounce != null) arrowBounce.stop();
+    }
+
+    private void startArrowBounce() {
+        double baseY = dialogueArrow.getTranslateY();       // y vom fxml! sonst wird position überschrieben
+        double jumpY = baseY - 6;
+
+        arrowBounce = new TranslateTransition(Duration.millis(400), dialogueArrow);
+        arrowBounce.setFromY(baseY);
+        arrowBounce.setToY(jumpY);          // Hüpfhöhe
+        arrowBounce.setAutoReverse(true);
+        arrowBounce.setCycleCount(TranslateTransition.INDEFINITE);
     }
 }
