@@ -5,7 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
-
+import at.ac.hcw.kanuescape.controller.GameController;
 
 /**
  * GameApp
@@ -30,7 +30,12 @@ public class GameApp extends Application {
                 getClass().getResource("/fxml/Game.fxml")
         );
 
+        // Scene erzeugen
         Scene scene = new Scene(loader.load());
+
+        // Get and initialize controller (input + game loop); Mvm
+        GameController controller = loader.getController();
+        controller.init(scene);
 
         // Fenster konfigurieren
         stage.setTitle("KanUEscape");

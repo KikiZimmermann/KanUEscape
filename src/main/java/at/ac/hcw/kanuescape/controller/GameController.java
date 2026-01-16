@@ -5,11 +5,17 @@ import at.ac.hcw.kanuescape.tiled.MapRenderer;
 import at.ac.hcw.kanuescape.tiled.TiledModel;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import java.util.EnumMap;
+import java.util.Map;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import at.ac.hcw.kanuescape.game.Player; // Mvm
+import javafx.animation.AnimationTimer; // Mvm
+import javafx.scene.input.KeyCode; // Mvm
+import javafx.scene.Scene; // Mvm
 
 /**
  * GameController
@@ -34,38 +40,27 @@ public class GameController {
     private static final Color BACKGROUND = Color.web("#4e4e4e");
     private static final double FRAME_PADDING = 25; // muss zum FXML -fx-padding passen
 
-    // Sprite Sheet Setup (3x4 = 12 Frames)
-    private static final int SPRITE_COLS = 3;
-    private static final int SPRITE_ROWS = 4;
+    // Player
+    private Player player;
+    private Image playerSprite;
+    private static final double PLAYER_Y_ANCHOR = 0.10; // "Optical" Offset/Anchor: centers sprite in tile
 
-    // "Optischer" Offset: Sprites sonst nicht "zentriert" im Tile
-    private static final double PLAYER_Y_ANCHOR = 0.10;
-
-    // Engine-Teile
+    // Engine
     private final MapRenderer renderer = new MapRenderer();
-
     // Map als Feld speichern, damit render() später damit arbeiten kann
     private TiledModel.TiledMap map;
     private TiledModel.TsxTileset tsx;
     private Image tilesetImage;
 
-    // --- Player-State (aktuell fester Frame) ---
-    private int playerTileX = 5;
-    private int playerTileY = 4;
-    private int playerFrameCol = 1;
-    private int playerFrameRow = 2;
-
-    // Player sprite
-    private Image playerSprite;
-
-
     @FXML private StackPane root;
     @FXML private Canvas gameCanvas;
 
+    // Input/loop
+    private final Map<KeyCode, Boolean> keys = new EnumMap(KeyCode.class); // gotta understand this still
+    private AnimationTimer loop;
 
     @FXML
-    private void initialize() {
-
+    public void initialize() {
         // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
         gameCanvas.widthProperty().bind(root.widthProperty().subtract(FRAME_PADDING * 2));
         gameCanvas.heightProperty().bind(root.heightProperty().subtract(FRAME_PADDING * 2));
@@ -76,6 +71,11 @@ public class GameController {
         tilesetImage = MapLoader.loadImage(TILESET_IMAGE_PATH);
         playerSprite = new Image(getClass().getResourceAsStream(PLAYER_SPRITE_PATH));
 
+        // Start player
+        player = new Player (5, 4); // start tile, adapt after meeting
+        player.setSpeedTilesPerSecond(4.0); // change here or in player class?
+        player.setFrameDurationNs(120); // animation step (ms)
+
         // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)
         Platform.runLater(this::render);
 
@@ -84,6 +84,42 @@ public class GameController {
         gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
     }
 
+    // Scene based init: key handling + game loop
+    public void init(Scene scene) {
+        scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
+        scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
+
+        root.setOnMouseClicked(e -> root.requestFocus());
+        Platform.runLater(() -> root.requestFocus());
+
+        // Game loop
+        loop = new AnimationTimer() {
+            long last = 0;
+
+            @Override
+            public void handle(long now) {
+                if (last == 0) { last = now; return; }
+                double dt  = (now - last) / 1_000_000_000.0;
+                last = now;
+
+                //Eingabe
+                boolean up = isDown(KeyCode.W);
+                boolean down = isDown(KeyCode.S);
+                boolean left = isDown(KeyCode.A);
+                boolean right = isDown(KeyCode.D);
+
+                // Movement grid + animation
+                player.update(dt, up, down, left, right);
+                player.animate(now, player.isMoving());
+
+                // Draw
+                render();
+            }
+        };
+        loop.start();
+    }
+
+    private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
 
     /**
      * Rendert ein komplettes Frame: Background -> Map-Layer -> Player.
@@ -118,7 +154,6 @@ public class GameController {
         renderPlayer(gc);
     }
 
-
     /**
      * Findet einen Layer anhand des Namens und rendert ihn, wenn es ein TileLayer ist.
      */
@@ -130,7 +165,6 @@ public class GameController {
             }
         }
     }
-
 
     /**
      * Rendert den Player als EIN Frame aus dem Sprite Sheet.
@@ -165,19 +199,24 @@ public class GameController {
         int scaledTileH = (int) Math.round(tileH * scale);
 
         // Sprite-Frame (Quelle)
-        double frameW = playerSprite.getWidth() / SPRITE_COLS;
-        double frameH = playerSprite.getHeight() / SPRITE_ROWS;
-        double sx = playerFrameCol * frameW;
-        double sy = playerFrameRow * frameH;
+        double frameW = playerSprite.getWidth() / Player.SPRITE_COLS;
+        double frameH = playerSprite.getHeight() / Player.SPRITE_ROWS;
+        double sx = player.getFrameCol() * frameW;
+        double sy = player.getFrameRow() * frameH;
 
         // Zielgröße (1.2 Tiles hoch, proportional)
         double aspect = frameW / frameH;
         int targetH = (int) Math.round(scaledTileH * 1.2);
         int targetW = (int) Math.round(targetH * aspect);
 
-        // Tile top-left in Pixel
-        int tilePxX = baseX + playerTileX * scaledTileW;
-        int tilePxY = baseY + playerTileY * scaledTileH;
+        double tileX = player.getTileX();
+        double tileY = player.getTileY();
+        int tilePxX = (int) Math.round(tileX * scaledTileW);
+        int tilePxY = (int) Math.round(tileY * scaledTileH);
+
+//        // Tile top-left in Pixel
+//        int tilePxX = baseX + player.getTileX() * scaledTileW;
+//        int tilePxY = baseY + player.getTileY() * scaledTileH;
 
         // Zentrum im Tile
         int dx = tilePxX + (scaledTileW - targetW) / 2;
@@ -188,4 +227,7 @@ public class GameController {
 
         gc.drawImage(playerSprite, sx, sy, frameW, frameH, dx, dy, targetW, targetH);
     }
+
+    public void stop() { if (loop != null) { loop.stop(); } }
+
 }
