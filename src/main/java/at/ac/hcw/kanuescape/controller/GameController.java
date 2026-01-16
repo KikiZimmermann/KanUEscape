@@ -1,10 +1,8 @@
 package at.ac.hcw.kanuescape.controller;
 
 import at.ac.hcw.kanuescape.game.Player; // Mvm
-import at.ac.hcw.kanuescape.tiled.MapLoader;
-import at.ac.hcw.kanuescape.tiled.MapRenderer;
-import at.ac.hcw.kanuescape.tiled.TiledModel;
-import at.ac.hcw.kanuescape.tiled.RenderContext;
+import at.ac.hcw.kanuescape.game.dialogue.dialogueManager; //dialogue
+import at.ac.hcw.kanuescape.tiled.*;
 
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
@@ -51,10 +49,6 @@ public class GameController {
     private static final Color BACKGROUND = Color.web("#4e4e4e");
     private static final double FRAME_PADDING = 25; // muss zum FXML -fx-padding passen
 
-    // Sprite Sheet Setup (3x4 = 12 Frames)
-//    private static final int SPRITE_COLS = 3;
-//    private static final int SPRITE_ROWS = 4;
-
     private Player player;
 
     // "Optischer" Offset: Sprites sonst nicht "zentriert" im Tile
@@ -68,11 +62,11 @@ public class GameController {
     private TiledModel.TsxTileset tsx;
     private Image tilesetImage;
 
-    // --- Player-State (aktuell fester Frame) ---
-//    private int playerTileX = 5;
-//    private int playerTileY = 4;
-//    private int playerFrameCol = 1;
-//    private int playerFrameRow = 2;
+    // Interactions über Interactions Layer
+    private TiledModel.TiledLayer interactionsObjectLayer;
+    // counts how often each object type was clicked
+    private final Map<String, Integer> interactionCounts = new java.util.HashMap<>();
+
 
     // Player sprite
     private Image playerSprite;
@@ -90,21 +84,30 @@ public class GameController {
 
     public RenderContext rc;
     //Die Objekt Layer wird hier gespeichert
-    private TiledModel.TiledLayer interactionLayer;
+    //   private TiledModel.TiledLayer interactionLayer;
     private TiledModel.TiledLayer collisionLayer;
 
     //Dialogue Box
     private TranslateTransition arrowBounce;
+    //Dialogue Text
+    private final dialogueManager dialogueManager = new dialogueManager();
 
-    @FXML private StackPane root;
-    @FXML private Canvas gameCanvas;
-    @FXML private AnchorPane dialogueOverlay;
-    @FXML private ImageView dialogueBoxImage;
-    @FXML private ImageView dialogueArrow;
-    @FXML private Label dialogueText;
 
     @FXML
-    private void initialize() throws Exception{
+    private StackPane root;
+    @FXML
+    private Canvas gameCanvas;
+    @FXML
+    private AnchorPane dialogueOverlay;
+    @FXML
+    private ImageView dialogueBoxImage;
+    @FXML
+    private ImageView dialogueArrow;
+    @FXML
+    private Label dialogueText;
+
+    @FXML
+    private void initialize() throws Exception {
 
         // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
         gameCanvas.widthProperty().bind(root.widthProperty().subtract(FRAME_PADDING * 2));
@@ -115,6 +118,9 @@ public class GameController {
         tsx = MapLoader.loadTsxTileset(TSX_PATH);
         tilesetImage = MapLoader.loadImage(TILESET_IMAGE_PATH);
         playerSprite = new Image(getClass().getResourceAsStream(PLAYER_SPRITE_PATH));
+
+        // Interactions
+        interactionsObjectLayer = findLayer("interactions");
 
         // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)
         Platform.runLater(this::render);
@@ -135,13 +141,10 @@ public class GameController {
 
         //Arrow animation
         startArrowBounce();
-        // TODO TEST: einmal anzeigen (nur zum Prüfen, kannst du später entfernen)
-        showDialogue("Test: If you can read this, the textbox overlay works.");
 
-
- // Fehler bei Einfügen
+        // Fehler bei Einfügen
         // Mvm; initialize player; start position for now (5,4)
-        player = new Player(5,4);
+        player = new Player(5, 4);
         player.setSpeedTilesPerSecond(4.0);
         player.setFrameDurationMs(120); // ms; per animation step, might have to change after test
 
@@ -180,7 +183,7 @@ public class GameController {
         LaptopStage.setScene(sceneLaptop);
     }
 
-    /*
+    /**
      * Rendert ein komplettes Frame: Background -> Map-Layer -> Player.
      * (Kein Game-Loop, nur beim Start und beim Resize)
      */
@@ -215,8 +218,8 @@ public class GameController {
     }
 
 
-    /*
-     Findet einen Layer anhand des Namens und rendert ihn, wenn es ein TileLayer ist.
+    /**
+     * Findet einen Layer anhand des Namens und rendert ihn, wenn es ein TileLayer ist.
      */
     private void renderLayerByName(GraphicsContext gc, String layerName, int firstGid, int columns) {
         for (var layer : map.layers()) {
@@ -224,10 +227,11 @@ public class GameController {
                 rc = renderer.renderTileLayer(gc, map, layer, tilesetImage, firstGid, columns);
 
                 // Wir merken uns EINEN Layer für Interaktionen
-                if ("objects".equals(layerName)) {
-                    renderContext = rc;
-                    interactionLayer = layer;
-                }
+//                if ("objects".equals(layerName)) {
+//                    renderContext = rc;
+//                    interactionLayer = layer;
+//                }
+
                 if ("collision".equals(layerName)) {
                     renderContext = rc;
                     collisionLayer = layer; // Hier sagen wir dem Programm: Das ist die Ebene mit den Wänden!
@@ -295,9 +299,8 @@ public class GameController {
         // Drawing (source: sx, sy, frameW, frameH -> destination: dx, dy, targetW, targetH)
         gc.drawImage(playerSprite, sx, sy, frameW, frameH, dx, dy, targetW, targetH);
 
-        gameCanvas.setOnMouseClicked(e -> {
-            handleMapClick(e.getX(), e.getY());
-        });
+        gameCanvas.setOnMouseClicked(e ->
+                handleInteractionClick(e.getX(), e.getY()));
     }
 
     // Mvm
@@ -308,156 +311,93 @@ public class GameController {
     public void init(Scene scene) {
         render();
 
-            // Key states (WASD)
-            scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
-            scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
+        // Key states (WASD)
+        scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
+        scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
 
-            // Focus: ensure that key events arrive
-            root.setOnMouseClicked( e -> root.requestFocus());
-            root.requestFocus();
+        // Focus: ensure that key events arrive
+        root.setOnMouseClicked(e -> root.requestFocus());
+        root.requestFocus();
 
-            // Game-loop: requests render() on every frame
-            loop = new AnimationTimer() {
-                long last = 0;
+        // Game-loop: requests render() on every frame
+        loop = new AnimationTimer() {
+            long last = 0;
 
-                @Override
-                public void handle(long now) {
-                    if (last == 0) {
-                        last = now;
-                        return;
-                    }
-                    double dt = (now - last) / 1_000_000_000.0; // time delta in seconds
+            @Override
+            public void handle(long now) {
+                if (last == 0) {
                     last = now;
-
-
-                    boolean up = isDown(KeyCode.W);
-                    boolean down = isDown(KeyCode.S);
-                    boolean left = isDown(KeyCode.A);
-                    boolean right = isDown(KeyCode.D);
-
-                    double dx = 0, dy = 0;
-                    if (up) dy = -1;
-                    else if (down) dy = 1;
-                    else if (left) dx = -1;
-                    else if (right) dx = 1;
-
-                    double nextX = player.tileX + dx;
-                    double nextY = player.tileY; // Y unverändert
-                    if (!isTileBlocked(nextX, nextY)) {
-                        player.update(dt/2, up, down, left, right);
-                        // Animation (idle vs moving)
-                        player.animate(now, up || down || left || right);
-                        render();
-                    }
-
-                    nextX = player.tileX; // X evtl. schon angepasst
-                    nextY = player.tileY + dy;
-                    if (!isTileBlocked(nextX, nextY)) {
-                        player.update(dt/2, up, down, left, right);
-                        // Animation (idle vs moving)
-                        player.animate(now, up || down || left || right);
-                        render();
-                    }
-                    nextX = player.tileX;
-                    nextY = player.tileY;
-                    if (isTileBlocked(nextX, nextY)) {
-                        // Animation (idle vs moving)
-                        player.animate(now, false);
-                        render();
-                    }
+                    return;
                 }
-            };
-            loop.start();
+                double dt = (now - last) / 1_000_000_000.0; // time delta in seconds
+                last = now;
+
+
+                boolean up = isDown(KeyCode.W);
+                boolean down = isDown(KeyCode.S);
+                boolean left = isDown(KeyCode.A);
+                boolean right = isDown(KeyCode.D);
+
+                double dx = 0, dy = 0;
+                if (up) dy = -1;
+                else if (down) dy = 1;
+                else if (left) dx = -1;
+                else if (right) dx = 1;
+
+                double nextX = player.tileX + dx;
+                double nextY = player.tileY; // Y unverändert
+                if (!isTileBlocked(nextX, nextY)) {
+                    player.update(dt / 2, up, down, left, right);
+                    // Animation (idle vs moving)
+                    player.animate(now, up || down || left || right);
+                    render();
+                }
+
+                nextX = player.tileX; // X evtl. schon angepasst
+                nextY = player.tileY + dy;
+                if (!isTileBlocked(nextX, nextY)) {
+                    player.update(dt / 2, up, down, left, right);
+                    // Animation (idle vs moving)
+                    player.animate(now, up || down || left || right);
+                    render();
+                }
+                nextX = player.tileX;
+                nextY = player.tileY;
+                if (isTileBlocked(nextX, nextY)) {
+                    // Animation (idle vs moving)
+                    player.animate(now, false);
+                    render();
+                }
+            }
+        };
+        loop.start();
     }
 
     private boolean isDown(KeyCode code) {
         return keys.getOrDefault(code, false);
     }
 
-    private void handleMapClick(double mouseX, double mouseY) {
-
-        if (renderContext == null || interactionLayer == null) return;
-
-        // Klick relativ zur Map
-        double localX = mouseX - renderContext.baseX();
-        double localY = mouseY - renderContext.baseY();
-
-        if (localX < 0 || localY < 0) return;
-
-        int tileX = (int) (localX / renderContext.tileW());
-        int tileY = (int) (localY / renderContext.tileH());
-
-        if (tileX < 0 || tileY < 0 ||
-                tileX >= interactionLayer.width() ||
-                tileY >= interactionLayer.height()) {
-            return;
-        }
-
-        int index = tileY * interactionLayer.width() + tileX;
-        int gid = interactionLayer.data()[index];
-
-        onTileClicked(tileX, tileY, gid);
-    }
-
-    private void onTileClicked(double x, double y, int gid) {
-        if (gid == 0) return;
-
-        double tileX = player.getTileX();
-        double tileY = player.getTileY();
-
-        double pixelX = tileX * interactionLayer.width();
-        double pixelY = tileY * interactionLayer.height();
-
-        System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
-        System.out.println("Player geklickt: (" + pixelX + "," + pixelY + ") GID=" + gid);
-
-        if (true/*Math.abs(tileX - x*32) <= x *32* 0.15*/) {
-                System.out.println("Spieler ist innerhalb von 10% des Ziels!");
-
-
-                if (gid == 60 || gid == 72) {
-                    if (todoStage != null) {
-                        todoStage.setX(rc.renderW() / 2);
-                        todoStage.show();
-                    }
-                }
-                if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
-                    if (BuecherStage != null) {
-                        BuecherStage.setX(rc.renderW() / 2);
-                        BuecherStage.show();
-                    }
-                }
-                if (gid == 50) {
-                    if (LaptopStage != null) {
-                        LaptopStage.setX(rc.renderW() / 2);
-                        LaptopStage.show();
-                    }
-                }
-                //Kiki
-                if (gid == 66) {
-                    //sachen rein schreiben (Ali Code hier)
-                }
-            }
-
-    }
 
     public void CheckBuecher() {
         if (todoController != null) {
             todoController.CheckBuecher(true);
         }
     }
+
     @FXML
     public void CheckKochen() {
         if (todoController != null) {
             todoController.CheckKochen(true);
         }
     }
+
     @FXML
     public void CheckMathe() {
         if (todoController != null) {
             todoController.CheckMathe(true);
         }
     }
+
     @FXML
     public void CheckProg() {
         if (todoController != null) {
@@ -473,12 +413,12 @@ public class GameController {
         double playerHeightTiles = 1;
 
         // Tiles die vom Spieler überlappt werden
-        int startX = (int)Math.floor(nextX);
-        int endX   = (int)Math.floor(nextX + playerWidthTiles - 0.001);
-        int startY = (int)Math.floor(nextY);
-        int endY   = (int)Math.floor(nextY + playerHeightTiles - 0.001);
-        if(11<=nextY + playerHeightTiles - 0.001&&nextY + playerHeightTiles - 0.001<=12.4) {
-            endY=11;
+        int startX = (int) Math.floor(nextX);
+        int endX = (int) Math.floor(nextX + playerWidthTiles - 0.001);
+        int startY = (int) Math.floor(nextY);
+        int endY = (int) Math.floor(nextY + playerHeightTiles - 0.001);
+        if (11 <= nextY + playerHeightTiles - 0.001 && nextY + playerHeightTiles - 0.001 <= 12.4) {
+            endY = 11;
         }
 
 
@@ -490,13 +430,94 @@ public class GameController {
                 int index = y * collisionLayer.width() + x;
 
                 int gid = collisionLayer.data()[index];
-                System.out.println(nextX + playerHeightTiles - 0.001+" "+endX);
-                System.out.println(y * collisionLayer.width()+" "+x);
-                System.out.println(index+" "+gid);
+                System.out.println(nextX + playerHeightTiles - 0.001 + " " + endX);
+                System.out.println(y * collisionLayer.width() + " " + x);
+                System.out.println(index + " " + gid);
                 if (gid == 91) return true; // Wand
             }
         }
         return false;
+    }
+
+
+    //
+    private TiledModel.TiledLayer findLayer(String name) {
+        if (map == null) return null;
+        for (var layer : map.layers()) {
+            if (name.equals(layer.name())) return layer;
+        }
+        return null;
+    }
+
+    // Interactions on click with the interactions layer from json
+    private void handleInteractionClick(double mouseX, double mouseY) {
+        //wenn textbox offen: klick schließt sie (is auch nochmal im overlay), Canvas-Clicks ignorieren
+        if (dialogueOverlay != null && dialogueOverlay.isVisible()) {
+            return;
+        }
+
+        if (renderContext == null || interactionsObjectLayer == null || interactionsObjectLayer.objects() == null) {
+            return;
+        }
+
+        // Maus -> map-local Pixel (unskaliert in Map-Pixelkoordinaten)
+
+// Screen -> MapPixel
+        MapTransform t = computeMapTransform();
+
+        double mapPixelW = map.width() * map.tilewidth();
+        double mapPixelH = map.height() * map.tileheight();
+
+        double localX = ((mouseX - t.baseX()) / t.renderW()) * mapPixelW;
+        double localY = ((mouseY - t.baseY()) / t.renderH()) * mapPixelH;
+
+
+        //außerhalb der map
+        if (localX < 0 || localY < 0) {
+            return;
+        }
+
+        //findet erstes object, dessen rectangle den klick enthält
+        for (var obj : interactionsObjectLayer.objects()) {
+            if (pointInRect(localX, localY, obj.x(), obj.y(), obj.width(), obj.height())) {
+               onInteractionObjectClicked(obj);
+               return;
+            }
+        }
+    }
+
+    private boolean pointInRect(double px, double py, double rx, double ry, double rw, double rh) {
+        return px >= rx && px <= (rx + rw) && py >= ry && py <= (ry + rh);
+    }
+
+    // wenn dann objekt geklickt wird
+    private void onInteractionObjectClicked(TiledModel.TiledObject obj) {
+        String type = obj.propString("type");
+        String text = dialogueManager.nextTextForType(type);
+        showDialogue(text);
+    }
+
+    //hilfmethoden damit object interaction rectangles an scale richtig angepasst werden
+    private record MapTransform(int baseX, int baseY, double renderW, double renderH) {}
+    private MapTransform computeMapTransform() {
+        int tileW = map.tilewidth();
+        int tileH = map.tileheight();
+
+        double canvasW = gameCanvas.getWidth();
+        double canvasH = gameCanvas.getHeight();
+
+        double mapW = map.width() * tileW;
+        double mapH = map.height() * tileH;
+
+        double scale = Math.min(canvasW / mapW, canvasH / mapH);
+
+        double renderW = mapW * scale;
+        double renderH = mapH * scale;
+
+        int baseX = (int) Math.round((canvasW - renderW) / 2.0);
+        int baseY = (int) Math.round((canvasH - renderH) / 2.0);
+
+        return new MapTransform(baseX, baseY, renderW, renderH);
     }
 
     //Dialogue Box
@@ -506,11 +527,13 @@ public class GameController {
         if (arrowBounce != null) arrowBounce.play();
     }
 
+    //Dialogue Box
     private void hideDialogue() {
         dialogueOverlay.setVisible(false);
         if (arrowBounce != null) arrowBounce.stop();
     }
 
+    //Dialogue Box
     private void startArrowBounce() {
         double baseY = dialogueArrow.getTranslateY();       // y vom fxml! sonst wird position überschrieben
         double jumpY = baseY - 6;

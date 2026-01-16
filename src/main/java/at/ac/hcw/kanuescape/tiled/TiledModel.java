@@ -41,12 +41,12 @@ public class TiledModel {
             String type,
             int width,
             int height,
-            int[] data
+            int[] data,
+            java.util.List<TiledObject> objects
     ) {
         public boolean isTileLayer() {
             return "tilelayer".equals(type);
         }
-
         public boolean isObjectGroup() {
             return "objectgroup".equals(type);
         }
@@ -73,5 +73,30 @@ public class TiledModel {
             String imageSource,
             int imageWidth,
             int imageHeight
+    ) { }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record TiledObject(
+            int id,
+            String name,
+            String type,
+            double x,
+            double y,
+            double width,
+            double height,
+            java.util.List<TiledProperty> properties
+    ) {
+        public String propString(String key) {
+            if (properties == null) return null;
+            for (var p : properties) if (key.equals(p.name())) return String.valueOf(p.value());
+            return null;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record TiledProperty(
+            String name,
+            String type,
+            Object value
     ) { }
 }

@@ -644,7 +644,7 @@
                         {
                          "name":"type",
                          "type":"string",
-                         "value":"picture"
+                         "value":"picture_frame"
                         }],
                  "rotation":0,
                  "type":"",
@@ -678,7 +678,7 @@
                         {
                          "name":"type",
                          "type":"string",
-                         "value":"plants"
+                         "value":"vase"
                         }],
                  "rotation":0,
                  "type":"",
