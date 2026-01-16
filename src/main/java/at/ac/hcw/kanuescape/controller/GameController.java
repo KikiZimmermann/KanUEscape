@@ -329,6 +329,14 @@ public class GameController {
                     last = now;
                     return;
                 }
+
+                //sperrt movement während text box offen ist
+                if (dialogueOverlay != null && dialogueOverlay.isVisible()) {
+                    player.animate(now, false); // idle animation
+                    render();
+                    return; // ⬅️ GANZ wichtig
+                }
+
                 double dt = (now - last) / 1_000_000_000.0; // time delta in seconds
                 last = now;
 
@@ -460,9 +468,7 @@ public class GameController {
             return;
         }
 
-        // Maus -> map-local Pixel (unskaliert in Map-Pixelkoordinaten)
-
-// Screen -> MapPixel
+        // Screen -> MapPixel
         MapTransform t = computeMapTransform();
 
         double mapPixelW = map.width() * map.tilewidth();
@@ -493,11 +499,38 @@ public class GameController {
     // wenn dann objekt geklickt wird
     private void onInteractionObjectClicked(TiledModel.TiledObject obj) {
         String type = obj.propString("type");
+        if (type == null) type = "unknown";
+
+        // PUZZLES: kein Text, eigene Logik
+        switch (type) {
+            case "bookshelf" -> { // (oder "bookshelve" je nachdem wie du es im Tiled geschrieben hast!)
+                //TODO bücher ordnen
+                return;
+            }
+            case "laptop" -> {
+                //TODO laptop screen
+                return;
+            }
+            case "fridge" -> {
+                // TODO: todo liste
+                return;
+            }
+            case "stove" -> {
+                // TODO: coocking puzzle
+                return;
+            }
+            case "ascii" -> {
+                //TODO ascii tabelle
+                return;
+            }
+        }
+
+        // Alles andere: Text anzeigen
         String text = dialogueManager.nextTextForType(type);
         showDialogue(text);
     }
 
-    //hilfmethoden damit object interaction rectangles an scale richtig angepasst werden
+    // hilfmethoden damit object interaction rectangles an scale richtig angepasst werden
     private record MapTransform(int baseX, int baseY, double renderW, double renderH) {}
     private MapTransform computeMapTransform() {
         int tileW = map.tilewidth();
