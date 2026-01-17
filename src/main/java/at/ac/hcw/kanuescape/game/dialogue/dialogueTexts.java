@@ -89,7 +89,7 @@ public class dialogueTexts {
             entry("shelves", List.of(
                     "Full of unread ambition.",
                     "So many books. So little follow-through.",
-                    "ou swear you’ll read them someday."
+                    "You swear you’ll read them someday."
             )),
             entry("couch", List.of(
                     "This is where productivity goes to die.",
@@ -104,7 +104,7 @@ public class dialogueTexts {
             entry("vase", List.of(
                     "Still alive. Barely.",
                     "A flower doing its best.",
-                    "ou admire its optimism."
+                    "You admire its optimism."
             )),
             entry("exit", List.of(
                     "You can't leave yet. Your to-do list is still judging you.",

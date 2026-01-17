@@ -24,11 +24,11 @@ import java.util.Map; // Mvm
 
 /**
  * GameController
- * <p>
+ *
  * - Lädt Map + Tileset + Player-Sprite aus /resources
  * - Bindet Canvas an das Fenster (resizable) mit Rahmen (Padding)
  * - Rendert Map-Layer + Player (noch ohne Bewegung)
- * <p>
+ *
  * Hinweis: Parsing & Tileset-Logik steckt in MapLoader/TiledModel.
  * Rendering der TileLayer steckt in MapRenderer.
  */
@@ -79,8 +79,6 @@ public class GameController {
     //Die Objekt Layer wird hier gespeichert
     //   private TiledModel.TiledLayer interactionLayer;
     private TiledModel.TiledLayer collisionLayer;
-
-
 
     //Dialogue Text
     private final dialogueManager dialogueManager = new dialogueManager();
