@@ -73,7 +73,7 @@ public class GameController {
 
         // Start player
         player = new Player (5, 4); // start tile, adapt after meeting
-        player.setSpeedTilesPerSecond(4.0); // change here or in player class?
+        player.setSpeedTilesPerSecond(4.0);
         player.setFrameDurationNs(120); // animation step (ms)
 
         // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)

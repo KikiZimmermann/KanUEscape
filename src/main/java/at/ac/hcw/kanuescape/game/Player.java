@@ -160,7 +160,7 @@ public class Player {
     public boolean isMoving() {return moving;}
 
     // Tuning
-    // tiles per second (1 step = 1 tile) I think?
+    // tiles per second (1 step = 1 tile)
     public void setSpeedTilesPerSecond(double s) {
         this.speedTilesPerSecond = Math.max(0.001, s);
     }
