@@ -28,11 +28,11 @@ import java.util.Map; // Mvm
 
 /**
  * GameController
- *
+ * <p>
  * - Lädt Map + Tileset + Player-Sprite aus /resources
  * - Bindet Canvas an das Fenster (resizable) mit Rahmen (Padding)
  * - Rendert Map-Layer + Player (noch ohne Bewegung)
- *
+ * <p>
  * Hinweis: Parsing & Tileset-Logik steckt in MapLoader/TiledModel.
  * Rendering der TileLayer steckt in MapRenderer.
  */
@@ -129,6 +129,7 @@ public class GameController {
         gameCanvas.widthProperty().addListener((obs, oldV, newV) -> render());
         gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
 
+
         /*
         Textfield (only when text is displayed)
          */
@@ -141,6 +142,7 @@ public class GameController {
 
         //Arrow animation
         startArrowBounce();
+
 
         // Fehler bei Einfügen
         // Mvm; initialize player; start position for now (5,4)
@@ -334,7 +336,7 @@ public class GameController {
                 if (dialogueOverlay != null && dialogueOverlay.isVisible()) {
                     player.animate(now, false); // idle animation
                     render();
-                    return; // ⬅️ GANZ wichtig
+                    return;
                 }
 
                 double dt = (now - last) / 1_000_000_000.0; // time delta in seconds
@@ -448,7 +450,7 @@ public class GameController {
     }
 
 
-    //
+    // Layer aus der Tiled-Map anhand des Namens finden
     private TiledModel.TiledLayer findLayer(String name) {
         if (map == null) return null;
         for (var layer : map.layers()) {
@@ -464,19 +466,23 @@ public class GameController {
             return;
         }
 
+        // wenn was noch nicht gerendert oder kompiliert wurde, brichts ab
         if (renderContext == null || interactionsObjectLayer == null || interactionsObjectLayer.objects() == null) {
             return;
         }
 
-        // Screen -> MapPixel
+        /*
+        damit interactions laxer an scale der map angepasst wird
+         */
         MapTransform t = computeMapTransform();
 
-        double mapPixelW = map.width() * map.tilewidth();
-        double mapPixelH = map.height() * map.tileheight();
+        // map tatsächlich in pixel
+        double mapPixelW = map.width() * map.tilewidth();       // 20 * 32
+        double mapPixelH = map.height() * map.tileheight();     // 15 * 32
 
+        // position des klicks in relation zur scale der map
         double localX = ((mouseX - t.baseX()) / t.renderW()) * mapPixelW;
         double localY = ((mouseY - t.baseY()) / t.renderH()) * mapPixelH;
-
 
         //außerhalb der map
         if (localX < 0 || localY < 0) {
@@ -486,12 +492,13 @@ public class GameController {
         //findet erstes object, dessen rectangle den klick enthält
         for (var obj : interactionsObjectLayer.objects()) {
             if (pointInRect(localX, localY, obj.x(), obj.y(), obj.width(), obj.height())) {
-               onInteractionObjectClicked(obj);
-               return;
+                onInteractionObjectClicked(obj);
+                return;
             }
         }
     }
 
+    // wo klick man in object interaction rectangle -> p = punkt, r = rectangle
     private boolean pointInRect(double px, double py, double rx, double ry, double rw, double rh) {
         return px >= rx && px <= (rx + rw) && py >= ry && py <= (ry + rh);
     }
@@ -503,16 +510,16 @@ public class GameController {
 
         // PUZZLES: kein Text, eigene Logik
         switch (type) {
-            case "bookshelf" -> { // (oder "bookshelve" je nachdem wie du es im Tiled geschrieben hast!)
-                //TODO bücher ordnen
+            case "bookcase" -> {
+                if (BuecherStage != null) BuecherStage.show();
                 return;
             }
             case "laptop" -> {
-                //TODO laptop screen
+                if (LaptopStage != null) LaptopStage.show();
                 return;
             }
             case "fridge" -> {
-                // TODO: todo liste
+                if (todoStage != null) todoStage.show();
                 return;
             }
             case "stove" -> {
@@ -531,19 +538,27 @@ public class GameController {
     }
 
     // hilfmethoden damit object interaction rectangles an scale richtig angepasst werden
-    private record MapTransform(int baseX, int baseY, double renderW, double renderH) {}
+    private record MapTransform(int baseX,    // linker Rand der Map auf dem Canvas
+                                int baseY,    // oberer Rand der Map auf dem Canvas
+                                double renderW, // gerenderte Breite der Map (nach Skalierung)
+                                double renderH  // gerenderte Höhe der Map
+    ) {
+    }
+
     private MapTransform computeMapTransform() {
         int tileW = map.tilewidth();
         int tileH = map.tileheight();
 
-        double canvasW = gameCanvas.getWidth();
-        double canvasH = gameCanvas.getHeight();
+        double canvasW = gameCanvas.getWidth();     // 20
+        double canvasH = gameCanvas.getHeight();    // 15
 
+        // auf pixel gerechnet. *32
         double mapW = map.width() * tileW;
         double mapH = map.height() * tileH;
 
         double scale = Math.min(canvasW / mapW, canvasH / mapH);
 
+        // weil die map nicht eins zu eins sondern gescaled ist
         double renderW = mapW * scale;
         double renderH = mapH * scale;
 
