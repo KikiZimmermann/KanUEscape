@@ -63,7 +63,8 @@ public class dialogueTexts {
                     "You stare at it. It stares back. Nobody wins."
             )),
             entry("picture", List.of(
-                    //Ali
+                    //TODO Ali
+                    //wenns ein fenster wie bei der ascii tabelle sein soll, dann muss es in den gamecontroller
             )),
             entry("lamp", List.of(
                     "Provides light. Not answers.",
