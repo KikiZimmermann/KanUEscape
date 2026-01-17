@@ -8,4 +8,5 @@ module at.ac.hcw.kanuescape {
     exports at.ac.hcw.kanuescape;
     opens at.ac.hcw.kanuescape.controller to javafx.fxml;
     opens at.ac.hcw.kanuescape.tiled to com.fasterxml.jackson.databind;
+    opens at.ac.hcw.kanuescape.controller.ui to javafx.fxml;
 }

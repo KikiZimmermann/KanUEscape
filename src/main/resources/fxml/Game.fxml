@@ -34,7 +34,6 @@
 
                     <!-- Textbox PNG -->
                     <ImageView fx:id="dialogueBoxImage"
-                               fitWidth="800"
                                preserveRatio="true"
                                smooth="false"/>
 
@@ -48,13 +47,13 @@
                            translateY="-140"/>
 
                     <!-- Arrow in der Box -->
-                    <ImageView fx:id="dialogueArrow"
-                               fitHeight="22"
-                               preserveRatio="true"
-                               smooth="false"
-                               StackPane.alignment="BOTTOM_RIGHT"
-                               translateX="-165"
-                               translateY="-40"/>
+                    <StackPane fx:id="dialogueArrowWrapper"
+                               StackPane.alignment="BOTTOM_RIGHT">
+                        <ImageView fx:id="dialogueArrow"
+                                   fitHeight="22"
+                                   preserveRatio="true"
+                                   smooth="false"/>
+                    </StackPane>
                 </StackPane>
             </children>
         </AnchorPane>

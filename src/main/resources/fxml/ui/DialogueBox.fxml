@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="dialogueOverlay"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="at.ac.hcw.kanuescape.controller.ui.DialogueBoxController"
+            visible="false"
+            managed="false"
+            mouseTransparent="true"
+            pickOnBounds="true"
+            style="-fx-background-color: rgba(0,0,0,0.15);">
+
+    <children>
+        <StackPane fx:id="dialogueContainer"
+                   AnchorPane.leftAnchor="0"
+                   AnchorPane.rightAnchor="0"
+                   AnchorPane.bottomAnchor="-5"
+                   alignment="BOTTOM_CENTER">
+
+            <!-- Textbox PNG -->
+            <ImageView fx:id="dialogueBoxImage"
+                       fitWidth="800"
+                       preserveRatio="true"
+                       smooth="false"/>
+
+            <!-- Text in der Box -->
+            <Label fx:id="dialogueText"
+                   wrapText="true"
+                   maxWidth="650"
+                   style="-fx-text-fill: white; -fx-font-size: 16px;"
+                   StackPane.alignment="BOTTOM_LEFT"
+                   translateX="105"
+                   translateY="-140"/>
+
+            <!-- Arrow in der Box -->
+            <StackPane fx:id="dialogueArrowWrapper"
+                       StackPane.alignment="BOTTOM_RIGHT">
+                <ImageView fx:id="dialogueArrow"
+                           fitHeight="22"
+                           preserveRatio="true"
+                           smooth="false"/>
+            </StackPane>
+        </StackPane>
+    </children>
+</AnchorPane>

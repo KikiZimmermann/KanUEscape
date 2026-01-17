@@ -4,6 +4,7 @@ import at.ac.hcw.kanuescape.game.Player; // Mvm
 import at.ac.hcw.kanuescape.game.dialogue.dialogueManager; //dialogue
 import at.ac.hcw.kanuescape.tiled.*;
 
+import at.ac.hcw.kanuescape.ui.DialogueBox;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -11,28 +12,24 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.animation.AnimationTimer; // Mvm
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.input.KeyCode; // Mvm
-import javafx.util.Duration;
 
 import java.util.EnumMap; // Mvm
 import java.util.Map; // Mvm
 
 /**
  * GameController
- * <p>
+ *
  * - Lädt Map + Tileset + Player-Sprite aus /resources
  * - Bindet Canvas an das Fenster (resizable) mit Rahmen (Padding)
  * - Rendert Map-Layer + Player (noch ohne Bewegung)
- * <p>
+ *
  * Hinweis: Parsing & Tileset-Logik steckt in MapLoader/TiledModel.
  * Rendering der TileLayer steckt in MapRenderer.
  */
@@ -87,24 +84,17 @@ public class GameController {
     //   private TiledModel.TiledLayer interactionLayer;
     private TiledModel.TiledLayer collisionLayer;
 
-    //Dialogue Box
-    private TranslateTransition arrowBounce;
     //Dialogue Text
     private final dialogueManager dialogueManager = new dialogueManager();
+    private DialogueBox dialogueBox;
+
 
 
     @FXML
     private StackPane root;
     @FXML
     private Canvas gameCanvas;
-    @FXML
-    private AnchorPane dialogueOverlay;
-    @FXML
-    private ImageView dialogueBoxImage;
-    @FXML
-    private ImageView dialogueArrow;
-    @FXML
-    private Label dialogueText;
+
 
     @FXML
     private void initialize() throws Exception {
@@ -129,19 +119,9 @@ public class GameController {
         gameCanvas.widthProperty().addListener((obs, oldV, newV) -> render());
         gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
 
-
-        /*
-        Textfield (only when text is displayed)
-         */
-        // Textbox + Arrow Images laden
-        dialogueBoxImage.setImage(new Image(getClass().getResourceAsStream("/assets/images/gui/textfield.png")));
-        dialogueArrow.setImage(new Image(getClass().getResourceAsStream("/assets/images/gui/text_arrow.png")));
-
-        //Klick schließt textfield
-        dialogueOverlay.setOnMouseClicked(e -> hideDialogue());
-
-        //Arrow animation
-        startArrowBounce();
+        dialogueBox = new DialogueBox();
+        dialogueBox.bindToRoot(root);
+        root.getChildren().add(dialogueBox);   // ganz oben im Stack
 
 
         // Fehler bei Einfügen
@@ -333,7 +313,7 @@ public class GameController {
                 }
 
                 //sperrt movement während text box offen ist
-                if (dialogueOverlay != null && dialogueOverlay.isVisible()) {
+                if (dialogueBox  != null && dialogueBox .isVisible()) {
                     player.animate(now, false); // idle animation
                     render();
                     return;
@@ -462,7 +442,7 @@ public class GameController {
     // Interactions on click with the interactions layer from json
     private void handleInteractionClick(double mouseX, double mouseY) {
         //wenn textbox offen: klick schließt sie (is auch nochmal im overlay), Canvas-Clicks ignorieren
-        if (dialogueOverlay != null && dialogueOverlay.isVisible()) {
+        if (dialogueBox  != null && dialogueBox .isVisible()) {
             return;
         }
 
@@ -534,7 +514,10 @@ public class GameController {
 
         // Alles andere: Text anzeigen
         String text = dialogueManager.nextTextForType(type);
-        showDialogue(text);
+        if (dialogueBox != null) {
+            dialogueBox.show(text);
+        }
+
     }
 
     // hilfmethoden damit object interaction rectangles an scale richtig angepasst werden
@@ -566,30 +549,5 @@ public class GameController {
         int baseY = (int) Math.round((canvasH - renderH) / 2.0);
 
         return new MapTransform(baseX, baseY, renderW, renderH);
-    }
-
-    //Dialogue Box
-    private void showDialogue(String text) {
-        dialogueText.setText(text);
-        dialogueOverlay.setVisible(true);
-        if (arrowBounce != null) arrowBounce.play();
-    }
-
-    //Dialogue Box
-    private void hideDialogue() {
-        dialogueOverlay.setVisible(false);
-        if (arrowBounce != null) arrowBounce.stop();
-    }
-
-    //Dialogue Box
-    private void startArrowBounce() {
-        double baseY = dialogueArrow.getTranslateY();       // y vom fxml! sonst wird position überschrieben
-        double jumpY = baseY - 6;
-
-        arrowBounce = new TranslateTransition(Duration.millis(400), dialogueArrow);
-        arrowBounce.setFromY(baseY);
-        arrowBounce.setToY(jumpY);          // Hüpfhöhe
-        arrowBounce.setAutoReverse(true);
-        arrowBounce.setCycleCount(TranslateTransition.INDEFINITE);
     }
 }
