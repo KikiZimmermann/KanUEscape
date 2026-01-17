@@ -5,7 +5,6 @@ import at.ac.hcw.kanuescape.game.dialogue.dialogueManager; //dialogue
 import at.ac.hcw.kanuescape.tiled.*;
 
 import at.ac.hcw.kanuescape.ui.DialogueBox;
-import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -61,9 +60,6 @@ public class GameController {
 
     // Interactions über Interactions Layer
     private TiledModel.TiledLayer interactionsObjectLayer;
-    // counts how often each object type was clicked
-    private final Map<String, Integer> interactionCounts = new java.util.HashMap<>();
-
 
     // Player sprite
     private Image playerSprite;
@@ -83,6 +79,11 @@ public class GameController {
     //Die Objekt Layer wird hier gespeichert
     //   private TiledModel.TiledLayer interactionLayer;
     private TiledModel.TiledLayer collisionLayer;
+    private String currentTrigger = null; // merkt, in welchem Trigger wir gerade stehen (Debounce)
+    private boolean endTriggered = false; // exit condition
+
+
+
 
     //Dialogue Text
     private final dialogueManager dialogueManager = new dialogueManager();
@@ -163,6 +164,9 @@ public class GameController {
         LaptopStage.initStyle(StageStyle.TRANSPARENT);
         LaptopStage.setY(100);
         LaptopStage.setScene(sceneLaptop);
+
+
+        gameCanvas.setOnMouseClicked(e -> handleInteractionClick(e.getX(), e.getY()));
     }
 
     /**
@@ -281,8 +285,8 @@ public class GameController {
         // Drawing (source: sx, sy, frameW, frameH -> destination: dx, dy, targetW, targetH)
         gc.drawImage(playerSprite, sx, sy, frameW, frameH, dx, dy, targetW, targetH);
 
-        gameCanvas.setOnMouseClicked(e ->
-                handleInteractionClick(e.getX(), e.getY()));
+//        gameCanvas.setOnMouseClicked(e ->
+//                handleInteractionClick(e.getX(), e.getY()));
     }
 
     // Mvm
@@ -312,6 +316,9 @@ public class GameController {
                     return;
                 }
 
+
+
+
                 //sperrt movement während text box offen ist
                 if (dialogueBox  != null && dialogueBox .isVisible()) {
                     player.animate(now, false); // idle animation
@@ -319,9 +326,10 @@ public class GameController {
                     return;
                 }
 
+
+
                 double dt = (now - last) / 1_000_000_000.0; // time delta in seconds
                 last = now;
-
 
                 boolean up = isDown(KeyCode.W);
                 boolean down = isDown(KeyCode.S);
@@ -334,30 +342,67 @@ public class GameController {
                 else if (left) dx = -1;
                 else if (right) dx = 1;
 
-                double nextX = player.tileX + dx;
-                double nextY = player.tileY; // Y unverändert
-                if (!isTileBlocked(nextX, nextY)) {
-                    player.update(dt / 2, up, down, left, right);
-                    // Animation (idle vs moving)
-                    player.animate(now, up || down || left || right);
-                    render();
+
+
+
+
+//                double nextX = player.tileX + dx;
+//                double nextY = player.tileY; // Y unverändert
+//                if (!isTileBlocked(nextX, nextY)) {
+//                    player.update(dt / 2, up, down, left, right);
+//                    // Animation (idle vs moving)
+//                    player.animate(now, up || down || left || right);
+//                    render();
+//                }
+//
+//                nextX = player.tileX; // X evtl. schon angepasst
+//                nextY = player.tileY + dy;
+//                if (!isTileBlocked(nextX, nextY)) {
+//                    player.update(dt / 2, up, down, left, right);
+//                    // Animation (idle vs moving)
+//                    player.animate(now, up || down || left || right);
+//                    render();
+//                }
+//                nextX = player.tileX;
+//                nextY = player.tileY;
+//                if (isTileBlocked(nextX, nextY)) {
+//                    // Animation (idle vs moving)
+//                    player.animate(now, false);
+//                    render();
+//                }
+
+                double step = 4.0 * dt; // oder: player.getSpeedTilesPerSecond() * dt
+
+                boolean moved = false;
+
+                if (dx != 0) {
+                    double nextX = player.tileX + dx * step;
+                    double nextY = player.tileY;
+
+                    if (!isTileBlocked(nextX, nextY)) {
+                        player.update(dt, up, down, left, right);
+                        moved = true;
+                    } else {
+                        maybeShowExitBathText(nextX, nextY);
+                    }
                 }
 
-                nextX = player.tileX; // X evtl. schon angepasst
-                nextY = player.tileY + dy;
-                if (!isTileBlocked(nextX, nextY)) {
-                    player.update(dt / 2, up, down, left, right);
-                    // Animation (idle vs moving)
-                    player.animate(now, up || down || left || right);
-                    render();
+                if (dy != 0) {
+                    double nextX = player.tileX;
+                    double nextY = player.tileY + dy * step;
+
+                    if (!isTileBlocked(nextX, nextY)) {
+                        player.update(dt, up, down, left, right);
+                        moved = true;
+                    } else {
+                        maybeShowExitBathText(nextX, nextY);
+                    }
                 }
-                nextX = player.tileX;
-                nextY = player.tileY;
-                if (isTileBlocked(nextX, nextY)) {
-                    // Animation (idle vs moving)
-                    player.animate(now, false);
-                    render();
-                }
+
+                player.animate(now, moved);
+                render();
+
+
             }
         };
         loop.start();
@@ -399,8 +444,8 @@ public class GameController {
         // Sicherheitsabfrage: Wenn der Collision-Layer nicht geladen wurde, erlauben wir die Bewegung (verhindert Absturz).
         if (collisionLayer == null) return false;
 
-        double playerWidthTiles = 1;
-        double playerHeightTiles = 1;
+        double playerWidthTiles = 0.9;
+        double playerHeightTiles = 0.9;
 
         // Tiles die vom Spieler überlappt werden
         int startX = (int) Math.floor(nextX);
@@ -521,10 +566,10 @@ public class GameController {
     }
 
     // hilfmethoden damit object interaction rectangles an scale richtig angepasst werden
-    private record MapTransform(int baseX,    // linker Rand der Map auf dem Canvas
-                                int baseY,    // oberer Rand der Map auf dem Canvas
-                                double renderW, // gerenderte Breite der Map (nach Skalierung)
-                                double renderH  // gerenderte Höhe der Map
+    private record MapTransform(int baseX,          // linker Rand der Map auf dem Canvas
+                                int baseY,          // oberer Rand der Map auf dem Canvas
+                                double renderW,     // gerenderte Breite der Map (nach Skalierung)
+                                double renderH      // gerenderte Höhe der Map
     ) {
     }
 
@@ -550,4 +595,34 @@ public class GameController {
 
         return new MapTransform(baseX, baseY, renderW, renderH);
     }
+
+
+    private void maybeShowExitBathText(double nextTileX, double nextTileY) {
+        if (dialogueBox == null || dialogueBox.isVisible()) return;
+        if (interactionsObjectLayer == null || interactionsObjectLayer.objects() == null) return;
+        if (map == null) return;
+
+        // wir nehmen den CENTER-point der "gewollten" Position
+        double cx = (nextTileX + 0.5) * map.tilewidth();
+        double cy = (nextTileY + 0.5) * map.tileheight();
+
+        for (var obj : interactionsObjectLayer.objects()) {
+            String type = obj.propString("type");
+            if (type == null) continue;
+
+            String t = type.toLowerCase();
+            boolean isExitOrBath =
+                    t.equals("exit") || t.equals("door_exit") ||
+                            t.equals("bath") || t.equals("bathroom") || t.equals("toilet");
+            if (!isExitOrBath) continue;
+
+            boolean inside = cx >= obj.x() && cx <= obj.x() + obj.width()
+                    && cy >= obj.y() && cy <= obj.y() + obj.height();
+            if (inside) {
+                dialogueBox.show(dialogueManager.nextTextForType(type));
+                return;
+            }
+        }
+    }
+
 }
