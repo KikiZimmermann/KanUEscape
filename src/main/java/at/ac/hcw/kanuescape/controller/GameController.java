@@ -24,11 +24,11 @@ import java.util.Map; // Mvm
 
 /**
  * GameController
- *
+ * <p>
  * - Lädt Map + Tileset + Player-Sprite aus /resources
  * - Bindet Canvas an das Fenster (resizable) mit Rahmen (Padding)
  * - Rendert Map-Layer + Player (noch ohne Bewegung)
- *
+ * <p>
  * Hinweis: Parsing & Tileset-Logik steckt in MapLoader/TiledModel.
  * Rendering der TileLayer steckt in MapRenderer.
  */
@@ -83,12 +83,9 @@ public class GameController {
     private boolean endTriggered = false; // exit condition
 
 
-
-
     //Dialogue Text
     private final dialogueManager dialogueManager = new dialogueManager();
     private DialogueBox dialogueBox;
-
 
 
     @FXML
@@ -317,15 +314,12 @@ public class GameController {
                 }
 
 
-
-
                 //sperrt movement während text box offen ist
-                if (dialogueBox  != null && dialogueBox .isVisible()) {
+                if (dialogueBox != null && dialogueBox.isVisible()) {
                     player.animate(now, false); // idle animation
                     render();
                     return;
                 }
-
 
 
                 double dt = (now - last) / 1_000_000_000.0; // time delta in seconds
@@ -341,9 +335,6 @@ public class GameController {
                 else if (down) dy = 1;
                 else if (left) dx = -1;
                 else if (right) dx = 1;
-
-
-
 
 
 //                double nextX = player.tileX + dx;
@@ -487,7 +478,7 @@ public class GameController {
     // Interactions on click with the interactions layer from json
     private void handleInteractionClick(double mouseX, double mouseY) {
         //wenn textbox offen: klick schließt sie (is auch nochmal im overlay), Canvas-Clicks ignorieren
-        if (dialogueBox  != null && dialogueBox .isVisible()) {
+        if (dialogueBox != null && dialogueBox.isVisible()) {
             return;
         }
 
@@ -517,10 +508,33 @@ public class GameController {
         //findet erstes object, dessen rectangle den klick enthält
         for (var obj : interactionsObjectLayer.objects()) {
             if (pointInRect(localX, localY, obj.x(), obj.y(), obj.width(), obj.height())) {
+
+                String type = obj.propString("type");
+                if (type != null) {
+                    String ttt = type.toLowerCase();
+                    if (ttt.equals("exit") || ttt.equals("door_exit") || ttt.equals("bath") || ttt.equals("bathroom") || ttt.equals("toilet")) {
+                        return; // nicht klickbar
+                    }
+                }
+
+                //text wenn zu weit weg
+//                if (!isPlayerNearObject(obj)) {
+//                    if (dialogueBox != null) dialogueBox.show("You're too far away.");
+//                    return;
+//                }
+
+                //kein text wenn zu weit weg
+                if (!isPlayerNearObject(obj)) {
+                    return; // zu weit weg → nichts passiert
+                }
+
+
                 onInteractionObjectClicked(obj);
                 return;
             }
         }
+
+
     }
 
     // wo klick man in object interaction rectangle -> p = punkt, r = rectangle
@@ -532,6 +546,12 @@ public class GameController {
     private void onInteractionObjectClicked(TiledModel.TiledObject obj) {
         String type = obj.propString("type");
         if (type == null) type = "unknown";
+
+        // Exit/Bath NICHT klickbar
+        if (type.equals("exit") || type.equals("bathroom")) {
+            return;
+        }
+
 
         // PUZZLES: kein Text, eigene Logik
         switch (type) {
@@ -623,6 +643,48 @@ public class GameController {
                 return;
             }
         }
+    }
+
+    private boolean isPlayerNearObject(TiledModel.TiledObject obj) {
+        if (map == null || player == null) return false;
+
+        int tw = map.tilewidth();
+        int th = map.tileheight();
+
+        //range für object interaction
+        int range = 2;
+
+        // Objekt-Grenzen in TILE-Koordinaten (double!)
+        double objLeft = obj.x() / tw;
+        double objTop = obj.y() / th;
+        double objRight = (obj.x() + obj.width()) / tw;
+        double objBottom = (obj.y() + obj.height()) / th;
+
+        // Player-Position in TILE-Koordinaten (double!)
+        double px = player.getTileX();
+        double py = player.getTileY();
+
+        // 4-directional adjacency:
+        // links vom Objekt, rechts vom Objekt, über dem Objekt, unter dem Objekt
+        boolean left = px >= objLeft - range && px <= objLeft
+                && py >= objTop && py <= objBottom;
+
+        boolean right = px <= objRight + range && px >= objRight
+                && py >= objTop && py <= objBottom;
+
+        boolean up = py >= objTop - range && py <= objTop
+                && px >= objLeft && px <= objRight;
+
+        boolean down = py <= objBottom + range && py >= objBottom
+                && px >= objLeft && px <= objRight;
+
+        // 4 diagonalen
+        boolean diagUL = px == objLeft - 1 && py == objTop - 1;
+        boolean diagUR = px == objRight + 1 && py == objTop - 1;
+        boolean diagDL = px == objLeft - 1 && py == objBottom + 1;
+        boolean diagDR = px == objRight + 1 && py == objBottom + 1;
+
+        return left || right || up || down || diagUL || diagUR || diagDL || diagDR;
     }
 
 }
