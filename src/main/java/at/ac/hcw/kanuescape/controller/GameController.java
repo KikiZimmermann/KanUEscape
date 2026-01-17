@@ -79,8 +79,7 @@ public class GameController {
     //Die Objekt Layer wird hier gespeichert
     //   private TiledModel.TiledLayer interactionLayer;
     private TiledModel.TiledLayer collisionLayer;
-    private String currentTrigger = null; // merkt, in welchem Trigger wir gerade stehen (Debounce)
-    private boolean endTriggered = false; // exit condition
+
 
 
     //Dialogue Text
@@ -124,7 +123,7 @@ public class GameController {
 
         // Fehler bei Einfügen
         // Mvm; initialize player; start position for now (5,4)
-        player = new Player(5, 4);
+        player = new Player(3, 4);
         player.setSpeedTilesPerSecond(4.0);
         player.setFrameDurationMs(120); // ms; per animation step, might have to change after test
 
