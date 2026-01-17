@@ -4,20 +4,24 @@ import at.ac.hcw.kanuescape.game.Player; // Mvm
 import at.ac.hcw.kanuescape.tiled.MapLoader;
 import at.ac.hcw.kanuescape.tiled.MapRenderer;
 import at.ac.hcw.kanuescape.tiled.TiledModel;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.animation.AnimationTimer; // Mvm
 import at.ac.hcw.kanuescape.tiled.RenderContext;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.input.KeyCode; // Mvm
+import javafx.util.Duration;
+
 import java.util.EnumMap; // Mvm
 import java.util.Map; // Mvm
 
@@ -128,14 +132,13 @@ public class GameController {
         todoStage.setScene(scenetodo);
 
         FXMLLoader fxmlLoaderBuecher = new FXMLLoader(GameController.class.getResource("/fxml/Buecher.fxml"));
-        Scene sceneBuecher = new Scene(fxmlLoaderBuecher.load(), 339, 511);
+        Scene sceneBuecher = new Scene(fxmlLoaderBuecher.load());
         BuecherController = fxmlLoaderBuecher.getController();
-        sceneBuecher.setFill(Color.TRANSPARENT);
+        sceneBuecher.setFill(Color.BLACK);
         BuecherStage = new Stage();
         BuecherStage.setAlwaysOnTop(true);
         BuecherStage.setResizable(false);
         BuecherStage.initStyle(StageStyle.TRANSPARENT);
-        BuecherStage.setY(100);
         BuecherStage.setScene(sceneBuecher);
 
         FXMLLoader fxmlLoaderLaptop = new FXMLLoader(GameController.class.getResource("/fxml/Laptop.fxml"));
@@ -148,6 +151,12 @@ public class GameController {
         LaptopStage.initStyle(StageStyle.TRANSPARENT);
         LaptopStage.setY(100);
         LaptopStage.setScene(sceneLaptop);
+
+        // Resets the visual effects on the main root node when the book stage is closed
+        BuecherStage.setOnHiding(event -> {
+            // Remove the blur or any other effect from the background immediately upon hiding
+            root.setEffect(null);
+        });
     }
 
     /*
@@ -392,9 +401,30 @@ public class GameController {
                     }
                 }
                 if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
+                    // Check if the book stage is initialized before displaying it
                     if (BuecherStage != null) {
-                        BuecherStage.setX(rc.renderW() / 2);
+                        // Apply a blur effect to the background root to focus the user's attention on the new window
+                        root.setEffect(new GaussianBlur(20));
+
+                        // Display the stage and set its specific screen coordinates
                         BuecherStage.show();
+                        BuecherStage.setX(470);
+                        BuecherStage.setY(210);
+
+                        // Retrieve the root node of the stage's scene to apply animations
+                        Parent content = BuecherStage.getScene().getRoot();
+
+                        // Create and play a smooth fade-in transition for the stage content
+                        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), content);
+                        fadeIn.setFromValue(0.0);
+                        fadeIn.setToValue(1.0);
+                        fadeIn.play();
+
+                        // Ensure the controller is available to manage focus
+                        if (BuecherController != null) {
+                            // Request focus on the main pane of the sub-scene to enable keyboard interactions immediately
+                            BuecherController.getBuecherScene().requestFocus();
+                        }
                     }
                 }
                 if (gid == 50) {

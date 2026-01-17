@@ -12,5 +12,7 @@ public class LaptopController {
         // Holt das Stage vom Image
         Stage stage = (Stage) exitImage.getScene().getWindow();
         stage.close();
+
+
     }
 }

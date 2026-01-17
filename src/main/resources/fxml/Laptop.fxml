@@ -6,7 +6,7 @@
 <Pane xmlns:fx="http://javafx.com/fxml"
       fx:controller="at.ac.hcw.kanuescape.controller.LaptopController">
 
-    <ImageView fitWidth="341" fitHeight="513" preserveRatio="true" fx:id="exitImage" onMouseClicked="#Exit">
+    <ImageView fitWidth="341" fitHeight="513" preserveRatio="true" fx:id="BookShelvs" onMouseClicked="#Exit">
         <Image url="@../assets/images/ToDoListe/ToDoListe.jpg"/>
     </ImageView>
 </Pane>

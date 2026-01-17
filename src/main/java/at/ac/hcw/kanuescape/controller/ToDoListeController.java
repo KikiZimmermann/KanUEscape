@@ -25,6 +25,7 @@ public class ToDoListeController {
     public void CheckBuecher(boolean t) {
         if (checkBuecher != null) {
             checkBuecher.setVisible(t);
+            System.out.println("geht");
         }
     }
     public void CheckKochen(boolean t) {

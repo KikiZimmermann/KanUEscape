@@ -1,0 +1,64 @@
+/* Container for the entire background pane */
+.background-pane {
+    -fx-background-color: lightblue; /* Sets a light blue background color */
+}
+
+/* Styling for a VBox container used as a background element */
+.background-VBox {
+    -fx-background-color: brown; /* Sets the main box color to brown */
+
+    /* Sets the border width: Top=2, Right=2, Bottom=0, Left=2 (Redundant, overridden below) */
+    -fx-border-width: 2;
+
+    /* Sets specific border colors for each side */
+    -fx-border-color: black black transparent black;
+
+    /* Overrides border width: Top=1, Right=1, Bottom=0, Left=1 */
+    -fx-border-width: 1 1 0 1;
+
+    /* Sets all border colors to black (Overrides the transparent bottom above) */
+    -fx-border-color: black;
+}
+
+/* Styling for a "shelf" element */
+.shelve {
+    -fx-background-color: #3b1010; /* Dark wood-like brown color */
+
+    /* Defines border colors: Top=Black, Right=Transparent, Bottom=Transparent, Left=Black */
+    -fx-border-color: black transparent transparent black;
+
+    /* Defines border thickness: Top=10, Right=0, Bottom=0, Left=10 (Creates a corner accent) */
+    -fx-border-width: 10 0 0 10;
+}
+
+/* Default state for a book item */
+.book-item {
+    /* Normal state: Adds a very soft, subtle drop shadow for depth */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 5, 0, 0, 0);
+
+    /* Changes the mouse cursor to a hand icon when hovering over the book */
+    -fx-cursor: hand;
+}
+
+/* Hover state: When the mouse is over the book item */
+.book-item:hover {
+    /* 1. Slight zoom effect: Makes the book appear closer to the user */
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+
+    /* 2. Deeper shadow: Adds a larger offset and blur to simulate height/lifting */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 15, 0, 0, 10);
+
+    /* 3. Full opacity: Ensures the item is fully visible */
+    -fx-opacity: 1.0;
+}
+
+/* Pressed state: When the user clicks on the book item */
+.book-item:pressed {
+    /* 1. Reset scale: Returns the book to its original size to simulate a "click down" */
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+
+    /* Removes the shadow entirely to make the item look flat against the surface */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0), 0, 0, 0, 0);
+}
