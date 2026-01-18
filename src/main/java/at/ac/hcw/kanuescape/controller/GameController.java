@@ -184,11 +184,17 @@ public void init(Scene scene) {
             boolean left = isDown(KeyCode.A);
             boolean right = isDown(KeyCode.D);
 
-            // Movement grid + animation
-            player.update(dt, up, down, left, right);
-            player.animate(now, player.isMoving());
+            if (!isTileBlocked(player.getGridX(), player.getGridY(), up, down, left, right)) {
+                player.update(dt, up, down, left, right);
+                player.animate(now, player.isMoving());
+                render();
+           }
+            up=false;
+            down=false;
+            left=false;
+            right=false;
 
-            render();
+
         }
     };
     loop.start();
@@ -301,8 +307,8 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
         int tilePxY = (int) Math.round(tileY * scaledTileH);
 
         // Centered in tile
-        int dx = tilePxX + (scaledTileW - targetW) / 2;
-        int dy = tilePxY + (scaledTileH - targetH) / 2;
+        int dx = baseX + tilePxX + (scaledTileW - targetW) / 2;
+        int dy = baseY + tilePxY + (scaledTileH - targetH) / 2;
 
         // Optical anchor towards top (against "bottom-heavy" impression - "centered")
         dy -= (int) Math.round(scaledTileH * PLAYER_Y_ANCHOR);
@@ -427,36 +433,36 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
         }
     }
 
-    private boolean isTileBlocked(double nextX, double nextY) {
-        // Sicherheitsabfrage: Wenn der Collision-Layer nicht geladen wurde, erlauben wir die Bewegung (verhindert Absturz).
-        if (collisionLayer == null) return false;
+    private boolean isTileBlocked(int nextGridX, int nextGridY, boolean up,boolean down,boolean left,boolean right) {
+        // Safety check: Layer oder RenderContext nicht verfügbar
+        if (collisionLayer == null || renderContext == null) return false;
 
-        double playerWidthTiles = 1;
-        double playerHeightTiles = 1;
-
-        // Tiles die vom Spieler überlappt werden
-        int startX = (int) Math.floor(nextX);
-        int endX = (int) Math.floor(nextX + playerWidthTiles - 0.001);
-        int startY = (int) Math.floor(nextY);
-        int endY = (int) Math.floor(nextY + playerHeightTiles - 0.001);
-        if (11 <= nextY + playerHeightTiles - 0.001 && nextY + playerHeightTiles - 0.001 <= 12.4) {
-            endY = 11;
+        // Prüfe, ob die Koordinaten außerhalb der Map liegen
+        if (nextGridX < 0 || nextGridY < 0 ||
+                nextGridX >= collisionLayer.width() || nextGridY >= collisionLayer.height()) {
+            return true; // außerhalb = blockiert
         }
-
-        for (int y = startY; y <= endY; y++) {
-            for (int x = startX; x <= endX; x++) {
-                if (x < 0 || y < 0 || x >= collisionLayer.width() || y >= collisionLayer.height())
-                    return true;
-
-                int index = y * collisionLayer.width() + x;
-
-                int gid = collisionLayer.data()[index];
-                System.out.println(nextX + playerHeightTiles - 0.001 + " " + endX);
-                System.out.println(y * collisionLayer.width() + " " + x);
-                System.out.println(index + " " + gid);
-                if (gid == 91) return true; // Wand
-            }
+        int index;
+        if(up){
+            index = (nextGridY-1) * 20 + nextGridX;
+        } else if (down) {
+            index = (nextGridY+1) * 20 + nextGridX;
+        } else if (left) {
+            index = nextGridY * 20 + nextGridX-1;
+        } else if (right) {
+            index = nextGridY * 20 + nextGridX+1;
         }
-        return false;
+        else{
+            return true;
+        }
+        System.out.println(index);
+        // Berechne den Index im Layer
+//        int index = nextGridY * 20 + nextGridX;
+        int gid = collisionLayer.data()[index];
+        System.out.println(player.getGridX()+" "+ player.getGridY());
+
+        // GID 0 = kein Hindernis, alles andere = blockiert
+        return gid != 0;
     }
+
 }
