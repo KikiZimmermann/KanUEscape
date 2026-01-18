@@ -7,7 +7,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 
-
 /**
  * GameApp
  *
@@ -33,8 +32,9 @@ public class GameApp extends Application {
 
         Scene scene = new Scene(loader.load());
 
+        // Get and initialize controller (input + game loop); Mvm
         GameController controller = loader.getController();
-        controller.init(scene); // WICHTIG: aktiviert Key-Handling + Game-Loop
+        controller.init(scene);
 
         // Fenster konfigurieren
         stage.setTitle("KanUEscape");
@@ -47,8 +47,6 @@ public class GameApp extends Application {
 
         stage.show();
     }
-
-
 
     /**
      * Klassischer Java-Einstiegspunkt.

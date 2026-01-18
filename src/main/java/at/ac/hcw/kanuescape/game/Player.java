@@ -1,117 +1,155 @@
 package at.ac.hcw.kanuescape.game;
 
-// Speed in tiles/sec
-// Direction of sight (UP, DOWN, LEFT, RIGHT) + animation
-// Provides current frame-row/column from sprite sheet
+// GRID BASED MOVEMENT
+// Logical grid position (int; gridX / gridY)
+// Render tile position (double; tileX / tileY)
+// 1 tile per click OR continuous running while pressing down; stopping in grid!
 
 public class Player {
 
-    public enum Direction {DOWN, LEFT, RIGHT, UP}
+    public enum Direction {UP, RIGHT, DOWN, LEFT}
 
     // Sprite sheet layout
-    public static final int SPRITE_COLS = 3; // animation phases
-    public static final int SPRITE_ROWS = 4; // directions
+    public static final int SPRITE_COLS = 3;
+    public static final int SPRITE_ROWS = 4; // 0 = UP; 1 = RIGHT; 2 = DOWN; 3 = LEFT
 
-    // Column -> animation phases
+    // Columns
     public static final int COL_MOVE1 = 0;
     public static final int COL_IDLE = 1;
     public static final int COL_MOVE2 = 2;
 
-    // Rows -> directions
+    // Rows
     public static final int ROW_UP = 0;
     public static final int ROW_RIGHT = 1;
     public static final int ROW_DOWN = 2;
     public static final int ROW_LEFT = 3;
 
-    // Position in tile coordinates
-    public double tileX;
-    public double tileY;
+    // Logical grid-position (int)
+    private int gridX;
+    private int gridY;
 
-    // Mvm speed in tiles/sec
-    private double speedTilesPerSecond = 1.0;
+    // Render tile-position (double)
+    private double tileX;
+    private double tileY;
 
-    // Direction of view
+    // Step status
+    private boolean moving = false;
+    private int startX, startY; // start tile of current step
+    private int targetX, targetY; // target tile of current step
+    private double progress = 0.0; // 0-1, on 1, the target tile has been reached
+
+    // Tiles per second (1 step = 1 tile)
+    private double speedTilesPerSecond = 4.0;
+
+    // Start direction of view
     private Direction direction = Direction.DOWN;
 
-    // Animation state (column)
-    // Sequence: MOVE1 -> IDLE -> MOVE2 -> IDLE -> ...
+    // Animation (row sequence)
     private final int[] moveSequence = {COL_MOVE1, COL_IDLE, COL_MOVE2, COL_IDLE};
-    private int moveSeqIndex = 1; // Start in idle
-    private int frameCol = COL_IDLE;
+    private int moveSeqIndex = 1; // start in idle
+    private int frameCol = COL_IDLE; // current row
+    private long frameDurationNs = 120_000_000; // equals 120 ms
+    private long lastFrameTimeNs = 0;
 
-    // Animation timing
-    private long frameDurationNS = 120_000_000; // 120ns per step
-    private long lastFrameTime = 0;
-
-    public Player(double startTileX, double startTileY) {
-        this.tileX = startTileX;
-        this.tileY = startTileY;
+    public Player(int startGridX, int startGridY) {
+        this.gridX = startGridX;
+        this.gridY = startGridY;
+        this.tileX = startGridX;
+        this.tileY = startGridY;
     }
 
-    // Update per "tick": calculate position and direction of view from input
-    // dt = time delta in sec since last "tick" - check if neccessary
+    // Actual movement :)
     public void update(double dt, boolean up, boolean down, boolean left, boolean right) {
-        double dx = 0.0;
-        double dy = 0.0;
-
-        // With diagonal walking
-        //   if (up) dy -= 1.0;
-        //   if (down) dy += 1.0;
-        //   if (left) dx -= 1.0;
-        //   if (right) dx += 1.0;
-
-        // Without diagonal walking
-        if (up) {
-            dy = -1.0;
-            direction = Direction.UP;
-        } else if (down) {
-            dy =  1.0;
-            direction = Direction.DOWN;
-        } else if (left) {
-            dx = -1.0;
-            direction = Direction.LEFT;
-        } else if (right) {
-            dx =  1.0;
-            direction = Direction.RIGHT;
+        if (!moving) {
+            if (up) {
+                direction = Direction.UP;
+                startMove(gridX, gridY - 1);
+            } else if (down) {
+                direction = Direction.DOWN;
+                startMove(gridX, gridY + 1);
+            } else if (left) {
+                direction = Direction.LEFT;
+                startMove(gridX - 1, gridY);
+            } else if (right) {
+                direction = Direction.RIGHT;
+                startMove(gridX + 1, gridY);
+            }
         }
 
-        // no direction -> IDLE in last direction of view
-        tileX += dx * speedTilesPerSecond * dt;
-        tileY += dy * speedTilesPerSecond * dt;
-    }
+        if (moving) { // Progress from 0 -> 1; grows with v * dt (1 tile normalizes distance)
+            progress += speedTilesPerSecond * dt;
+            if (progress >= 1.0) { // step completed -> logical and render position to target tile
+                gridX = targetX;
+                gridY = targetY;
+                tileX = gridX;
+                tileY = gridY;
+                moving = false;
+                progress = 0.0;
 
-    // Animation update
-    // now = current time in Ns
-    // boolean moving = if direction Taste pressed
-    public void animate(long now, boolean moving) {
-        if (!moving) {
-            // idle -> middle column
+                // key held down continuously
+                if (up || down || left || right) {
+                    if (up) {
+                        direction = Direction.UP;
+                        startMove(gridX, gridY - 1);
+                    } else if (down) {
+                        direction = Direction.DOWN;
+                        startMove(gridX, gridY + 1);
+                    } else if (left) {
+                        direction = Direction.LEFT;
+                        startMove(gridX - 1, gridY);
+                    } else if (right) {
+                        direction = Direction.RIGHT;
+                        startMove(gridX + 1, gridY);
+                    }
+                }
+            } else { // interpoierte Render-Position -> weiches Bild zw tiles -> testen, von GPT :(
+                tileX = lerp(startX, targetX, progress);
+                tileY = lerp(startY, targetY, progress);
+            }
+            } else { // standing still - render position unchanged
+                tileX = gridX;
+                tileY = gridY;
+            }
+        }
+
+        public void animate(long now, boolean movingFlag) {
+        if(!movingFlag) {
             frameCol = COL_IDLE;
-            moveSeqIndex = 1; // -> back to idle
+            moveSeqIndex = 1; // center idle
             return;
         }
-
-        // Movement: cyclic trough MOVE1 -> IDLE -> MOVE2 -> IDLE -> ...
-        if (now - lastFrameTime > frameDurationNS) {
-            lastFrameTime = now;
+        if(now - lastFrameTimeNs >= frameDurationNs) {
+            lastFrameTimeNs = now;
             moveSeqIndex = (moveSeqIndex + 1) % moveSequence.length;
             frameCol = moveSequence[moveSeqIndex];
         }
-    }
+        }
 
-    // Getter for rendering
-    public double getTileX() {
-        return tileX;
-    }
-    public double getTileY() {
-        return tileY;
-    }
-    public int getFrameCol() {
-        return frameCol;
-    }
+        private void startMove ( int nextX, int nextY){
+            startX = gridX;
+            startY = gridY;
+            targetX = nextX;
+            targetY = nextY;
+            progress = 0.0;
+            moving = true;
+        }
 
+        private static double lerp(double a, double b, double t) {
+        if(t <= 0) return a;
+        if(t >= 1) return b;
+        return a + (b - a) * t;
+        }
+
+        // Getter for rendering
+    public double getTileX() {return tileX;}
+    public double getTileY() {return tileY;}
+
+    public int getGridX() {return gridX;}
+    public int getGridY() {return gridY;}
+
+    public int getFrameCol() {return frameCol;}
     public int getFrameRow() {
-        return switch (direction) {
+        return switch(direction) {
             case UP -> ROW_UP;
             case DOWN -> ROW_DOWN;
             case LEFT -> ROW_LEFT;
@@ -119,13 +157,15 @@ public class Player {
         };
     }
 
-    // Set speed in tiles/sec
-    public void setSpeedTilesPerSecond(double speedTilesPerSecond) {
-        this.speedTilesPerSecond = speedTilesPerSecond;
-    }
+    public boolean isMoving() {return moving;}
 
-    // Set animation speed in ms/frame
-    public void setFrameDurationMs(long ms) {
-        this.frameDurationNS = ms * 1_000_000;
+    // Tuning
+    // tiles per second (1 step = 1 tile)
+    public void setSpeedTilesPerSecond(double s) {
+        this.speedTilesPerSecond = Math.max(0.001, s);
     }
-}
+    // Animation duration
+    public void setFrameDurationNs(long ms) {
+        this.frameDurationNs = Math.max(1, ms) * 1_000_000L;
+    }
+    }
