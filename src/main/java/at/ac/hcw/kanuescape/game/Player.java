@@ -198,7 +198,7 @@ public class Player {
         };
     }
 
-    public boolean isMoving() {return moving;}
+    public boolean isMoving() { return moving; }
 
     // Tuning
     // tiles per second (1 step = 1 tile)

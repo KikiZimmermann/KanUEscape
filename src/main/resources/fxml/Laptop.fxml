@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
-<Pane xmlns:fx="http://javafx.com/fxml"
-      fx:controller="at.ac.hcw.kanuescape.controller.LaptopController">
+<?import javafx.scene.layout.StackPane?>
 
-    <ImageView fitWidth="341" fitHeight="513" preserveRatio="true" fx:id="BookShelvs" onMouseClicked="#Exit">
-        <Image url="@../assets/images/ToDoListe/ToDoListe.jpg"/>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+      fx:controller="at.ac.hcw.kanuescape.controller.LaptopController"
+           prefWidth="977" prefHeight="824"
+           minWidth="977" minHeight="824"
+           maxWidth="977" maxHeight="824">
+
+    <ImageView fx:id="bg_programming"
+               fitWidth="977" fitHeight="824"
+               preserveRatio="false">
+
+        <image>
+        <Image url="@../assets/images/programming/prog_temp.jpg"/>
+        </image>
     </ImageView>
-</Pane>
+
+<!--    for drop Felder and answers as nodes; later-->
+    <Pane fx:id="overlayPane"
+          prefWidth="977" prefHeight="824"
+          minWidth="977" minHeight="824"
+          maxWidth="977" maxHeight="824"/>
+
+</StackPane>

@@ -17,6 +17,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import at.ac.hcw.kanuescape.game.Player; // Mvm
@@ -65,7 +66,6 @@ public class GameController {
     private TiledModel.TiledMap map;
     private TiledModel.TsxTileset tsx;
     private Image tilesetImage;
-
 
     //to DoListe
     private Stage todoStage;
@@ -139,16 +139,44 @@ private void initialize() throws Exception {
         BuecherStage.initStyle(StageStyle.TRANSPARENT);
         BuecherStage.setScene(sceneBuecher);
 
+        // ! Adapted from here ...
+
         FXMLLoader fxmlLoaderLaptop = new FXMLLoader(GameController.class.getResource("/fxml/Laptop.fxml"));
-        Scene sceneLaptop = new Scene(fxmlLoaderLaptop.load(), 339, 511);
+        Scene sceneLaptop = new Scene(fxmlLoaderLaptop.load(), 977, 824);
         LaptopController = fxmlLoaderLaptop.getController();
-        sceneLaptop.setFill(Color.TRANSPARENT);
+
         LaptopStage = new Stage();
+        LaptopStage.setTitle("Programming");
         LaptopStage.setAlwaysOnTop(true);
         LaptopStage.setResizable(false);
-        LaptopStage.initStyle(StageStyle.TRANSPARENT);
-        LaptopStage.setY(100);
+
+        // for now/until debugged: regular window (non-transparent)
+        LaptopStage.initStyle(StageStyle.DECORATED);
+
         LaptopStage.setScene(sceneLaptop);
+        LaptopStage.sizeToScene();
+
+        // Closing window via ESC
+        sceneLaptop.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                LaptopStage.close();
+                e.consume();
+            }
+        });
+
+        // Siegbedingung checked upon closing of laptop-window
+        LaptopStage.setOnHiding(e -> {
+            if (LaptopController != null && LaptopController.isSolved()) {
+                CheckProg(); // use to check to-do?
+            }
+        });
+
+//        // NEW: for checking result -- delete? Check-button no longer in use
+//        LaptopController.setOnSolved(() -> {
+//        CheckProg();
+//        });
+
+        // ! Adaptions until here!
 
         // Resets the visual effects on the main root node when the book stage is closed
         BuecherStage.setOnHiding(event -> {
