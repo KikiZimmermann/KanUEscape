@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<StackPane maxHeight="-Infinity"
+           maxWidth="-Infinity"
+           minHeight="-Infinity"
+           minWidth="-Infinity"
+           prefHeight="400.0"
+           prefWidth="600.0"
+           xmlns="http://javafx.com/javafx/17.0.12"
+           xmlns:fx="http://javafx.com/fxml/1">
+
+   <children>
+
+      <Pane prefHeight="200.0"
+            prefWidth="200.0"
+            style="-fx-background-color: #4e4e4e;" />
+
+      <StackPane prefHeight="150.0"
+                 prefWidth="200.0">
+
+         <children>
+
+            <ImageView fitHeight="420.0"
+                       fitWidth="520.0"
+                       pickOnBounds="true"
+                       preserveRatio="true"
+                       smooth="false">
+               <image>
+                  <Image url="@../../assets/images/ui/menu.png" />
+               </image></ImageView>
+
+            <VBox prefHeight="200.0"
+                  prefWidth="100.0">
+
+               <children>
+
+                  <Region prefHeight="210.0"
+                          prefWidth="600.0" />
+
+                  <Label alignment="CENTER"
+                         contentDisplay="CENTER"
+                         prefHeight="35.0"
+                         prefWidth="606.0"
+                         text="KanUEscape ?"
+                         textFill="WHITE">
+                     <font>
+                        <Font size="24.0" />
+                     </font></Label>
+
+                  <Region prefHeight="95.0" prefWidth="600.0" />
+
+                  <Button alignment="CENTER"
+                          contentDisplay="CENTER"
+                          mnemonicParsing="false"
+                          prefHeight="30.0"
+                          prefWidth="601.0"
+                          style="-fx-background-color: transparent; -fx-padding: 0;"
+                          text="Start"
+                          textFill="WHITE">
+                     <graphic>
+                        <ImageView fitHeight="30.0"
+                                   fitWidth="122.0"
+                                   pickOnBounds="true"
+                                   preserveRatio="true"
+                                   smooth="false">
+                           <image>
+                              <Image url="@../../assets/images/ui/button_transparent.png" />
+                           </image></ImageView>
+                     </graphic>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
+
+                  <Region prefHeight="200.0"
+                          prefWidth="200.0" />
+
+               </children></VBox>
+         </children></StackPane>
+   </children>
+</StackPane>

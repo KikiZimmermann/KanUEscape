@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<StackPane maxHeight="-Infinity"
+           maxWidth="-Infinity"
+           minHeight="-Infinity"
+           minWidth="-Infinity"
+           prefHeight="400.0"
+           prefWidth="600.0"
+           xmlns="http://javafx.com/javafx/17.0.12"
+           xmlns:fx="http://javafx.com/fxml/1">
+
+   <children>
+
+      <Pane prefHeight="200.0"
+            prefWidth="200.0"
+            style="-fx-background-color: #4e4e4e;" />
+
+      <StackPane prefHeight="420.0" prefWidth="520.0">
+
+         <children>
+
+            <ImageView fitHeight="420.0"
+                       fitWidth="520.0"
+                       pickOnBounds="true"
+                       preserveRatio="true"
+                       smooth="false">
+               <image>
+                  <Image url="@../../assets/images/ui/menu.png" />
+               </image>
+            </ImageView>
+
+            <VBox alignment="TOP_CENTER"
+                  prefHeight="200.0"
+                  prefWidth="100.0"
+                  StackPane.alignment="CENTER">
+
+               <children>
+
+                  <Region prefHeight="86.0"
+                          prefWidth="600.0" />
+
+                  <Label text="MENU"
+                         textFill="WHITE">
+                     <font>
+                        <Font size="24.0" />
+                     </font></Label>
+
+                  <HBox alignment="CENTER"
+                        prefHeight="55.0"
+                        prefWidth="600.0">
+
+                     <children>
+
+                        <Region prefHeight="55.0"
+                                prefWidth="234.0" />
+
+                        <HBox alignment="CENTER_LEFT"
+                              prefHeight="55.0"
+                              prefWidth="121.0">
+
+                           <children>
+
+                              <StackPane prefHeight="24.0"
+                                         prefWidth="24.0">
+
+                                 <children>
+
+                                    <ImageView fitHeight="24.0"
+                                               fitWidth="24.0"
+                                               pickOnBounds="true"
+                                               preserveRatio="true"
+                                               smooth="false">
+                                       <image>
+                                          <Image url="@../../assets/images/ui/checkbox.png" />
+                                       </image>
+                                    </ImageView>
+
+                                    <ImageView fitHeight="24.0" fitWidth="24.0"
+                                               mouseTransparent="true"
+                                               pickOnBounds="true"
+                                               preserveRatio="true"
+                                               smooth="false">
+                                       <image>
+                                          <Image url="@../../assets/images/ui/checkmark.png" />
+                                       </image>
+                                    </ImageView>
+
+                                 </children>
+                              </StackPane>
+
+                              <Label text="Music"
+                                     textFill="WHITE">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font></Label>
+
+                           </children>
+                        </HBox>
+
+                        <Region prefHeight="55.0"
+                                prefWidth="115.0" />
+
+                        <HBox alignment="CENTER_LEFT"
+                              prefHeight="55.0"
+                              prefWidth="125.0">
+
+                           <children>
+
+                              <StackPane prefHeight="24.0"
+                                         prefWidth="24.0">
+
+                                 <children>
+
+                                    <ImageView fitHeight="24.0"
+                                               fitWidth="24.0"
+                                               pickOnBounds="true"
+                                               preserveRatio="true"
+                                               smooth="false">
+                                       <image>
+                                          <Image url="@../../assets/images/ui/checkbox.png" />
+                                       </image>
+                                    </ImageView>
+
+                                    <ImageView fitHeight="150.0"
+                                               fitWidth="24.0"
+                                               mouseTransparent="true"
+                                               pickOnBounds="true"
+                                               preserveRatio="true">
+                                       <image>
+                                          <Image url="@../../assets/images/ui/checkmark.png" />
+                                       </image>
+                                    </ImageView>
+
+                                 </children>
+                              </StackPane>
+
+                              <Label text="SFX" textFill="WHITE">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font></Label>
+
+                           </children>
+                        </HBox>
+
+                        <Region prefHeight="200.0"
+                                prefWidth="200.0" />
+
+                     </children>
+                  </HBox>
+
+                  <ImageView fitHeight="31.0"
+                             fitWidth="288.0"
+                             pickOnBounds="true"
+                             preserveRatio="true"
+                             smooth="false">
+                     <image>
+                        <Image url="@../../assets/images/ui/separator.png" />
+                     </image></ImageView>
+
+                  <Region prefHeight="19.0"
+                          prefWidth="600.0" />
+
+                  <Button alignment="CENTER"
+                          contentDisplay="CENTER"
+                          mnemonicParsing="false"
+                          style="-fx-background-color: transparent; -fx-padding: 0;"
+                          text="Continue"
+                          textFill="WHITE">
+                     <graphic>
+                        <ImageView fitHeight="30.0"
+                                   fitWidth="200.0"
+                                   pickOnBounds="true"
+                                   preserveRatio="true"
+                                   smooth="false">
+                           <image>
+                              <Image url="@../../assets/images/ui/button_transparent.png" />
+                           </image></ImageView>
+                     </graphic>
+                  </Button>
+
+                  <Button alignment="CENTER"
+                          contentDisplay="CENTER"
+                          mnemonicParsing="false"
+                          style="-fx-background-color: transparent; -fx-padding: 0;"
+                          text="New Game"
+                          textFill="WHITE">
+                     <graphic>
+                        <ImageView fitHeight="30.0"
+                                   fitWidth="200.0"
+                                   pickOnBounds="true"
+                                   preserveRatio="true"
+                                   smooth="false">
+                           <image>
+                              <Image url="@../../assets/images/ui/button_transparent.png" />
+                           </image></ImageView>
+                     </graphic>
+                  </Button>
+
+                  <Button alignment="CENTER"
+                          contentDisplay="CENTER"
+                          mnemonicParsing="false"
+                          style="-fx-background-color: transparent; -fx-padding: 0;"
+                          text="Exit"
+                          textFill="WHITE">
+                     <graphic>
+                        <ImageView fitHeight="30.0"
+                                   fitWidth="200.0"
+                                   pickOnBounds="true"
+                                   preserveRatio="true"
+                                   smooth="false">
+                           <image>
+                              <Image url="@../../assets/images/ui/button_transparent.png" />
+                           </image></ImageView>
+                     </graphic>
+                  </Button>
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+   </children>
+</StackPane>
