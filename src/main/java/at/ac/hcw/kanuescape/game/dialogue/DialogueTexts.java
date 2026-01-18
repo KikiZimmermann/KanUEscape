@@ -87,8 +87,18 @@ public class DialogueTexts {
                     "You stare at it. It stares back. Nobody wins."
             )),
             entry("picture", List.of(
-                    //TODO Ali
-                    //wenns ein fenster wie bei der ascii tabelle sein soll, dann muss es in den gamecontroller
+                    "Once upon a time, there lived three kings who ruled one great land.",
+                    "Each of them commanded two loyal guards and five brave knights.",
+                    "Together they protected four ancient gates.",
+                    "",
+                    "Beyond the gates, four wandering monks met five lost travelers.",
+                    "They shared three secrets, spoke two sacred words, and followed one true path.",
+                    "",
+                    "At the journey’s end, five candles burned beside two stone thrones.",
+                    "Four bells rang in silence, one crown was lifted, and three doors finally opened."
+//                    31254
+//                    45321
+//                    52413
             )),
             entry("lamp", List.of(
                     "Provides light. Not answers.",
