@@ -1,5 +1,6 @@
 package at.ac.hcw.kanuescape.controller;
 
+
 import at.ac.hcw.kanuescape.controller.BuecherController;
 import at.ac.hcw.kanuescape.controller.LaptopController;
 import at.ac.hcw.kanuescape.controller.ToDoListeController;
@@ -41,7 +42,8 @@ import java.util.Map; // Mvm
  * Rendering der TileLayer steckt in MapRenderer.
  */
 
-public class GameController {
+
+public class GameControllerAlt {
 
     // Ressourcenpfade
     private static final String MAP_PATH = "/assets/maps/game_screen.json";
@@ -93,29 +95,29 @@ public class GameController {
     private AnimationTimer loop;
 
     @FXML
-private void initialize() throws Exception {
+    private void initialize() throws Exception {
 
-    // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
-    gameCanvas.widthProperty().bind(root.widthProperty().subtract(FRAME_PADDING * 2));
-    gameCanvas.heightProperty().bind(root.heightProperty().subtract(FRAME_PADDING * 2));
+        // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
+        gameCanvas.widthProperty().bind(root.widthProperty().subtract(FRAME_PADDING * 2));
+        gameCanvas.heightProperty().bind(root.heightProperty().subtract(FRAME_PADDING * 2));
 
-    // Ressourcen laden (ohne UI-Logik)
-    map = MapLoader.loadMap(MAP_PATH);
-    tsx = MapLoader.loadTsxTileset(TSX_PATH);
-    tilesetImage = MapLoader.loadImage(TILESET_IMAGE_PATH);
-    playerSprite = new Image(getClass().getResourceAsStream(PLAYER_SPRITE_PATH));
+        // Ressourcen laden (ohne UI-Logik)
+        map = MapLoader.loadMap(MAP_PATH);
+        tsx = MapLoader.loadTsxTileset(TSX_PATH);
+        tilesetImage = MapLoader.loadImage(TILESET_IMAGE_PATH);
+        playerSprite = new Image(getClass().getResourceAsStream(PLAYER_SPRITE_PATH));
 
-    // Start player
-    player = new Player(5, 4); // start tile
-    player.setSpeedTilesPerSecond(4.0);
-    player.setFrameDurationNs(120); // animation step (ms)
+        // Start player
+        player = new Player(5, 4); // start tile
+        player.setSpeedTilesPerSecond(4.0);
+        player.setFrameDurationNs(120); // animation step (ms)
 
-    // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)
-    Platform.runLater(this::render);
+        // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)
+        Platform.runLater(this::render);
 
-    // Bei Resize neu rendern (wir machen kein Game-Loop, sondern "on demand")
-    gameCanvas.widthProperty().addListener((obs, oldV, newV) -> render());
-    gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
+        // Bei Resize neu rendern (wir machen kein Game-Loop, sondern "on demand")
+        gameCanvas.widthProperty().addListener((obs, oldV, newV) -> render());
+        gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
 
         // ToDoListe Laden
         FXMLLoader fxmlLoader = new FXMLLoader(GameController.class.getResource("/fxml/toDoListe.fxml"));
@@ -157,62 +159,51 @@ private void initialize() throws Exception {
         });
     }
 
-// Scene based init: key handling + game loop
-public void init(Scene scene) {
-    scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
-    scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
+    // Scene based init: key handling + game loop
+    public void init(Scene scene) {
+        scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
+        scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
 
-    root.setOnMouseClicked(e -> root.requestFocus());
-    Platform.runLater(() -> root.requestFocus());
+        root.setOnMouseClicked(e -> root.requestFocus());
+        Platform.runLater(() -> root.requestFocus());
 
-    // Game loop
-    loop = new AnimationTimer() {
-        long last = 0;
+        // Game loop
+        loop = new AnimationTimer() {
+            long last = 0;
 
-        @Override
-        public void handle(long now) {
-            if (last == 0) {
+            @Override
+            public void handle(long now) {
+                if (last == 0) {
+                    last = now;
+                    return;
+                }
+                double dt = (now - last) / 1_000_000_000.0;
                 last = now;
-                return;
-            }
-            double dt = (now - last) / 1_000_000_000.0;
-            last = now;
 
-            //Eingabe
-            boolean up = isDown(KeyCode.W);
-            boolean down = isDown(KeyCode.S);
-            boolean left = isDown(KeyCode.A);
-            boolean right = isDown(KeyCode.D);
+                //Eingabe
+                boolean up = isDown(KeyCode.W);
+                boolean down = isDown(KeyCode.S);
+                boolean left = isDown(KeyCode.A);
+                boolean right = isDown(KeyCode.D);
 
-
-
-
-
-            if (!player.isMoving()) {
                 if (!isTileBlocked(player.getGridX(), player.getGridY(), up, down, left, right)) {
                     player.update(dt, up, down, left, right);
+                    System.out.println(right);
+                    player.animate(now, player.isMoving());
+                    render();
                 }
-            } else {
-                player.update(dt, up, down, left, right);
+                up=false;
+                down=false;
+                left=false;
+                right=false;
+//
+
             }
+        };
+        loop.start();
+    }
 
-
-            player.animate(now, player.isMoving());
-            render();
-
-
-//            up=false;
-//            down=false;
-//            left=false;
-//            right=false;
-
-
-        }
-    };
-    loop.start();
-}
-
-private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
+    private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
 
     /**
      * Rendert ein komplettes Frame: Background -> Map-Layer -> Player.
@@ -322,10 +313,6 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
         int dx = baseX + tilePxX + (scaledTileW - targetW) / 2;
         int dy = baseY + tilePxY + (scaledTileH - targetH) / 2;
 
-        // verschiebt sprite 2 nach links und eins hinauf (Startposition)
-//        dx -= 2 * scaledTileW;
-//        dy -= 1 * scaledTileH;
-
         // Optical anchor towards top (against "bottom-heavy" impression - "centered")
         dy -= (int) Math.round(scaledTileH * PLAYER_Y_ANCHOR);
 
@@ -377,52 +364,52 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
         System.out.println("Player geklickt: (" + pixelX + "," + pixelY + ") GID=" + gid);
 
         if (true/*Math.abs(tileX - x*32) <= x *32* 0.15*/) {
-                System.out.println("Spieler ist innerhalb von 10% des Ziels!");
+            System.out.println("Spieler ist innerhalb von 10% des Ziels!");
 
-                if (gid == 60 || gid == 72) {
-                    if (todoStage != null) {
-                        todoStage.setX(rc.renderW() / 2);
-                        todoStage.show();
-                    }
-                }
-                if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
-                    // Check if the book stage is initialized before displaying it
-                    if (BuecherStage != null) {
-                        // Apply a blur effect to the background root to focus the user's attention on the new window
-                        root.setEffect(new GaussianBlur(20));
-
-                        // Display the stage and set its specific screen coordinates
-                        BuecherStage.show();
-                        BuecherStage.setX(470);
-                        BuecherStage.setY(210);
-
-                        // Retrieve the root node of the stage's scene to apply animations
-                        Parent content = BuecherStage.getScene().getRoot();
-
-                        // Create and play a smooth fade-in transition for the stage content
-                        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), content);
-                        fadeIn.setFromValue(0.0);
-                        fadeIn.setToValue(1.0);
-                        fadeIn.play();
-
-                        // Ensure the controller is available to manage focus
-                        if (BuecherController != null) {
-                            // Request focus on the main pane of the sub-scene to enable keyboard interactions immediately
-                            BuecherController.getBuecherScene().requestFocus();
-                        }
-                    }
-                }
-                if (gid == 50) {
-                    if (LaptopStage != null) {
-                        LaptopStage.setX(rc.renderW() / 2);
-                        LaptopStage.show();
-                    }
-                }
-                //Kiki
-                if (gid == 66) {
-                    //sachen rein schreiben (Ali Code hier)
+            if (gid == 60 || gid == 72) {
+                if (todoStage != null) {
+                    todoStage.setX(rc.renderW() / 2);
+                    todoStage.show();
                 }
             }
+            if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
+                // Check if the book stage is initialized before displaying it
+                if (BuecherStage != null) {
+                    // Apply a blur effect to the background root to focus the user's attention on the new window
+                    root.setEffect(new GaussianBlur(20));
+
+                    // Display the stage and set its specific screen coordinates
+                    BuecherStage.show();
+                    BuecherStage.setX(470);
+                    BuecherStage.setY(210);
+
+                    // Retrieve the root node of the stage's scene to apply animations
+                    Parent content = BuecherStage.getScene().getRoot();
+
+                    // Create and play a smooth fade-in transition for the stage content
+                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500), content);
+                    fadeIn.setFromValue(0.0);
+                    fadeIn.setToValue(1.0);
+                    fadeIn.play();
+
+                    // Ensure the controller is available to manage focus
+                    if (BuecherController != null) {
+                        // Request focus on the main pane of the sub-scene to enable keyboard interactions immediately
+                        BuecherController.getBuecherScene().requestFocus();
+                    }
+                }
+            }
+            if (gid == 50) {
+                if (LaptopStage != null) {
+                    LaptopStage.setX(rc.renderW() / 2);
+                    LaptopStage.show();
+                }
+            }
+            //Kiki
+            if (gid == 66) {
+                //sachen rein schreiben (Ali Code hier)
+            }
+        }
     }
 
     public void CheckBuecher() {
@@ -469,7 +456,7 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
             index = nextGridY * 20 + nextGridX+1;
         }
         else{
-            return false;
+            return true;
         }
 
         System.out.println(index);

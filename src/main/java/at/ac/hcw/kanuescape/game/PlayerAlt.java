@@ -5,16 +5,9 @@ package at.ac.hcw.kanuescape.game;
 // Render tile position (double; tileX / tileY)
 // 1 tile per click OR continuous running while pressing down; stopping in grid!
 
-public class Player {
+public class PlayerAlt {
 
     public enum Direction {UP, RIGHT, DOWN, LEFT}
-
-
-
-    private Direction queuedDir = null;
-
-
-
 
     // Sprite sheet layout
     public static final int SPRITE_COLS = 3;
@@ -58,7 +51,7 @@ public class Player {
     private long frameDurationNs = 120_000_000; // equals 120 ms
     private long lastFrameTimeNs = 0;
 
-    public Player(int startGridX, int startGridY) {
+    public PlayerAlt(int startGridX, int startGridY) {
         this.gridX = startGridX;
         this.gridY = startGridY;
         this.tileX = startGridX;
@@ -67,20 +60,6 @@ public class Player {
 
     // Actual movement :)
     public void update(double dt, boolean up, boolean down, boolean left, boolean right) {
-
-
-        Direction wanted = null;
-        if (up) wanted = Direction.UP;
-        else if (down) wanted = Direction.DOWN;
-        else if (left) wanted = Direction.LEFT;
-        else if (right) wanted = Direction.RIGHT;
-
-        if (wanted != null) {
-            direction = wanted;           // sofort umdrehen (Sprite schaut sofort richtig)
-            if (moving) queuedDir = wanted; // aber Step erst nach Ende wechseln
-        }
-
-
         if (!moving) {
             if (up) {
                 direction = Direction.UP;
@@ -107,53 +86,33 @@ public class Player {
                 moving = false;
                 progress = 0.0;
 
-
-
-
-
-
-
                 // key held down continuously
-//                Direction next = queuedDir;
-//                queuedDir = null;
-//
-//                if (next == null) {
-//                    if (up) next = Direction.UP;
-//                    else if (down) next = Direction.DOWN;
-//                    else if (left) next = Direction.LEFT;
-//                    else if (right) next = Direction.RIGHT;
-//                }
-//
-//                if (next != null) {
-//                    direction = next;
-//                    switch (next) {
-//                        case UP -> startMove(gridX, gridY - 1);
-//                        case DOWN -> startMove(gridX, gridY + 1);
-//                        case LEFT -> startMove(gridX - 1, gridY);
-//                        case RIGHT -> startMove(gridX + 1, gridY);
-//                    }
-//                }
-
-
-                queuedDir = null;
-
-
-
-
-
-
-
+                if (up || down || left || right) {
+                    if (up) {
+                        direction = Direction.UP;
+                        startMove(gridX, gridY - 1);
+                    } else if (down) {
+                        direction = Direction.DOWN;
+                        startMove(gridX, gridY + 1);
+                    } else if (left) {
+                        direction = Direction.LEFT;
+                        startMove(gridX - 1, gridY);
+                    } else if (right) {
+                        direction = Direction.RIGHT;
+                        startMove(gridX + 1, gridY);
+                    }
+                }
             } else { // interpoierte Render-Position -> weiches Bild zw tiles -> testen, von GPT :(
                 tileX = lerp(startX, targetX, progress);
                 tileY = lerp(startY, targetY, progress);
             }
-            } else { // standing still - render position unchanged
-                tileX = gridX;
-                tileY = gridY;
-            }
+        } else { // standing still - render position unchanged
+            tileX = gridX;
+            tileY = gridY;
         }
+    }
 
-        public void animate(long now, boolean movingFlag) {
+    public void animate(long now, boolean movingFlag) {
         if(!movingFlag) {
             frameCol = COL_IDLE;
             moveSeqIndex = 1; // center idle
@@ -164,24 +123,24 @@ public class Player {
             moveSeqIndex = (moveSeqIndex + 1) % moveSequence.length;
             frameCol = moveSequence[moveSeqIndex];
         }
-        }
+    }
 
-        private void startMove ( int nextX, int nextY){
-            startX = gridX;
-            startY = gridY;
-            targetX = nextX;
-            targetY = nextY;
-            progress = 0.0;
-            moving = true;
-        }
+    private void startMove ( int nextX, int nextY){
+        startX = gridX;
+        startY = gridY;
+        targetX = nextX;
+        targetY = nextY;
+        progress = 0.0;
+        moving = true;
+    }
 
-        private static double lerp(double a, double b, double t) {
+    private static double lerp(double a, double b, double t) {
         if(t <= 0) return a;
         if(t >= 1) return b;
         return a + (b - a) * t;
-        }
+    }
 
-        // Getter for rendering
+    // Getter for rendering
     public double getTileX() {return tileX;}
     public double getTileY() {return tileY;}
 
@@ -209,4 +168,5 @@ public class Player {
     public void setFrameDurationNs(long ms) {
         this.frameDurationNs = Math.max(1, ms) * 1_000_000L;
     }
-    }
+
+}
