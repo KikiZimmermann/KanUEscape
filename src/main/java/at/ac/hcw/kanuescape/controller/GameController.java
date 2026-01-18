@@ -186,6 +186,7 @@ public void init(Scene scene) {
 
             if (!isTileBlocked(player.getGridX(), player.getGridY(), up, down, left, right)) {
                 player.update(dt, up, down, left, right);
+                System.out.println(right);
                 player.animate(now, player.isMoving());
                 render();
            }
@@ -193,7 +194,7 @@ public void init(Scene scene) {
             down=false;
             left=false;
             right=false;
-
+//
 
         }
     };
@@ -455,6 +456,7 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
         else{
             return true;
         }
+
         System.out.println(index);
         // Berechne den Index im Layer
 //        int index = nextGridY * 20 + nextGridX;
