@@ -3,21 +3,16 @@ package at.ac.hcw.kanuescape.game;
 // GRID BASED MOVEMENT
 // Logical grid position (int; gridX / gridY)
 // Render tile position (double; tileX / tileY)
-// 1 tile per click OR continuous running while pressing down; stopping in grid!
+// 1 tile per click OR continuous running while pressing down; stopping in grid
 
 public class Player {
 
     public enum Direction {UP, RIGHT, DOWN, LEFT}
 
-
-
     private Direction queuedDir = null;
 
-
-
-
     // Sprite sheet layout
-    public static final int SPRITE_COLS = 3;
+    public static final int SPRITE_COLS = 3; // MOVE1; IDLE; MOVE2
     public static final int SPRITE_ROWS = 4; // 0 = UP; 1 = RIGHT; 2 = DOWN; 3 = LEFT
 
     // Columns
@@ -43,7 +38,7 @@ public class Player {
     private boolean moving = false;
     private int startX, startY; // start tile of current step
     private int targetX, targetY; // target tile of current step
-    private double progress = 0.0; // 0-1, on 1, the target tile has been reached
+    private double progress = 0.0; // 0-1; on 1, the target tile has been reached
 
     // Tiles per second (1 step = 1 tile)
     private double speedTilesPerSecond = 4.0;
@@ -65,9 +60,7 @@ public class Player {
         this.tileY = startGridY;
     }
 
-    // Actual movement :)
     public void update(double dt, boolean up, boolean down, boolean left, boolean right) {
-
 
         Direction wanted = null;
         if (up) wanted = Direction.UP;
@@ -76,10 +69,9 @@ public class Player {
         else if (right) wanted = Direction.RIGHT;
 
         if (wanted != null) {
-            direction = wanted;           // sofort umdrehen (Sprite schaut sofort richtig)
-            if (moving) queuedDir = wanted; // aber Step erst nach Ende wechseln
+            direction = wanted;
+            if (moving) queuedDir = wanted;
         }
-
 
         if (!moving) {
             if (up) {
@@ -97,7 +89,7 @@ public class Player {
             }
         }
 
-        if (moving) { // Progress from 0 -> 1; grows with v * dt (1 tile normalizes distance)
+        if (moving) { // Progress from 0 -> 1; grows with v * dt
             progress += speedTilesPerSecond * dt;
             if (progress >= 1.0) { // step completed -> logical and render position to target tile
                 gridX = targetX;
@@ -106,44 +98,7 @@ public class Player {
                 tileY = gridY;
                 moving = false;
                 progress = 0.0;
-
-
-
-
-
-
-
-                // key held down continuously
-//                Direction next = queuedDir;
-//                queuedDir = null;
-//
-//                if (next == null) {
-//                    if (up) next = Direction.UP;
-//                    else if (down) next = Direction.DOWN;
-//                    else if (left) next = Direction.LEFT;
-//                    else if (right) next = Direction.RIGHT;
-//                }
-//
-//                if (next != null) {
-//                    direction = next;
-//                    switch (next) {
-//                        case UP -> startMove(gridX, gridY - 1);
-//                        case DOWN -> startMove(gridX, gridY + 1);
-//                        case LEFT -> startMove(gridX - 1, gridY);
-//                        case RIGHT -> startMove(gridX + 1, gridY);
-//                    }
-//                }
-
-
-                queuedDir = null;
-
-
-
-
-
-
-
-            } else { // interpoierte Render-Position -> weiches Bild zw tiles -> testen, von GPT :(
+            } else {
                 tileX = lerp(startX, targetX, progress);
                 tileY = lerp(startY, targetY, progress);
             }
@@ -156,7 +111,7 @@ public class Player {
         public void animate(long now, boolean movingFlag) {
         if(!movingFlag) {
             frameCol = COL_IDLE;
-            moveSeqIndex = 1; // center idle
+            moveSeqIndex = 1;
             return;
         }
         if(now - lastFrameTimeNs >= frameDurationNs) {
@@ -181,7 +136,7 @@ public class Player {
         return a + (b - a) * t;
         }
 
-        // Getter for rendering
+    // Getter for rendering
     public double getTileX() {return tileX;}
     public double getTileY() {return tileY;}
 
@@ -210,7 +165,7 @@ public class Player {
         this.frameDurationNs = Math.max(1, ms) * 1_000_000L;
     }
 
-    // Rest of Player für New Game
+    // Rest of  player position for NEW GAME via menu
     public void resetTo(int startGridX, int startGridY) {
         // logical position
         this.gridX = startGridX;
@@ -229,16 +184,15 @@ public class Player {
         this.targetX = startGridX;
         this.targetY = startGridY;
 
-        // clear queued input
+        // Clear queued input
         this.queuedDir = null;
 
-        // optional: look direction back to default
+        // Optional: look direction back to default
         this.direction = Direction.DOWN;
 
-        // reset animation to idle
+        // Reset animation to idle
         this.frameCol = COL_IDLE;
         this.moveSeqIndex = 1;
         this.lastFrameTimeNs = 0;
     }
-
 }
