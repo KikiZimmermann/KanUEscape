@@ -6,6 +6,7 @@ import at.ac.hcw.kanuescape.controller.ToDoListeController;
 import at.ac.hcw.kanuescape.controller.ui.DialogueBoxController;
 import at.ac.hcw.kanuescape.game.dialogue.DialogueManager;
 import at.ac.hcw.kanuescape.game.KochManager;
+import at.ac.hcw.kanuescape.game.dialogue.DialogueTexts;
 import at.ac.hcw.kanuescape.tiled.MapLoader;
 import at.ac.hcw.kanuescape.tiled.MapRenderer;
 import at.ac.hcw.kanuescape.tiled.RenderContext;
@@ -57,7 +58,6 @@ public class GameController {
     // Look & Layout
     private static final Color BACKGROUND = Color.web("#4e4e4e");
     @FXML private StackPane gameArea;
-    private static final double FRAME_PADDING = 10; // muss zum FXML -fx-padding passen
 
 
     // Player
@@ -114,6 +114,8 @@ public class GameController {
 
 
     private DialogueBoxController dialogueController;
+    private Runnable afterDialogueClose = null;             // Bücherrätsel nach Dialogue close
+
 
     // Input/loop
     private final Map<KeyCode, Boolean> keys = new EnumMap(KeyCode.class);
@@ -532,31 +534,38 @@ public class GameController {
                 System.out.println(Kuehlschrank);
             }
             if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
-                // Check if the book stage is initialized before displaying it
-                if (BuecherStage != null) {
-                    // Apply a blur effect to the background root to focus the user's attention on the new window
-                    root.setEffect(new GaussianBlur(20));
+                // erst text
+                String bookcaseText = DialogueTexts.VARIANTS.get("bookcase").get(0);
 
-                    // Display the stage and set its specific screen coordinates
-                    BuecherStage.show();
-                    BuecherStage.setX(470);
-                    BuecherStage.setY(210);
+                // danach erst rätsel
+                openDialogue(bookcaseText, "bookcase", () -> {
+                    // Check if the book stage is initialized before displaying it
+                    if (BuecherStage != null) {
+                        // Apply a blur effect to the background root to focus the user's attention on the new window
+                        root.setEffect(new GaussianBlur(20));
 
-                    // Retrieve the root node of the stage's scene to apply animations
-                    Parent content = BuecherStage.getScene().getRoot();
+                        // Display the stage and set its specific screen coordinates
+                        BuecherStage.show();
+                        BuecherStage.setX(470);
+                        BuecherStage.setY(210);
 
-                    // Create and play a smooth fade-in transition for the stage content
-                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500), content);
-                    fadeIn.setFromValue(0.0);
-                    fadeIn.setToValue(1.0);
-                    fadeIn.play();
+                        // Retrieve the root node of the stage's scene to apply animations
+                        Parent content = BuecherStage.getScene().getRoot();
 
-                    // Ensure the controller is available to manage focus
-                    if (BuecherController != null) {
-                        // Request focus on the main pane of the sub-scene to enable keyboard interactions immediately
-                        BuecherController.getBuecherScene().requestFocus();
+                        // Create and play a smooth fade-in transition for the stage content
+                        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), content);
+                        fadeIn.setFromValue(0.0);
+                        fadeIn.setToValue(1.0);
+                        fadeIn.play();
+
+                        // Ensure the controller is available to manage focus
+                        if (BuecherController != null) {
+                            // Request focus on the main pane of the sub-scene to enable keyboard interactions immediately
+                            BuecherController.getBuecherScene().requestFocus();
+                        }
                     }
-                }
+                });
+                return;
             }
             if (gid == 50) {
                 if (LaptopStage != null) {
@@ -716,12 +725,26 @@ public class GameController {
         dialogueOpen = true;
     }
 
+    // Overloaad für Bücherrätsel
+    public void openDialogue(String text, String type, Runnable onClose) {
+        afterDialogueClose = onClose;
+        openDialogue(text, type);
+    }
+
+
     public void closeDialogue() {
         if (dialogueController != null) dialogueController.stopTyping();
         overlayLayer.setVisible(false);
         overlayLayer.setManaged(false);
         dialogueOpen = false;
         activeDialogueType = null;
+
+        // nur für Bücherrätsel!
+        if (afterDialogueClose != null) {
+            Runnable r = afterDialogueClose;
+            afterDialogueClose = null;
+            r.run();
+        }
     }
 
 }

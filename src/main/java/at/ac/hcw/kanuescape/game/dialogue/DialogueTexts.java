@@ -138,10 +138,10 @@ public class DialogueTexts {
                     "You don’t need the bathroom. You need focus.",
                     "Bathroom’s closed. Emotionally, too.",
                     "Nope. Not a bathroom situation."
+            )),
+            entry("bookcase", List.of(
+                    "A short storie can help you solve the puzzle!"
             ))
-//            entry("bookcase", List.of(
-//                    ""
-//            )),
     );
 
     //Klicke 4 - 9

@@ -41,7 +41,7 @@ public class DialogueManager {
         register("couch", 104, 105, 106, 116, 117, 118);
         register("trash", 52);
         register("vase", 87);
-        //register("bookcase", );
+        register("bookcase", 81, 82, 93, 94);
         register("sink", 64);
         register("cutting_board", 63);
         register("kitchen_counter", 58, 70);
