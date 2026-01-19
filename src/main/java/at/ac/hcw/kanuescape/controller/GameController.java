@@ -600,8 +600,7 @@ public class GameController {
 //                //sachen rein schreiben (Ali Code hier)
 //            }
 
-
-            if (gid == 77||gid==78) {
+            if (gid == 77 || gid == 78) {
                 if (MathStage != null) {
                     MathStage.setX(rc.renderW() / 2);
                     MathStage.show();
