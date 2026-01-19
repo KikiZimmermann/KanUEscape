@@ -1,51 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="at.ac.hcw.kanuescape.controller.MathController"
-            prefWidth="720" prefHeight="520">
+            prefWidth="720" prefHeight="520"
+            style="-fx-background-color: linear-gradient(to bottom, #f7f8fb, #eef1f6);">
 
+    <!-- TOP BAR -->
     <top>
-        <VBox spacing="6" BorderPane.alignment="CENTER">
-            <Label text="Math Time! Answer all questions correctly!" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-            <Label fx:id="progressLabel" text="Question 1/6"/>
-            <Separator/>
+        <VBox spacing="6"
+              BorderPane.alignment="CENTER"
+              style="-fx-padding: 14 18 10 18;">
+            <Label text="Math Time!"
+                   style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: #1f2a37;"/>
+            <Label text="Answer all questions correctly!"
+                   style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
+            <HBox alignment="CENTER_LEFT">
+                <Label fx:id="progressLabel"
+                       text="Question 1/6"
+                       style="-fx-font-size: 12px; -fx-text-fill: #4b5563;"/>
+            </HBox>
+            <Separator opacity="0.35"/>
         </VBox>
     </top>
 
+    <!-- CENTER CONTENT (CARD) -->
     <center>
-        <VBox spacing="12" style="-fx-padding: 16;">
-            <Label fx:id="questionLabel"
-                   wrapText="true"
-                   style="-fx-font-size: 16px;" />
+        <StackPane style="-fx-padding: 16 18 16 18;">
+            <VBox spacing="14"
+                  maxWidth="640"
+                  style="-fx-padding: 18;
+                         -fx-background-color: white;
+                         -fx-background-radius: 16;
+                         -fx-border-color: rgba(17,24,39,0.12);
+                         -fx-border-radius: 16;
+                         -fx-border-width: 1;
+                         -fx-effect: dropshadow(gaussian, rgba(17,24,39,0.10), 18, 0.15, 0, 6);">
 
-            <ImageView fx:id="questionImage"
-                       fitWidth="520"
-                       preserveRatio="true"
-                       visible="false"
-                       managed="false" />
+                <Label fx:id="questionLabel"
+                       wrapText="true"
+                       style="-fx-font-size: 17px; -fx-font-weight: 700; -fx-text-fill: #111827;"/>
 
-            <VBox fx:id="optionsBox" spacing="8">
-                <RadioButton fx:id="optA" text="A) :::" wrapText="true"/>
-                <RadioButton fx:id="optB" text="B) :::" wrapText="true"/>
-                <RadioButton fx:id="optC" text="C) :::" wrapText="true"/>
-                <RadioButton fx:id="optD" text="D) :::" wrapText="true"/>
+                <ImageView fx:id="questionImage"
+                           fitWidth="520"
+                           preserveRatio="true"
+                           visible="false"
+                           managed="false"/>
+
+                <!-- OPTIONS BLOCK -->
+                <VBox fx:id="optionsBox"
+                      spacing="10"
+                      style="-fx-padding: 12;
+                             -fx-background-color: #f9fafb;
+                             -fx-background-radius: 12;
+                             -fx-border-color: rgba(17,24,39,0.08);
+                             -fx-border-radius: 12;
+                             -fx-border-width: 1;">
+
+                    <RadioButton fx:id="optA" text="A)" wrapText="true" maxWidth="Infinity"/>
+                    <RadioButton fx:id="optB" text="B)" wrapText="true" maxWidth="Infinity"/>
+                    <RadioButton fx:id="optC" text="C)" wrapText="true" maxWidth="Infinity"/>
+                    <RadioButton fx:id="optD" text="D)" wrapText="true" maxWidth="Infinity"/>
+
+                </VBox>
+
+                <Label fx:id="statusLabel"
+                       text=""
+                       wrapText="true"
+                       style="-fx-font-size: 13px; -fx-text-fill: #b45309;"/>
             </VBox>
-
-            <Label fx:id="statusLabel" text="" wrapText="true"/>
-        </VBox>
+        </StackPane>
     </center>
 
+    <!-- BOTTOM BAR -->
     <bottom>
-        <HBox spacing="10" style="-fx-padding:12;" BorderPane.alignment="CENTER_RIGHT">
-            <Button fx:id="backBtn" text="Back" onAction="#onBack"/>
-            <Button fx:id="nextBtn" text="Next" onAction="#onNext"/>
+        <HBox spacing="10"
+              style="-fx-padding: 10 18 16 18;"
+              alignment="CENTER_RIGHT">
+
+            <Button fx:id="backBtn" text="Back" onAction="#onBack"
+                    style="-fx-background-color: #ffffff;
+                           -fx-border-color: rgba(17,24,39,0.18);
+                           -fx-border-radius: 10;
+                           -fx-background-radius: 10;
+                           -fx-padding: 8 14;
+                           -fx-font-weight: 700;
+                           -fx-text-fill: #111827;"/>
+
+            <Button fx:id="nextBtn" text="Next" onAction="#onNext"
+                    style="-fx-background-color: #ffffff;
+                           -fx-border-color: rgba(17,24,39,0.18);
+                           -fx-border-radius: 10;
+                           -fx-background-radius: 10;
+                           -fx-padding: 8 14;
+                           -fx-font-weight: 700;
+                           -fx-text-fill: #111827;"/>
+
             <Pane HBox.hgrow="ALWAYS"/>
-            <Button fx:id="checkBtn" text="Check Result" onAction="#onCheck"/>
+
+            <Button fx:id="checkBtn" text="Check Result" onAction="#onCheck"
+                    style="-fx-background-color: #2563eb;
+                           -fx-background-radius: 10;
+                           -fx-padding: 8 16;
+                           -fx-font-weight: 800;
+                           -fx-text-fill: white;"/>
         </HBox>
     </bottom>
 

@@ -123,13 +123,14 @@ public class MathController {
 
         questions.add(new Question(
                 "Identity Matrix - Which one is the identity matrix?",
-                new String[]{
-                        "( 1  0  0 )\n   ( 0  1  0 )\n   ( 0  0  1 )",
-                        " ( 1  2  0 )\n   ( 0  1  0 )\n   ( 1  0  0 )",
-                        " ( 1  2  3 )\n   ( 0  1  0 )\n   ( 1  0  0 )",
-                        " ( 1  0  1 )\n   ( 0  1  0 )\n   ( 1  0  1 )"
-                },
-                0,null,null));
+                        new String[]{
+                                        "( 1  0 )\n     ( 0  1 )", // --> richtig; eingerückt
+                                        "( 0  1 )\n     ( 1  0 )",
+                                        "( 1  1 )\n     ( 0  1 )",
+                                        "( 2  0 )\n     ( 0  2 )"
+
+                        },
+        0,null,null));
 
 
         questions.add(new Question(
