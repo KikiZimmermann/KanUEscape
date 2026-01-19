@@ -110,7 +110,7 @@ public class GameController {
 
     private StackPane dialogueNode;  // Node merken, um es zu entfernen
     private boolean dialogueOpen = false;
-    private final DialogueManager dialogueManager = new DialogueManager();
+    private DialogueManager dialogueManager;;
 
 
     private DialogueBoxController dialogueController;
@@ -146,6 +146,9 @@ public class GameController {
 
         // --- DialogueBox ---
         loadDialogueBox();
+
+        // dialogue ausnahme für kochmanager
+        dialogueManager = new DialogueManager(KochManager);
 
 
         // ToDoListe Laden
@@ -504,10 +507,10 @@ public class GameController {
                 System.out.println(linkerSchrank
                 );
             }
-            if (gid == 71||gid==59) {//Herd
-                String Herd = KochManager.stove();
-                System.out.println(Herd);
-            }
+//            if (gid == 71||gid==59) {//Herd
+//                String Herd = KochManager.stove();
+//                System.out.println(Herd);
+//            }
             if (gid == 63) {//Schneidebrett
                 String Schneidebrett = KochManager.board();
                 System.out.println(Schneidebrett);

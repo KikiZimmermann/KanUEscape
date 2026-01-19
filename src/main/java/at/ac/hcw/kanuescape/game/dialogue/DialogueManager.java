@@ -1,11 +1,14 @@
 package at.ac.hcw.kanuescape.game.dialogue;
 
+import at.ac.hcw.kanuescape.game.KochManager;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class DialogueManager {
+    private final KochManager koch;
 
     // Speichert pro Object, wie oft schon geklickt wurde
     private final Map<String, Integer> clickCountsByType = new HashMap<>();
@@ -17,14 +20,14 @@ public class DialogueManager {
     private static final Set<String> LOOP_TYPES = Set.of("picture");
     private final Map<String, Integer> lineIndexByType = new HashMap<>();
 
-    public DialogueManager() {
+    public DialogueManager(KochManager koch) {
+
+        this.koch = koch;
 
         register("bed", 85, 86, 97, 98, 109, 110);
         register("picture_frame", 62);
         register("window", 11, 23);
         register("coffee_maker", 76);
-        register("sink", 64);
-        register("cutting_board", 63);
         register("chair",  65, 53);
         register("coffee", 75);
         register("dog_food", 79);
@@ -39,6 +42,8 @@ public class DialogueManager {
         register("trash", 52);
         register("vase", 87);
         //register("bookcase", );
+        register("sink", 64);
+        register("cutting_board", 63);
         register("kitchen_counter", 58, 70);
         register("stove", 71, 59);
         register("cabinet", 55, 56);
@@ -58,6 +63,17 @@ public class DialogueManager {
      */
     public String nextTextForType(String type) {
         if (type == null || type.isBlank()) type = "unknown";
+
+        if (koch != null) {
+            switch (type) {
+                case "fridge": return koch.fridge();
+                case "sink": return koch.water();            // sink = wasserhahn bei dir
+                case "cutting_board": return koch.board();
+                case "stove": return koch.stove();
+                case "kitchen_counter": return koch.shelf(); // oder cabinet? je nachdem was 58/70 ist
+                case "cabinet": return koch.cabinet();
+            }
+        }
 
         List<String> variants = DialogueTexts.VARIANTS.get(type);
 

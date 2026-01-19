@@ -56,16 +56,6 @@ public class DialogueTexts {
                     "Pressing buttons won’t help. This machine needs beans, not hope.",
                     "The coffee machine hums quietly. It knows it’s out of coffee."
             )),
-            entry("sink", List.of(
-                    "The sink has seen things.",
-                    "Still wet. No idea why.",
-                    "You briefly consider washing your hands. Briefly."
-            )),
-            entry("cutting_board", List.of(
-                    "It smells like past decisions.",
-                    "Technically clean. Philosophically questionable.",
-                    "Ready for action. Probably."
-            )),
             entry("chair", List.of(
                     "A chair. It’s doing its job admirably.",
                     "You give the chair a quick look. It appreciates the attention.",
@@ -151,24 +141,12 @@ public class DialogueTexts {
             ))
 //            entry("bookcase", List.of(
 //                    ""
-//            ))
-//            entry("kitchen_counter", List.of(
-//                    ""
-//            ))
-//            entry("stove", List.of(
-//                    ""
-//            ))
-//            entry("cabinet", List.of(
-//                    ""
-//            ))
-//            entry("fridge", List.of(
-//                    ""
-//            ))
+//            )),
     );
 
     //Klicke 4 - 9
     public static final String GENERIC_AFTER_VARIANTS =
-            "I gotta stop procrastinating …";
+            "You gotta stop procrastinating …";
 
     //Klick ab 10
     public static final String GENERIC_AFTER_TEN =
