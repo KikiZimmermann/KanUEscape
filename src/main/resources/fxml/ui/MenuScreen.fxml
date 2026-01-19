@@ -9,17 +9,15 @@
            xmlns="http://javafx.com/javafx/17.0.12"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="at.ac.hcw.kanuescape.controller.ui.MenuScreenController"
-           pickOnBounds="true"
-           alignment="CENTER">
+           pickOnBounds="true">
 
    <children>
 
-      <Region fx:id="dim"
-              maxWidth="Infinity"
-              maxHeight="Infinity"
-              style="-fx-background-color: rgba(0,0,0,0.18);" />
+      <Pane fx:id="dim"
+            pickOnBounds="true"
+            style="-fx-background-color: rgba(0,0,0,0.18);" />
 
-      <StackPane fx:id="menuBox" prefHeight="420.0" prefWidth="520.0">
+      <StackPane prefHeight="420.0" prefWidth="520.0">
 
          <children>
 
@@ -34,13 +32,14 @@
             </ImageView>
 
             <VBox alignment="TOP_CENTER"
-                  prefWidth="520.0"
-                  maxWidth="520.0"
+                  prefHeight="200.0"
+                  prefWidth="100.0"
                   StackPane.alignment="CENTER">
 
                <children>
 
-                  <Region prefHeight="86.0"/>
+                  <Region prefHeight="86.0"
+                          prefWidth="600.0" />
 
                   <Label text="MENU"
                          textFill="WHITE">
@@ -49,14 +48,17 @@
                      </font></Label>
 
                   <HBox alignment="CENTER"
-                        prefHeight="55.0">
+                        prefHeight="55.0"
+                        prefWidth="600.0">
 
                      <children>
 
-                        <Region HBox.hgrow="ALWAYS" />
+                        <Region prefHeight="55.0"
+                                prefWidth="234.0" />
 
                         <HBox alignment="CENTER_LEFT"
-                              spacing="8">
+                              prefHeight="55.0"
+                              prefWidth="121.0">
 
                            <children>
 
@@ -101,10 +103,12 @@
                            </children>
                         </HBox>
 
-                        <Region minWidth="40.0" />
+                        <Region prefHeight="55.0"
+                                prefWidth="115.0" />
 
                         <HBox alignment="CENTER_LEFT"
-                              spacing="8">
+                              prefHeight="55.0"
+                              prefWidth="125.0">
 
                            <children>
 
@@ -127,7 +131,7 @@
                                     </ImageView>
 
                                     <ImageView fx:id="sfxCheckmark"
-                                               fitHeight="24.0"
+                                               fitHeight="150.0"
                                                fitWidth="24.0"
                                                mouseTransparent="true"
                                                pickOnBounds="true"
@@ -148,7 +152,8 @@
                            </children>
                         </HBox>
 
-                        <Region HBox.hgrow="ALWAYS" />
+                        <Region prefHeight="200.0"
+                                prefWidth="200.0" />
 
                      </children>
                   </HBox>
@@ -162,7 +167,8 @@
                         <Image url="@../../assets/images/ui/separator.png" />
                      </image></ImageView>
 
-                  <Region prefHeight="19.0"/>
+                  <Region prefHeight="19.0"
+                          prefWidth="600.0" />
 
                   <Button text="Continue"
                           onAction="#onContinue"

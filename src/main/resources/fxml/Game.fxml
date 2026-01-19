@@ -28,8 +28,26 @@
                        maxWidth="Infinity"
                        maxHeight="Infinity" />
 
+            <!-- Endscreen Overlay (ganz oben) -->
+            <StackPane fx:id="endOverlayLayer"
+                       managed="false"
+                       pickOnBounds="true"
+                       visible="false"
+                       maxWidth="Infinity"
+                       maxHeight="Infinity" />
+
+            <!-- Startscreen Overlay (ganz oben) -->
+            <StackPane fx:id="startOverlayLayer"
+                       managed="false"
+                       pickOnBounds="true"
+                       visible="false"
+                       maxWidth="Infinity"
+                       maxHeight="Infinity" />
+
+
             <StackPane alignment="TOP_CENTER" pickOnBounds="false">
-               <Button contentDisplay="CENTER"
+               <Button fx:id="menuButton"
+                       contentDisplay="CENTER"
                        focusTraversable="false"
                        mnemonicParsing="false"
                        style="-fx-background-color: transparent;"

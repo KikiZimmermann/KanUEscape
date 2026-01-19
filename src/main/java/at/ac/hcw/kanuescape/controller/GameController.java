@@ -20,6 +20,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
@@ -60,7 +61,6 @@ public class GameController {
     private static final Color BACKGROUND = Color.web("#4e4e4e");
     @FXML private StackPane gameArea;
 
-
     // Player
     private Player player;
     private Image playerSprite;
@@ -90,6 +90,10 @@ public class GameController {
     private MathController MathController;
     private KochManager KochManager = new KochManager();
 
+    //win condition
+    private boolean won = false;
+
+
     // Render Context für Größen
     private RenderContext renderContext;
 
@@ -103,13 +107,18 @@ public class GameController {
     private StackPane root;
     @FXML
     private Canvas gameCanvas;
-    @FXML
-    private ImageView menuBtn;
-    @FXML
-    private Label menuLabel;
+    @FXML private Button menuButton;
 
+
+    //Overlayers für ui
     @FXML private StackPane dialogueOverlayLayer;
     @FXML private StackPane menuOverlayLayer;
+    @FXML private StackPane endOverlayLayer;
+    private at.ac.hcw.kanuescape.ui.MenuOverlayManager menuManager;
+    @FXML private StackPane startOverlayLayer;
+    private at.ac.hcw.kanuescape.ui.EndScreenOverlayManager endManager;
+
+
 
 
     private StackPane dialogueNode;  // Node merken, um es zu entfernen
@@ -122,8 +131,8 @@ public class GameController {
     private Runnable afterDialogueClose = null;             // Bücherrätsel nach Dialogue close
 
 
-    //Menu
-    private at.ac.hcw.kanuescape.ui.MenuOverlayManager menuManager;
+
+
 
 
 
@@ -166,6 +175,29 @@ public class GameController {
 //        menuManager.setOnNewGame(this::startNewGame);
 //        menuManager.setOnExit(this::exitToEndScreen);
         menuManager.load();
+
+        // EndScreen
+        endManager = new at.ac.hcw.kanuescape.ui.EndScreenOverlayManager(endOverlayLayer);
+        endManager.load();
+
+        // Menü -> Endscreen (Debug/Test, ohne Sieg)
+        menuManager.setOnExit(() -> {
+            setMenuButtonVisible(false);
+            endManager.open();
+        });
+
+
+
+        // callbacks: DU entscheidest, was “New Game” und “Exit” tun soll
+        endManager.setOnNewGame(() -> {
+            // Option A: App/SceneManager kümmert sich drum (ideal)
+            // Option B: minimaler Reset hier (wenn ihr das so wollt)
+        });
+
+        endManager.setOnExit(() -> {
+            Platform.exit();
+        });
+
 
 
 
@@ -312,7 +344,9 @@ public class GameController {
             public void handle(long now) {
 
                 //no mvmt when text box open
-                if (dialogueOpen || (menuManager != null && menuManager.isPaused())) {
+                if (dialogueOpen
+                        || (menuManager != null && menuManager.isPaused())
+                        || (endManager != null && endManager.isOpen())) {
                     player.animate(now, false);
                     render();
                     return;
@@ -630,6 +664,20 @@ public class GameController {
         if (Prog&&Mathe&&Kochen&&Buecher) {
             System.out.println("Win");
         }
+
+
+
+        //vorschlag
+//        if (won) return;
+//        if (Prog && Mathe && Kochen && Buecher) {
+//            won = true;
+//            setMenuButtonVisible(false);
+//            endManager.open();
+//            if (loop != null) loop.stop(); // optional
+//        }
+
+        //und dann am ende jeder check methode Win();
+
     }
 
     private boolean isTileBlocked(int nextGridX, int nextGridY, boolean up, boolean down, boolean left, boolean right) {
@@ -748,5 +796,15 @@ public class GameController {
         if (menuManager != null) menuManager.toggle();
     }
 
+    private void setMenuButtonVisible(boolean visible) {
+        if (menuButton == null) return;
+        menuButton.setVisible(visible);
+        menuButton.setManaged(visible);
+    }
+
+    private void hideEndScreen() {
+        endManager.close();
+        setMenuButtonVisible(true);
+    }
 
 }

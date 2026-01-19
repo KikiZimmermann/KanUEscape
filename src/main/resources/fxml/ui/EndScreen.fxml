@@ -6,51 +6,36 @@
 <?import javafx.scene.text.*?>
 
 <StackPane fx:id="endRoot"
-           maxHeight="-Infinity"
-           maxWidth="-Infinity"
-           minHeight="-Infinity"
-           minWidth="-Infinity"
-           prefHeight="400.0"
-           prefWidth="600.0"
            xmlns="http://javafx.com/javafx/17.0.12"
-           xmlns:fx="http://javafx.com/fxml/1">
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="at.ac.hcw.kanuescape.controller.ui.EndScreenController"
+           style="-fx-background-color: rgba(0,0,0,0.6);">
 
-   <children>
+   <!-- ZENTRIERTER CONTAINER -->
+   <StackPane alignment="CENTER">
 
-      <Pane prefHeight="200.0"
-            prefWidth="200.0"
-            style="-fx-background-color: #4e4e4e;" />
+      <!-- BOX + TEXT ÜBEREINANDER -->
+      <StackPane alignment="CENTER">
 
-      <StackPane prefHeight="150.0"
-                 prefWidth="200.0">
+         <!-- Box -->
+         <ImageView fitWidth="520"
+                    preserveRatio="true"
+                    smooth="false">
+            <image>
+               <Image url="@../../assets/images/ui/menu.png"/>
+            </image>
+         </ImageView>
 
-         <children>
+         <!-- Text IN der Box -->
+         <Label text="You Escaped!"
+                textFill="#f5f5f5"
+                alignment="CENTER">
+            <font>
+               <Font size="26"/>
+            </font>
+         </Label>
 
-            <ImageView fitHeight="420.0"
-                       fitWidth="520.0"
-                       pickOnBounds="true"
-                       preserveRatio="true"
-                       smooth="false">
-               <image>
-                  <Image url="@../../assets/images/ui/menu.png" />
-               </image></ImageView>
+      </StackPane>
 
-            <VBox prefHeight="200.0"
-                  prefWidth="100.0">
-
-               <children>
-
-                  <Label alignment="CENTER"
-                         contentDisplay="CENTER"
-                         prefHeight="402.0"
-                         prefWidth="600.0"
-                         text="You Escaped!"
-                         textFill="WHITE">
-                     <font>
-                        <Font size="24.0" />
-                     </font></Label>
-
-               </children></VBox>
-         </children></StackPane>
-   </children>
+   </StackPane>
 </StackPane>

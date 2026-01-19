@@ -22,6 +22,9 @@ public class MenuOverlayManager {
     // callbacks nach außen (GameController / App)
     private Runnable onNewGame = () -> {};
     private Runnable onExit = () -> {};
+    private Runnable onShowEndScreen = () -> {};
+
+
 
     public MenuOverlayManager(StackPane overlayLayer) {
         this.overlayLayer = overlayLayer;
@@ -34,10 +37,12 @@ public class MenuOverlayManager {
             controller = loader.getController();
 
             controller.setCallbacks(
-                    this::close,          // continue
-                    () -> onNewGame.run(), // new game
-                    () -> onExit.run()     // exit
+                    this::close,           // Continue
+                    () -> onNewGame.run(),  // New Game
+                    () -> onExit.run()      // Exit
             );
+
+
 
             controller.setInitial(musicEnabled, sfxEnabled);
 
@@ -63,6 +68,9 @@ public class MenuOverlayManager {
 
     public void setOnNewGame(Runnable r) { this.onNewGame = (r != null) ? r : () -> {}; }
     public void setOnExit(Runnable r)    { this.onExit = (r != null) ? r : () -> {}; }
+    public void setOnShowEndScreen(Runnable r) {
+        this.onShowEndScreen = (r != null) ? r : () -> {};
+    }
 
     public boolean isOpen() { return open; }
     public boolean isPaused() { return open; } // Menu pausiert das Spiel
@@ -105,6 +113,7 @@ public class MenuOverlayManager {
 
         overlayLayer.setVisible(false);
         overlayLayer.setManaged(false);
-
     }
+
+
 }

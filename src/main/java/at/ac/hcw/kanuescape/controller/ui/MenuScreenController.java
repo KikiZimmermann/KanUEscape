@@ -17,9 +17,9 @@ public class MenuScreenController {
     private boolean musicOn = true;
     private boolean sfxOn = true;
 
-    private Runnable onContinue;
-    private Runnable onNewGame;
-    private Runnable onExit;
+    private Runnable onContinue = () -> {};
+    private Runnable onNewGame = () -> {};
+    private Runnable onExit = () -> {};
 
     @FXML
     private void initialize() {
@@ -47,9 +47,9 @@ public class MenuScreenController {
     }
 
     public void setCallbacks(Runnable onContinue, Runnable onNewGame, Runnable onExit) {
-        this.onContinue = onContinue;
-        this.onNewGame = onNewGame;
-        this.onExit = onExit;
+        this.onContinue = (onContinue != null) ? onContinue : () -> {};
+        this.onNewGame  = (onNewGame  != null) ? onNewGame  : () -> {};
+        this.onExit     = (onExit     != null) ? onExit     : () -> {};
     }
 
     public void setInitial(boolean musicOn, boolean sfxOn) {
@@ -84,7 +84,5 @@ public class MenuScreenController {
         if (onNewGame != null) onNewGame.run();
     }
 
-    @FXML private void onExit() {
-        if (onExit != null) onExit.run();
-    }
+    @FXML private void onExit() { onExit.run(); }
 }
