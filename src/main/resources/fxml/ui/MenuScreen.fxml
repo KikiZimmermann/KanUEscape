@@ -13,11 +13,19 @@
 
    <children>
 
-      <Pane fx:id="dim"
-            pickOnBounds="true"
-            style="-fx-background-color: rgba(0,0,0,0.18);" />
+       <Pane fx:id="dim"
+             pickOnBounds="true"
+             style="-fx-background-color: rgba(0,0,0,0.18);" />
 
-      <StackPane prefHeight="420.0" prefWidth="520.0">
+
+
+
+       <StackPane fx:id="menuBox"
+                  prefHeight="420.0"
+                  prefWidth="520.0"
+                  maxHeight="420.0"
+                  maxWidth="520.0"
+                  StackPane.alignment="CENTER">
 
          <children>
 
