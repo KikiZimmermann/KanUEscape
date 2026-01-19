@@ -4,6 +4,7 @@ import at.ac.hcw.kanuescape.controller.BuecherController;
 import at.ac.hcw.kanuescape.controller.LaptopController;
 import at.ac.hcw.kanuescape.controller.ToDoListeController;
 import at.ac.hcw.kanuescape.controller.ui.DialogueBoxController;
+import at.ac.hcw.kanuescape.game.KochManager;
 import at.ac.hcw.kanuescape.tiled.MapLoader;
 import at.ac.hcw.kanuescape.tiled.MapRenderer;
 import at.ac.hcw.kanuescape.tiled.RenderContext;
@@ -83,12 +84,15 @@ public class GameController {
     private SchrankController SchrankController;
     private KuehlschrankController KuehlschrankController;
 
+    private KochManager KochManager = new KochManager();
+
     // Render Context für Größen
     private RenderContext renderContext;
 
     public RenderContext rc;
     // Die Objekt Layer wird hier gespeichert
     private TiledModel.TiledLayer interactionLayer;
+    private TiledModel.TiledLayer interactionLayer2;
     private TiledModel.TiledLayer collisionLayer;
 
     @FXML
@@ -337,6 +341,10 @@ public class GameController {
                     renderContext = rc;
                     interactionLayer = layer;
                 }
+                if ("objects_front".equals(layerName)) {
+                    renderContext = rc;
+                    interactionLayer2 = layer;
+                }
                 if ("collision".equals(layerName)) {
                     renderContext = rc;
                     collisionLayer = layer; // Hier sagen wir dem Programm: Das ist die Ebene mit den Wänden!
@@ -440,11 +448,12 @@ public class GameController {
 
         int index = tileY * interactionLayer.width() + tileX;
         int gid = interactionLayer.data()[index];
+        int gid2 = interactionLayer2.data()[index];
 
-        onTileClicked(tileX, tileY, gid);
+        onTileClicked(tileX, tileY, gid, gid2);
     }
 
-    private void onTileClicked(double x, double y, int gid) {
+    private void onTileClicked(double x, double y, int gid, int gid2) {
         if (gid == 0) return;
 
         double tileX = player.getTileX();
@@ -453,23 +462,16 @@ public class GameController {
         double pixelX = tileX * interactionLayer.width();
         double pixelY = tileY * interactionLayer.height();
 
-        System.out.println("Tile geklickt: (" + x * 32 + "," + y * 32 + ") GID=" + gid);
+        System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
         System.out.println("Player geklickt: (" + pixelX + "," + pixelY + ") GID=" + gid);
 
         if (true/*Math.abs(tileX - x*32) <= x *32* 0.15*/) {
-                System.out.println("Spieler ist innerhalb von 10% des Ziels!");
+            System.out.println("Spieler ist innerhalb von 10% des Ziels!");
 
             if (gid == 60) {
                 if (todoStage != null) {
                     todoStage.setX(rc.renderW() / 2);
                     todoStage.show();
-                }
-            }
-
-            if (gid == 72) {
-                if (KuehlschrankStage != null) {
-                    KuehlschrankStage.setX(rc.renderW() / 2);
-                    KuehlschrankStage.show();
                 }
             }
             if (gid == 55||gid==56) {
@@ -478,15 +480,34 @@ public class GameController {
                     SchrankStage.setY(rc.renderH()/2);
                     SchrankStage.show();
                 }
+                String Schrank = KochManager.cabinet();
+                System.out.println(Schrank);
             }
-            if (gid == 58||gid==70) {
-
+            if (gid == 58||gid==70) {//linkerSchrank
+                String linkerSchrank = KochManager.shelf();
+                System.out.println(linkerSchrank
+                );
+            }
+            if (gid == 71||gid==59) {//Herd
+                String Herd = KochManager.stove();
+                System.out.println(Herd);
+            }
+            if (gid2 == 63) {//Schneidebrett
+                String Schneidebrett = KochManager.board();
+                System.out.println(Schneidebrett);
+            }
+            if (gid2 == 64) {//Wasserhahn
+                String Wasser = KochManager.water();
+                System.out.println(Wasser);
+                System.out.println(KochManager.getState());
             }
             if (gid == 72) {
                 if (KuehlschrankStage != null) {
                     KuehlschrankStage.setX(rc.renderW() / 2);
                     KuehlschrankStage.show();
                 }
+                String Kuehlschrank = KochManager.fridge();
+                System.out.println(Kuehlschrank);
             }
             if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
                 // Check if the book stage is initialized before displaying it
