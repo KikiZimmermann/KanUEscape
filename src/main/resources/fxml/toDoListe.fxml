@@ -7,7 +7,7 @@
       fx:controller="at.ac.hcw.kanuescape.controller.ToDoListeController">
 
     <ImageView fitWidth="341" fitHeight="513" preserveRatio="true" fx:id="exitImage" onMouseClicked="#Exit">
-        <Image url="@../assets/images/ToDoListe/ToDoListe.jpg"/>
+        <Image url="@../assets/images/ToDoListe/todo_list_eng.png"/>
     </ImageView>
 
     <ImageView fitWidth="30" fitHeight="30" preserveRatio="true" fx:id="checkBuecher" visible="false" onMouseClicked="#Exit"
