@@ -60,6 +60,7 @@ public class GameController {
     private static final Color BACKGROUND = Color.web("#4e4e4e");
     @FXML private StackPane gameArea;
 
+
     // Player
     private Player player;
     private Image playerSprite;
@@ -107,16 +108,28 @@ public class GameController {
     @FXML
     private Label menuLabel;
 
-    @FXML
-    private StackPane overlayLayer;
+    @FXML private StackPane dialogueOverlayLayer;
+    @FXML private StackPane menuOverlayLayer;
+
 
     private StackPane dialogueNode;  // Node merken, um es zu entfernen
     private boolean dialogueOpen = false;
     // dialogue ausnahme für kochmanager
     private DialogueManager dialogueManager= new DialogueManager(KochManager);
 
+
     private DialogueBoxController dialogueController;
     private Runnable afterDialogueClose = null;             // Bücherrätsel nach Dialogue close
+
+
+    //Menu
+    private at.ac.hcw.kanuescape.ui.MenuOverlayManager menuManager;
+
+
+
+
+
+
 
     // Input/loop
     private final Map<KeyCode, Boolean> keys = new EnumMap(KeyCode.class);
@@ -145,6 +158,17 @@ public class GameController {
 
         // --- DialogueBox ---
         loadDialogueBox();
+
+        // Menu
+        menuManager = new at.ac.hcw.kanuescape.ui.MenuOverlayManager(menuOverlayLayer);
+
+
+//        menuManager.setOnNewGame(this::startNewGame);
+//        menuManager.setOnExit(this::exitToEndScreen);
+        menuManager.load();
+
+
+
 
         // ToDoListe Laden
         FXMLLoader fxmlLoader = new FXMLLoader(GameController.class.getResource("/fxml/toDoListe.fxml"));
@@ -288,7 +312,7 @@ public class GameController {
             public void handle(long now) {
 
                 //no mvmt when text box open
-                if (dialogueOpen) {
+                if (dialogueOpen || (menuManager != null && menuManager.isPaused())) {
                     player.animate(now, false);
                     render();
                     return;
@@ -328,6 +352,10 @@ public class GameController {
         return keys.getOrDefault(code, false);
     }
 
+    /**
+     * Rendert ein komplettes Frame: Background -> Map-Layer -> Player.
+     * (Kein Game-Loop, nur beim Start und beim Resize)
+     */
     private void render() {
         GraphicsContext gc = gameCanvas.getGraphicsContext2D();
         gc.setImageSmoothing(false);
@@ -355,6 +383,9 @@ public class GameController {
         renderPlayer(gc);
     }
 
+    /**
+     * Findet einen Layer anhand des Namens und rendert ihn, wenn es ein TileLayer ist.
+     */
     private void renderLayerByName(GraphicsContext gc, String layerName, int firstGid, int columns) {
         for (var layer : map.layers()) {
             if (layer.isTileLayer() && layerName.equals(layer.name())) {
@@ -377,6 +408,11 @@ public class GameController {
         }
     }
 
+    /**
+     * Rendert den Player als EIN Frame aus dem Sprite Sheet.
+     * Position ist Tile-basiert und wird auf das gleiche Integer-Grid gelegt wie die Map,
+     * damit nichts "driftet".
+     */
     private void renderPlayer(GraphicsContext gc) {
         if (playerSprite == null || map == null || player == null) return;
 
@@ -525,6 +561,10 @@ public class GameController {
 
                 }
             }
+//            //Kiki
+//            if (gid == 66) {
+//                //sachen rein schreiben (Ali Code hier)
+//            }
 
             if (gid == 77 || gid == 78) {
                 if (MathStage != null) {
@@ -629,13 +669,16 @@ public class GameController {
             dialogueNode = loader.load();
             dialogueController = loader.getController();
 
-            overlayLayer.getChildren().setAll(dialogueNode);
+            // nur einmal einhängen
+            dialogueOverlayLayer.getChildren().add(dialogueNode);
 
-            overlayLayer.setVisible(false);
-            overlayLayer.setManaged(false);
+            // ABER: nicht anzeigen beim Start
+            dialogueOverlayLayer.setVisible(false);
+            dialogueOverlayLayer.setManaged(false);
             dialogueOpen = false;
 
-            overlayLayer.setOnMouseClicked(e -> {
+            // Klick schließt (Handler ist ok, wirkt nur wenn sichtbar)
+            dialogueOverlayLayer.setOnMouseClicked(e -> {
 
                 if (dialogueController.onUserClick()) {
                     e.consume();
@@ -672,9 +715,10 @@ public class GameController {
         activeDialogueType = type;
         dialogueController.setText(text);
 
-        overlayLayer.setVisible(true);
-        overlayLayer.setManaged(true);
+        dialogueOverlayLayer.setVisible(true);
+        dialogueOverlayLayer.setManaged(true);
         dialogueOpen = true;
+
     }
 
     public void openDialogue(String text, String type, Runnable onClose) {
@@ -684,8 +728,10 @@ public class GameController {
 
     public void closeDialogue() {
         if (dialogueController != null) dialogueController.stopTyping();
-        overlayLayer.setVisible(false);
-        overlayLayer.setManaged(false);
+
+        dialogueOverlayLayer.setVisible(false);
+        dialogueOverlayLayer.setManaged(false);
+
         dialogueOpen = false;
         activeDialogueType = null;
 
@@ -695,4 +741,11 @@ public class GameController {
             r.run();
         }
     }
+
+    @FXML
+    private void onMenuClicked() {
+        if (menuManager != null) menuManager.toggle();
+    }
+
+
 }
