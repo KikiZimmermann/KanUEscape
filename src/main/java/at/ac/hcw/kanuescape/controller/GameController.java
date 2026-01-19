@@ -191,11 +191,9 @@ public class GameController {
         endManager = new at.ac.hcw.kanuescape.ui.EndScreenOverlayManager(endOverlayLayer);
         endManager.load();
 
-        // Menü -> Endscreen (Debug/Test, ohne Sieg)
-        menuManager.setOnExit(() -> {
-            setMenuButtonVisible(false);
-            endManager.open();
-        });
+        // Menü -> Exit
+        menuManager.setOnExit(() -> Platform.exit());
+
 
 
 
