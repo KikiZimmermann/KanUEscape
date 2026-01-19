@@ -3,6 +3,7 @@ package at.ac.hcw.kanuescape.game.dialogue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DialogueManager {
 
@@ -11,6 +12,10 @@ public class DialogueManager {
 
     // 1) gid -> type
     private final Map<Integer, String> gidToType = new HashMap<>();
+
+    // Types, die loopen sollen:
+    private static final Set<String> LOOP_TYPES = Set.of("picture");
+    private final Map<String, Integer> lineIndexByType = new HashMap<>();
 
     public DialogueManager() {
 
@@ -43,21 +48,38 @@ public class DialogueManager {
         }
     }
 
-
     /**
      * liefert passenden Text zu Objekten UND zählt intern hoch
      */
     public String nextTextForType(String type) {
         if (type == null || type.isBlank()) type = "unknown";
 
+        List<String> variants = DialogueTexts.VARIANTS.get(type);
+
+        // Sonderfall: picture = fortlaufende Zeilen (1 Klick = 1 Zeile)
+        if ("picture".equals(type) && variants != null && !variants.isEmpty()) {
+            int idx = lineIndexByType.getOrDefault(type, 0);
+            String line = variants.get(idx);
+
+            // idx erhöhen + loopen
+            idx = (idx + 1) % variants.size();
+            lineIndexByType.put(type, idx);
+
+            return line;
+        }
+
         int count = clickCountsByType.getOrDefault(type, 0) + 1;      //startet bei 1
         clickCountsByType.put(type, count);
 
-        List<String> variants = DialogueTexts.VARIANTS.get(type);
+        // Wenn es Varianten gibt:
+        if (variants != null && !variants.isEmpty()) {
 
-        // Varianten 1 - 3
-        if (variants != null && count <= variants.size()) {
-            return variants.get(count - 1);
+//
+
+            // Normales Verhalten: zuerst Varianten 1..n
+            if (count <= variants.size()) {
+                return variants.get(count - 1);
+            }
         }
 
         // Varianten 10+
@@ -67,5 +89,36 @@ public class DialogueManager {
 
         // Varianten 4 - 9
         return DialogueTexts.GENERIC_AFTER_VARIANTS;
+    }
+
+    public String typeForGid(int gid) {
+        return gidToType.get(gid);
+    }
+
+
+    // Specifically Picture
+    public String nextPictureLine() {
+        List<String> lines = DialogueTexts.VARIANTS.get("picture");
+        if (lines == null || lines.isEmpty()) return "";
+
+        int idx = lineIndexByType.getOrDefault("picture", 0);
+        if (idx >= lines.size()) idx = 0; // safety
+
+        String line = lines.get(idx);
+        lineIndexByType.put("picture", idx + 1); // wichtig: +1, NICHT modulo
+
+        return line;
+    }
+
+    public boolean isPictureFinished() {
+        List<String> lines = DialogueTexts.VARIANTS.get("picture");
+        if (lines == null) return true;
+
+        int idx = lineIndexByType.getOrDefault("picture", 0);
+        return idx >= lines.size();
+    }
+
+    public void resetPicture() {
+        lineIndexByType.put("picture", 0);
     }
 }

@@ -87,15 +87,14 @@ public class DialogueTexts {
                     "You stare at it. It stares back. Nobody wins."
             )),
             entry("picture", List.of(
-                    "Once upon a time, there lived three kings who ruled one great land.",
-                    "Each of them commanded two loyal guards and five brave knights.",
-                    "Together they protected four ancient gates.",
-                    "",
-                    "Beyond the gates, four wandering monks met five lost travelers.",
-                    "They shared three secrets, spoke two sacred words, and followed one true path.",
-                    "",
-                    "At the journey’s end, five candles burned beside two stone thrones.",
-                    "Four bells rang in silence, one crown was lifted, and three doors finally opened."
+                    "At the university, a nerdy student spent most of his days surrounded by three towers of books, " +
+                            "focused on one upcoming exam.\n" +
+                            "In his backpack were two notebooks, five textbooks, and four folders filled with notes.\n",
+                    "During late-night study sessions, four friends joined him with five cups of coffee.\n" +
+                            "Together they reviewed three chapters, solved two practice tests, " +
+                            "and finally understood one difficult subject.",
+                    "Back at home, five books lay open beside two spare keys.\n" +
+                            "Four alarms were set, one final revision was done, and three exams no longer felt impossible.."
 //                    31254
 //                    45321
 //                    52413

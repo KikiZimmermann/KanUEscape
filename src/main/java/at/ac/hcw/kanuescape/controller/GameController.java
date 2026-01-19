@@ -4,6 +4,7 @@ import at.ac.hcw.kanuescape.controller.BuecherController;
 import at.ac.hcw.kanuescape.controller.LaptopController;
 import at.ac.hcw.kanuescape.controller.ToDoListeController;
 import at.ac.hcw.kanuescape.controller.ui.DialogueBoxController;
+import at.ac.hcw.kanuescape.game.dialogue.DialogueManager;
 import at.ac.hcw.kanuescape.game.KochManager;
 import at.ac.hcw.kanuescape.tiled.MapLoader;
 import at.ac.hcw.kanuescape.tiled.MapRenderer;
@@ -109,6 +110,7 @@ public class GameController {
 
     private StackPane dialogueNode;  // Node merken, um es zu entfernen
     private boolean dialogueOpen = false;
+    private final DialogueManager dialogueManager = new DialogueManager();
 
 
     private DialogueBoxController dialogueController;
@@ -288,6 +290,9 @@ public class GameController {
             }
         };
         loop.start();
+
+        gameCanvas.setOnMouseClicked(e -> handleMapClick(e.getX(), e.getY()));
+
     }
 
     private boolean isDown(KeyCode code) {
@@ -406,19 +411,15 @@ public class GameController {
         int dx = baseX + tilePxX + (scaledTileW - targetW) / 2;
         int dy = baseY + tilePxY + (scaledTileH - targetH) / 2;
 
-        // verschiebt sprite 2 nach links und eins hinauf (Startposition)
-//        dx -= 2 * scaledTileW;
-//        dy -= 1 * scaledTileH;
-
         // Optical anchor towards top (against "bottom-heavy" impression - "centered")
         dy -= (int) Math.round(scaledTileH * PLAYER_Y_ANCHOR);
 
         // Drawing (source: sx, sy, frameW, frameH -> destination: dx, dy, targetW, targetH)
         gc.drawImage(playerSprite, sx, sy, frameW, frameH, dx, dy, targetW, targetH);
 
-        gameCanvas.setOnMouseClicked(e -> {
-            handleMapClick(e.getX(), e.getY());
-        });
+//        gameCanvas.setOnMouseClicked(e -> {
+//            handleMapClick(e.getX(), e.getY());
+//        });
     }
 
     public void stop() {
@@ -450,10 +451,13 @@ public class GameController {
         int gid = interactionLayer.data()[index];
         int gid2 = interactionLayer2.data()[index];
 
-        onTileClicked(tileX, tileY, gid, gid2);
+        // nimm das "oberste" / relevante gid
+        int clickedGid = (gid2 != 0) ? gid2 : gid;
+
+        onTileClicked(tileX, tileY, clickedGid);
     }
 
-    private void onTileClicked(double x, double y, int gid, int gid2) {
+    private void onTileClicked(double x, double y, int gid) {
         if (gid == 0) return;
 
         double tileX = player.getGridX();
@@ -489,14 +493,14 @@ public class GameController {
                 String Herd = KochManager.stove();
                 System.out.println(Herd);
             }
-            if (gid2 == 63) {//Schneidebrett
+            if (gid == 63) {//Schneidebrett
                 String Schneidebrett = KochManager.board();
                 System.out.println(Schneidebrett);
                 if(KochManager.getState()== KochManager.getFINISHED()){
                     CheckKochen();
                 }
             }
-            if (gid2 == 64) {//Wasserhahn
+            if (gid == 64) {//Wasserhahn
                 String Wasser = KochManager.water();
                 System.out.println(Wasser);
                 System.out.println(KochManager.getState());
@@ -542,9 +546,22 @@ public class GameController {
                     LaptopStage.show();
                 }
             }
-            //Kiki
-            if (gid == 66) {
-                //sachen rein schreiben (Ali Code hier)
+//            //Kiki
+//            if (gid == 66) {
+//                //sachen rein schreiben (Ali Code hier)
+//            }
+
+            // Dialogue fenster + Text
+            String type = dialogueManager.typeForGid(gid);
+            if (type != null) {
+
+                if ("picture".equals(type)) {
+                    dialogueManager.resetPicture(); // immer bei Zeile 1 starten
+                    openDialogue(dialogueManager.nextPictureLine(), "picture");
+                } else {
+                    openDialogue(dialogueManager.nextTextForType(type), type);
+                }
+                return;
             }
         }
     }
@@ -636,17 +653,39 @@ public class GameController {
             dialogueOpen = false;
 
             // Klick schließt (Handler ist ok, wirkt nur wenn sichtbar)
-            overlayLayer.setOnMouseClicked(e -> closeDialogue());
+            overlayLayer.setOnMouseClicked(e -> {
+                if ("picture".equals(activeDialogueType)) {
+
+                    if (dialogueManager.isPictureFinished()) {
+                        dialogueManager.resetPicture();
+                        closeDialogue();
+                    } else {
+                        openDialogue(dialogueManager.nextPictureLine(), "picture");
+                    }
+
+                    e.consume();
+                    return;
+                }
+
+                closeDialogue();
+            });
+
+
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
+    private String activeDialogueType = null;
     public void openDialogue(String text) {
+        openDialogue(text, null);
+    }
+
+    public void openDialogue(String text, String type) {
         if (dialogueController == null) return;
 
+        activeDialogueType = type;
         dialogueController.setText(text);
 
         overlayLayer.setVisible(true);
@@ -658,6 +697,7 @@ public class GameController {
         overlayLayer.setVisible(false);
         overlayLayer.setManaged(false);
         dialogueOpen = false;
+        activeDialogueType = null;
     }
 
 }
