@@ -526,8 +526,8 @@ public class GameController {
                 }
             }
 
-            int MATH_GID = 112;
-            if (gid == MATH_GID) {
+
+            if (gid == 77||gid==78) {
                 if (MathStage != null) {
                     MathStage.setX(rc.renderW() / 2);
                     MathStage.show();
