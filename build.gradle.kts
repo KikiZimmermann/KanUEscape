@@ -39,6 +39,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+    implementation("org.openjfx:javafx-media:21")
 }
 
 tasks.withType<Test> {
