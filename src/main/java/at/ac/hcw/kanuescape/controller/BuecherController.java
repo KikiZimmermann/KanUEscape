@@ -4,22 +4,15 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class BuecherController {
-
-    // Reference to the main game logic controller
-//    private GameController gameController = new GameController();
-
-    // UI elements injected from FXML
+        // UI elements injected from FXML
     @FXML private AnchorPane BuecherScene;
     @FXML private HBox shelveOne;
     @FXML private HBox shelveTwo;
@@ -45,12 +38,6 @@ public class BuecherController {
 
     @FXML
     private void initialize() {
-        // Enable keyboard focus for the scene to detect the ESC key
-        BuecherScene.setFocusTraversable(true);
-//        BuecherScene.setOnKeyPressed(event -> {
-//            if (event.getCode() == KeyCode.ESCAPE) Exit();
-//        });
-
         // Randomize the position of books in each shelf at the start of the puzzle
         shuffleShelf(shelveOne);
         shuffleShelf(shelveTwo);
@@ -63,6 +50,24 @@ public class BuecherController {
         makeAllBooksDraggable(shelveOne);
         makeAllBooksDraggable(shelveTwo);
         makeAllBooksDraggable(shelveThree);
+    }
+
+    /**
+     * Shuffles the children of an HBox to create a random puzzle start.
+     */
+    private void shuffleShelf(HBox shelf) {
+        List<Node> books = new ArrayList<>(shelf.getChildren());
+        Collections.shuffle(books);
+        shelf.getChildren().setAll(books); // Re-add nodes in shuffled order
+    }
+
+    /**
+     * Utility to synchronize all tracking lists with the visual state of the UI.
+     */
+    private void refreshAllLists() {
+        updateOrderList(shelveOne);
+        updateOrderList(shelveTwo);
+        updateOrderList(shelveThree);
     }
 
     /**
@@ -108,27 +113,25 @@ public class BuecherController {
         if (shelveList1.equals(target1) &&
                 shelveList2.equals(target2) &&
                 shelveList3.equals(target3)) {
-
-            System.out.println("Win! All puzzles solved.");
             win = true;
             BuecherScene.setStyle("-fx-background-color: lightgreen;");
-            // gameController.CheckBuecher(); // Notify game logic of success
-
             winState.setOpacity(1);
             escape_alert.setOpacity(0);
         }
     }
 
-    /**
-     * Utility to synchronize all tracking lists with the visual state of the UI.
-     */
-    private void refreshAllLists() {
-        updateOrderList(shelveOne);
-        updateOrderList(shelveTwo);
-        updateOrderList(shelveThree);
-    }
-
     // --- Drag & Drop Implementation ---
+
+    /**
+     * Loops through a shelf and enables drag logic for every image.
+     */
+    private void makeAllBooksDraggable(HBox shelf) {
+        for (Node node : shelf.getChildren()) {
+            if (node instanceof ImageView) {
+                enableDrag((ImageView) node);
+            }
+        }
+    }
 
     /**
      * Adds mouse event handlers to a book for dragging functionality.
@@ -187,40 +190,13 @@ public class BuecherController {
     }
 
     /**
-     * Loops through a shelf and enables drag logic for every image.
-     */
-    private void makeAllBooksDraggable(HBox shelf) {
-        for (Node node : shelf.getChildren()) {
-            if (node instanceof ImageView) {
-                enableDrag((ImageView) node);
-            }
-        }
-    }
-
-    /**
-     * Shuffles the children of an HBox to create a random puzzle start.
-     */
-    private void shuffleShelf(HBox shelf) {
-        List<Node> books = new ArrayList<>(shelf.getChildren());
-        Collections.shuffle(books);
-        shelf.getChildren().setAll(books); // Re-add nodes in shuffled order
-    }
-
-//    /**
-//     * Closes the book puzzle window.
-//     */
-//    @FXML protected void Exit() {
-//        Stage stage = (Stage) BuecherScene.getScene().getWindow();
-//        stage.close();
-//    }
-
-    /**
      * Returns the root pane of the scene.
      */
     public AnchorPane getBuecherScene() {
         return BuecherScene;
     }
 
+//    getter for win
     public boolean isSolved() {
         return win;
     }
