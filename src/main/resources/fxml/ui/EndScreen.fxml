@@ -9,16 +9,22 @@
            xmlns="http://javafx.com/javafx/17.0.12"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="at.ac.hcw.kanuescape.controller.ui.EndScreenController"
-           style="-fx-background-color: rgba(0,0,0,0.6);">
+           style="-fx-background-color: rgba(0,0,0,0.6);"
+           prefHeight="420.0"
+           prefWidth="520.0">
 
    <!-- ZENTRIERTER CONTAINER -->
-   <StackPane alignment="CENTER">
+   <StackPane alignment="CENTER"
+              prefHeight="420.0"
+              prefWidth="520.0">
 
       <!-- BOX + TEXT ÜBEREINANDER -->
-      <StackPane alignment="CENTER">
+      <StackPane alignment="CENTER"
+                 prefHeight="420.0"
+                 prefWidth="520.0">
 
          <!-- Box -->
-         <ImageView fitWidth="520"
+         <ImageView fitWidth="600"
                     preserveRatio="true"
                     smooth="false">
             <image>
