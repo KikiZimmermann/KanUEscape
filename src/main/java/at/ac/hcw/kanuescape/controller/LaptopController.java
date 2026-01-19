@@ -40,10 +40,10 @@ public class LaptopController {
 
     @FXML
     public void initialize() {
-        setupPuzzle();
+        resetPuzzle();
     }
 
-    private void setupPuzzle(){
+    public void resetPuzzle(){
 
         gaps.clear();                           //gaps zurückgesetzt
         draggedFromGap = null;                  //nichts gedragged
@@ -199,11 +199,6 @@ public class LaptopController {
 
         return lbl;
 }
-
-    // reset methode für New Game
-    public void resetPuzzle() {
-        setupPuzzle();
-    }
 
 
 //private boolean checkAllGaps() {
