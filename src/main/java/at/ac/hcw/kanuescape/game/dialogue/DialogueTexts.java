@@ -1,5 +1,7 @@
 package at.ac.hcw.kanuescape.game.dialogue;
 
+import at.ac.hcw.kanuescape.controller.GameController;
+
 import java.util.List;
 import java.util.Map;
 

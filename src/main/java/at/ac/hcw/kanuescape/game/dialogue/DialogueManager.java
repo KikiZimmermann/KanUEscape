@@ -78,7 +78,7 @@ public class DialogueManager {
         List<String> variants = DialogueTexts.VARIANTS.get(type);
 
         // Sonderfall: picture = fortlaufende Zeilen (1 Klick = 1 Zeile)
-        if ("picture".equals(type) && variants != null && !variants.isEmpty()) {
+        if (("picture".equals(type)||"stove".equals(type)) && variants != null && !variants.isEmpty()) {
             int idx = lineIndexByType.getOrDefault(type, 0);
             String line = variants.get(idx);
 

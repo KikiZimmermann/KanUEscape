@@ -110,7 +110,8 @@ public class GameController {
 
     private StackPane dialogueNode;  // Node merken, um es zu entfernen
     private boolean dialogueOpen = false;
-    private DialogueManager dialogueManager;;
+    // dialogue ausnahme für kochmanager
+    private DialogueManager dialogueManager= new DialogueManager(KochManager);
 
 
     private DialogueBoxController dialogueController;
@@ -149,8 +150,8 @@ public class GameController {
         // --- DialogueBox ---
         loadDialogueBox();
 
-        // dialogue ausnahme für kochmanager
-        dialogueManager = new DialogueManager(KochManager);
+
+
 
 
         // ToDoListe Laden
@@ -501,37 +502,31 @@ public class GameController {
                     SchrankStage.setY(rc.renderH()/2);
                     SchrankStage.show();
                 }
-                String Schrank = KochManager.cabinet();
-                System.out.println(Schrank);
+//                String Schrank = KochManager.cabinet();
+//                System.out.println(Schrank);
             }
-            if (gid == 58||gid==70) {//linkerSchrank
-                String linkerSchrank = KochManager.shelf();
-                System.out.println(linkerSchrank
-                );
-            }
+//            if (gid == 58||gid==70) {//linkerSchrank
+//                String linkerSchrank = KochManager.shelf();
+//                System.out.println(linkerSchrank
+//                );
+//            }
 //            if (gid == 71||gid==59) {//Herd
 //                String Herd = KochManager.stove();
 //                System.out.println(Herd);
 //            }
-            if (gid == 63) {//Schneidebrett
-                String Schneidebrett = KochManager.board();
-                System.out.println(Schneidebrett);
-                if(KochManager.getState()== KochManager.getFINISHED()){
-                    CheckKochen();
-                }
-            }
-            if (gid == 64) {//Wasserhahn
-                String Wasser = KochManager.water();
-                System.out.println(Wasser);
-                System.out.println(KochManager.getState());
-            }
+
+//            if (gid == 64) {//Wasserhahn
+//                String Wasser = KochManager.water();
+//                System.out.println(Wasser);
+//                System.out.println(KochManager.getState());
+//            }
             if (gid == 72) {
                 if (KuehlschrankStage != null) {
                     KuehlschrankStage.setX(rc.renderW() / 2);
                     KuehlschrankStage.show();
                 }
-                String Kuehlschrank = KochManager.fridge();
-                System.out.println(Kuehlschrank);
+//                String Kuehlschrank = KochManager.fridge();
+//                System.out.println(Kuehlschrank);
             }
             if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
                 // erst text
@@ -588,8 +583,14 @@ public class GameController {
                 } else {
                     openDialogue(dialogueManager.nextTextForType(type), type);
                 }
+                if (gid == 63) {//Schneidebrett
+                    if(KochManager.getState() == KochManager.getFINISHED()){
+                        CheckKochen();
+                    }
+                }
                 return;
             }
+
         }
     }
     boolean Buecher = false;
