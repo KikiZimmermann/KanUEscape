@@ -663,7 +663,9 @@ public class GameController {
         int gid = collisionLayer.data()[index];
         System.out.println(player.getGridX()+" "+ player.getGridY());
 
-
+        if(gid==92){
+            Win();
+        }
         // GID 0 = kein Hindernis, alles andere = blockiert
         return gid != 0;
     }
