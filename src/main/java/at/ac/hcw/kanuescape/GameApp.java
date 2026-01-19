@@ -38,6 +38,8 @@ public class GameApp extends Application {
         // Fenster konfigurieren
         stage.setTitle("KanUEscape");
         stage.setScene(scene);
+        stage.setResizable(false);
+
 
         // Fenster- & Taskleisten-Icon setzen
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/images/icon/icon.png")));
