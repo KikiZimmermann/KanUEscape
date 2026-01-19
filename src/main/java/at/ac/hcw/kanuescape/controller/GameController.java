@@ -456,17 +456,14 @@ public class GameController {
     private void onTileClicked(double x, double y, int gid, int gid2) {
         if (gid == 0) return;
 
-        double tileX = player.getTileX();
-        double tileY = player.getTileY();
+        double tileX = player.getGridX();
+        double tileY = player.getGridY();
 
-        double pixelX = tileX * interactionLayer.width();
-        double pixelY = tileY * interactionLayer.height();
+            System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
+            System.out.println("Tile geklickt: (" + x + "," + y);
+            System.out.println("Player geklickt: (" + tileX + "," + tileY );
 
-        System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
-        System.out.println("Player geklickt: (" + pixelX + "," + pixelY + ") GID=" + gid);
-
-        if (true/*Math.abs(tileX - x*32) <= x *32* 0.15*/) {
-            System.out.println("Spieler ist innerhalb von 10% des Ziels!");
+        if (Math.abs(tileX - x) <= 2 && Math.abs(tileY - y) <= 2) {
 
             if (gid == 60) {
                 if (todoStage != null) {
@@ -562,7 +559,6 @@ public class GameController {
             Buecher = true;
         }
     }
-
     @FXML
     public void CheckKochen() {
         if (todoController != null) {
@@ -570,7 +566,6 @@ public class GameController {
             Kochen = true;
         }
     }
-
     @FXML
     public void CheckMathe() {
         if (todoController != null) {
@@ -578,7 +573,6 @@ public class GameController {
             Mathe = true;
         }
     }
-
     @FXML
     public void CheckProg() {
         if (todoController != null) {
