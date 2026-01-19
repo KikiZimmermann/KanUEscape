@@ -111,7 +111,8 @@ public class MapRenderer {
                 scaledTileW,
                 scaledTileH,
                 renderW,
-                renderH
+                renderH,
+                gc
         );
     }
 }

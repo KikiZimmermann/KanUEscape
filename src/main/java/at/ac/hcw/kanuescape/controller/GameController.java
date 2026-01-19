@@ -492,14 +492,15 @@ public class GameController {
 
             if (gid == 60) {
                 if (todoStage != null) {
-                    todoStage.setX(rc.renderW() / 2);
+                    todoStage.setX((rc.gc().getCanvas().getWidth())/2);
+                    todoStage.setY(50);
                     todoStage.show();
                 }
             }
             if (gid == 55||gid==56) {
                 if (SchrankStage != null) {
-                    SchrankStage.setX(rc.renderW()/2*1.2);
-                    SchrankStage.setY(rc.renderH()/2);
+                    SchrankStage.setX((rc.gc().getCanvas().getWidth())/2);
+                    SchrankStage.setY(50);
                     SchrankStage.show();
                 }
 //                String Schrank = KochManager.cabinet();
@@ -522,7 +523,8 @@ public class GameController {
 //            }
             if (gid == 72) {
                 if (KuehlschrankStage != null) {
-                    KuehlschrankStage.setX(rc.renderW() / 2);
+                    KuehlschrankStage.setX((rc.gc().getCanvas().getWidth())/2);
+                    KuehlschrankStage.setY(50);
                     KuehlschrankStage.show();
                 }
 //                String Kuehlschrank = KochManager.fridge();
@@ -627,7 +629,7 @@ public class GameController {
     }
 
     public void Win() {
-        if (Prog=true&&Mathe==true&&Kochen==true&&Buecher==true) {
+        if (Prog&&Mathe&&Kochen&&Buecher) {
             System.out.println("Win");
         }
     }
@@ -660,6 +662,7 @@ public class GameController {
 //        int index = nextGridY * 20 + nextGridX;
         int gid = collisionLayer.data()[index];
         System.out.println(player.getGridX()+" "+ player.getGridY());
+
 
         // GID 0 = kein Hindernis, alles andere = blockiert
         return gid != 0;

@@ -1,6 +1,8 @@
 package at.ac.hcw.kanuescape.tiled;
 
-public record RenderContext( double scale, int baseX, int baseY, int tileW, int tileH ,double renderW,double renderH) {
+import javafx.scene.canvas.GraphicsContext;
+
+public record RenderContext(double scale, int baseX, int baseY, int tileW, int tileH , double renderW, double renderH, GraphicsContext gc) {
 
     @Override
     public double renderW() {
@@ -8,6 +10,9 @@ public record RenderContext( double scale, int baseX, int baseY, int tileW, int 
     }
     public double renderH() {
         return renderH;
+    }
+    public GraphicsContext gc() {
+        return gc;
     }
 }
 
