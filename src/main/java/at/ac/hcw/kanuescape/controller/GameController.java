@@ -181,28 +181,19 @@ public class GameController {
 
         // Menu
         menuManager = new at.ac.hcw.kanuescape.ui.MenuOverlayManager(menuOverlayLayer);
-
-
-//        menuManager.setOnNewGame(this::startNewGame);
-//        menuManager.setOnExit(this::exitToEndScreen);
         menuManager.load();
+
+        menuManager.setOnNewGame(this::restartGame);
+        menuManager.setOnExit(() -> Platform.exit());
 
         // EndScreen
         endManager = new at.ac.hcw.kanuescape.ui.EndScreenOverlayManager(endOverlayLayer);
         endManager.load();
-
-        // Menü -> Exit
-        menuManager.setOnExit(() -> Platform.exit());
-
-
-
-
         // callbacks: DU entscheidest, was “New Game” und “Exit” tun soll
         endManager.setOnNewGame(() -> {
             // Option A: App/SceneManager kümmert sich drum (ideal)
             // Option B: minimaler Reset hier (wenn ihr das so wollt)
         });
-
         endManager.setOnExit(() -> {
             Platform.exit();
         });
@@ -532,7 +523,13 @@ public class GameController {
 
         int index = tileY * interactionLayer.width() + tileX;
         int gid = interactionLayer.data()[index];
-        int gid2 = interactionLayer2.data()[index];
+
+        //crash fest for restart
+        int gid2 = 0;
+        if (interactionLayer2 != null && interactionLayer2.data() != null) {
+            gid2 = interactionLayer2.data()[index];
+        }
+
 
         int clickedGid = (gid2 != 0) ? gid2 : gid;
 
@@ -826,7 +823,71 @@ public class GameController {
         openDialogue(DialogueTexts.END_LINES.get(endIndex), "end");
     }
 
+    public void restartGame() {
+        // Overlays schließen
+        if (menuManager != null && menuManager.isOpen()) menuManager.close();
+        if (endManager != null && endManager.isOpen()) endManager.close(); // falls es close() gibt
 
+        afterDialogueClose = null;
+        activeDialogueType = null; // optional, falls du es nicht eh in closeDialogue nullst
+
+        closeDialogue(); // stoppt typing + hides overlay
+
+        // 1) Alle Puzzle-Fenster zu (sonst bleiben die offen)
+        if (todoStage != null) todoStage.hide();
+        if (BuecherStage != null) BuecherStage.hide();
+        if (LaptopStage != null) LaptopStage.hide();
+        if (SchrankStage != null) SchrankStage.hide();
+        if (KuehlschrankStage != null) KuehlschrankStage.hide();
+        if (MathStage != null) MathStage.hide();
+
+        // 2) State reset
+        won = false;
+        endRunning = false;
+        introRunning = false;
+        endIndex = 0;
+        introIndex = 0;
+
+        Prog = Mathe = Kochen = Buecher = false;
+
+        // 3) to do reset
+        if (todoController != null) {
+            todoController.resetChecks();
+        }
+
+        // 4) Puzzle Controller reset
+        if (MathController != null) {
+            MathController.resetQuiz();
+        }
+        if (LaptopController != null) {
+            LaptopController.resetPuzzle();
+        }
+        if (BuecherController != null) {
+            BuecherController.resetPuzzle();
+        }
+
+        // KochManager reset
+        if (KochManager != null) {
+            KochManager.reset();
+        }
+
+        // Player zurücksetzen
+        if (player != null) {
+            player.resetTo(5, 4);
+
+        }
+
+        // Loop wieder starten (falls du ihn in Win() stoppst)
+        if (loop != null) loop.start();
+
+        // 7) UI/Fokus + neu rendern + Intro starten
+        setMenuButtonVisible(true);
+        Platform.runLater(() -> {
+            render();
+            startIntro();
+            root.requestFocus();
+        });
+    }
 
     private String activeDialogueType = null;
     public void openDialogue(String text) {
@@ -881,5 +942,6 @@ public class GameController {
         endManager.close();
         setMenuButtonVisible(true);
     }
+
 
 }

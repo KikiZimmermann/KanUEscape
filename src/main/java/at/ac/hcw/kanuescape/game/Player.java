@@ -209,4 +209,36 @@ public class Player {
     public void setFrameDurationNs(long ms) {
         this.frameDurationNs = Math.max(1, ms) * 1_000_000L;
     }
+
+    // Rest of Player für New Game
+    public void resetTo(int startGridX, int startGridY) {
+        // logical position
+        this.gridX = startGridX;
+        this.gridY = startGridY;
+
+        // render position
+        this.tileX = startGridX;
+        this.tileY = startGridY;
+
+        // stop any current step
+        this.moving = false;
+        this.progress = 0.0;
+
+        this.startX = startGridX;
+        this.startY = startGridY;
+        this.targetX = startGridX;
+        this.targetY = startGridY;
+
+        // clear queued input
+        this.queuedDir = null;
+
+        // optional: look direction back to default
+        this.direction = Direction.DOWN;
+
+        // reset animation to idle
+        this.frameCol = COL_IDLE;
+        this.moveSeqIndex = 1;
+        this.lastFrameTimeNs = 0;
     }
+
+}

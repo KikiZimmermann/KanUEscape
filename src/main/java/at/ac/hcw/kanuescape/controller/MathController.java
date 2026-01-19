@@ -254,4 +254,20 @@ public class MathController {
             this.optionImagePaths = optionImagePaths;
         }
     }
+
+    // reset methode für New Game
+    public void resetQuiz() {
+        index = 0;
+
+        if (selected == null || selected.length != questions.size()) {
+            selected = new int[questions.size()];
+        }
+        for (int i = 0; i < selected.length; i++) selected[i] = -1;
+
+        group.selectToggle(null);
+
+        if (statusLabel != null) statusLabel.setText("");
+        showQuestion(0);
+    }
+
 }

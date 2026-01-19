@@ -44,4 +44,11 @@ public class ToDoListeController {
         }
     }
 
+    // reset methode für New Game
+    public void resetChecks() {
+        CheckKochen(false);
+        CheckMathe(false);
+        CheckBuecher(false);
+        CheckProg(false);
+    }
 }

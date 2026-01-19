@@ -40,6 +40,14 @@ public class LaptopController {
 
     @FXML
     public void initialize() {
+        setupPuzzle();
+    }
+
+    private void setupPuzzle(){
+
+        gaps.clear();                           //gaps zurückgesetzt
+        draggedFromGap = null;                  //nichts gedragged
+        overlayPane.getChildren().clear();      //resettet nodes
 
         // Empty answer-spots (drag-to position)
         overlayPane.getChildren().add(createGap(85, 0, "class"));
@@ -75,7 +83,7 @@ public class LaptopController {
         // If answer unused (not dropped in gap or pulled from gap again) -> new answer label
         overlayPane.setOnDragOver(e -> { if (e.getDragboard().hasString() && e.getX() >= ANSWER_BANK_MIN_X) {
             e.acceptTransferModes(TransferMode.MOVE);
-            }
+        }
             e.consume();
         });
 
@@ -195,6 +203,12 @@ public class LaptopController {
 
         return lbl;
 }
+
+    // reset methode für New Game
+    public void resetPuzzle() {
+        setupPuzzle();
+    }
+
 
 //private boolean checkAllGaps() {
 //    boolean allCorrect = true;

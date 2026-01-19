@@ -200,4 +200,23 @@ public class BuecherController {
     public boolean isSolved() {
         return win;
     }
+
+    // reset methode für New Game
+    public void resetPuzzle() {
+        win = false;
+
+        if (BuecherScene != null) {
+            BuecherScene.setStyle(""); // oder euer default style
+        }
+        if (winState != null) winState.setOpacity(0);
+        if (escape_alert != null) escape_alert.setOpacity(1);
+
+        // neu mischen
+        shuffleShelf(shelveOne);
+        shuffleShelf(shelveTwo);
+        shuffleShelf(shelveThree);
+
+        refreshAllLists();
+    }
+
 }

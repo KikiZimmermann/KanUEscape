@@ -95,4 +95,10 @@ public class KochManager {
     public TortillaState getFINISHED() {
         return state.FINISHED;
     }
+
+    // reset for new game
+    public void reset() {
+        state = TortillaState.START;
+    }
+
 }
