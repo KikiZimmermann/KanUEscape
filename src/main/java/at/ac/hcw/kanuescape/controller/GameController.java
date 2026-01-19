@@ -35,6 +35,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.input.KeyCode; // Mvm
 import javafx.util.Duration;
+import at.ac.hcw.kanuescape.audio.AudioManager;
+import at.ac.hcw.kanuescape.audio.AudioPaths;
 
 import java.util.EnumMap; // Mvm
 import java.util.Map; // Mvm
@@ -148,10 +150,12 @@ public class GameController {
         // StartScreen
         startManager = new at.ac.hcw.kanuescape.ui.StartScreenOverlayManager(startOverlayLayer);
         startManager.load();
+        AudioManager.get().playMusicLoop(AudioPaths.MUSIC_START_END, true);
         setMenuButtonVisible(false);
         startManager.setOnStart(() -> {
             startManager.close();
             root.requestFocus();
+            AudioManager.get().playMusicLoop(AudioPaths.MUSIC_GAME);
             startIntro(); // menu bleibt aus, bis Intro fertig ist
         });
 
@@ -222,6 +226,10 @@ public class GameController {
         BuecherStage.getIcons().add(
                 new Image(GameController.class.getResourceAsStream("/assets/images/icon/icon.png"))
         );
+        BuecherStage.setOnShown(e ->
+                AudioManager.get().playMusicLoop(AudioPaths.MUSIC_RIDDLE_BOOKCASE, true)
+        );
+
 
         FXMLLoader fxmlLoaderSchrank = new FXMLLoader(GameController.class.getResource("/fxml/Schrank.fxml"));
         Scene sceneSchrank = new Scene(fxmlLoaderSchrank.load());
@@ -260,6 +268,15 @@ public class GameController {
         LaptopStage.setScene(sceneLaptop);
         LaptopStage.sizeToScene();
 
+        // Laptop Music
+        LaptopStage.setOnShown(e ->
+                AudioManager.get().playMusicLoop(AudioPaths.MUSIC_RIDDLE_PROGRAMMING, true)
+        );
+        LaptopStage.setOnHidden(e ->
+                AudioManager.get().playMusicLoop(AudioPaths.MUSIC_GAME, true)
+        );
+
+
         // Closing window via ESC
         sceneLaptop.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
@@ -292,6 +309,15 @@ public class GameController {
         MathStage.setScene(sceneMath);
         MathStage.sizeToScene();
 
+        // Math Music
+        MathStage.setOnShown(e ->
+                AudioManager.get().playMusicLoop(AudioPaths.MUSIC_RIDDLE_MATH, true)
+        );
+        MathStage.setOnHidden(e ->
+                AudioManager.get().playMusicLoop(AudioPaths.MUSIC_GAME, true)
+        );
+
+
         // changes the icon of window
         MathStage.getIcons().add(
                 new Image(GameController.class.getResourceAsStream("/assets/images/icon/icon.png"))
@@ -316,6 +342,9 @@ public class GameController {
         BuecherStage.setOnHiding(event -> {
             // Remove the blur or any other effect from the background immediately upon hiding
             root.setEffect(null);
+
+            AudioManager.get().playMusicLoop(AudioPaths.MUSIC_GAME, true);
+
             if (BuecherController != null && BuecherController.isSolved()) {
                 CheckBuecher(); // use to check to-do?
             }
@@ -563,6 +592,10 @@ public class GameController {
             }
 
             if (gid == 72) {
+
+                // music
+                if (!Kochen) AudioManager.get().playMusicLoop(AudioPaths.MUSIC_RIDDLE_COOKING, true);
+
                 if (KuehlschrankStage != null) {
                     KuehlschrankStage.setX((rc.gc().getCanvas().getWidth())/2);
                     KuehlschrankStage.setY(50);
@@ -603,10 +636,6 @@ public class GameController {
 
                 }
             }
-//            //Kiki
-//            if (gid == 66) {
-//                //sachen rein schreiben (Ali Code hier)
-//            }
 
             if (gid == 77 || gid == 78) {
                 if (MathStage != null) {
@@ -650,6 +679,9 @@ public class GameController {
         if (todoController != null) {
             todoController.CheckKochen(true);
             Kochen = true;
+
+            AudioManager.get().playMusicLoop(AudioPaths.MUSIC_GAME, true);
+
         }
     }
     @FXML
@@ -767,6 +799,7 @@ public class GameController {
                         endRunning = false;
                         closeDialogue();
 
+                        AudioManager.get().playMusicLoop(AudioPaths.MUSIC_START_END, true);
                         // jetzt erst Endscreen zeigen
                         endManager.open();
 
@@ -882,6 +915,7 @@ public class GameController {
         setMenuButtonVisible(true);
         Platform.runLater(() -> {
             render();
+            AudioManager.get().playMusicLoop(AudioPaths.MUSIC_GAME, true);
             startIntro();
             root.requestFocus();
         });
