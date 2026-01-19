@@ -3,6 +3,7 @@ package at.ac.hcw.kanuescape.controller.ui;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 
@@ -11,8 +12,11 @@ public class MenuScreenController {
     @FXML private StackPane menuRoot;
     @FXML private StackPane menuBox;
 
+
     @FXML private ImageView musicCheckmark;
     @FXML private ImageView sfxCheckmark;
+
+    @FXML private Pane dim;
 
     private boolean musicOn = true;
     private boolean sfxOn = true;
@@ -27,6 +31,8 @@ public class MenuScreenController {
 
         menuRoot.layoutBoundsProperty().addListener((obs, o, n) -> applyScale());
         Platform.runLater(this::applyScale);
+        dim.prefWidthProperty().bind(menuRoot.widthProperty());
+        dim.prefHeightProperty().bind(menuRoot.heightProperty());
     }
     private void applyScale() {
         if (menuRoot == null || menuBox == null) return;
