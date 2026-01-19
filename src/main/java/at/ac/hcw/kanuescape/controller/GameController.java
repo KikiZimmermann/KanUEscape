@@ -665,6 +665,7 @@ public class GameController {
 
         if(gid==92){
             Win();
+            System.out.println("test");
         }
         // GID 0 = kein Hindernis, alles andere = blockiert
         return gid != 0;

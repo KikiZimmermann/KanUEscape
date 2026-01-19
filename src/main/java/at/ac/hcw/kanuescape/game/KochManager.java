@@ -48,7 +48,7 @@ public class KochManager {
                 yield "Du musst gerade nichts mit den Tomaten hier machen.";
             }
             case FINISHED -> {
-                yield "schneid dich lieber nicht.";
+                yield "Schneid dich lieber nicht.";
             }
             default -> "Die Tomaten sind noch schmutzig.";
         };
