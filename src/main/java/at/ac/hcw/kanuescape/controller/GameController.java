@@ -93,7 +93,6 @@ public class GameController {
     //win condition
     private boolean won = false;
 
-
     // Render Context für Größen
     private RenderContext renderContext;
 

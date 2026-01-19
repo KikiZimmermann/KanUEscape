@@ -12,7 +12,7 @@ public class DialogueTexts {
     private DialogueTexts() {}
 
     // Start Text
-    private static final String[] INTRO_TEXT = {
+    public static final String[] INTRO_TEXT = {
             "07:32 AM.",
             "You have to get to university.",
             "Like... now.",
@@ -24,7 +24,7 @@ public class DialogueTexts {
     };
 
     // End Text
-    private static final String[] END_TEXT = {
+    public static final String[] END_TEXT = {
             "You open the door.",
             "Everything is done.",
             "Nothing is beeping.",
