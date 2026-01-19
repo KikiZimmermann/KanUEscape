@@ -142,7 +142,7 @@ public class DialogueTexts {
                     "Nope. Not a bathroom situation."
             )),
             entry("bookcase", List.of(
-                    "A short storie can help you solve the puzzle!"
+                    "A short story can help you solve the puzzle!"
             ))
     );
 
