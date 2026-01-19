@@ -20,6 +20,7 @@ public class DialogueTexts {
             "Tired. Slightly stressed.",
             "And with the strong feeling you've forgotten something important.",
             "Finish everything that needs to be done.",
+            "You should check the ToDo-List on the fridge.",
             "Then you're allowed to go."
     };
 
