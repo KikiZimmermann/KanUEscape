@@ -5,6 +5,7 @@ import at.ac.hcw.kanuescape.controller.LaptopController;
 import at.ac.hcw.kanuescape.controller.ToDoListeController;
 import at.ac.hcw.kanuescape.controller.MathController;
 import at.ac.hcw.kanuescape.controller.ui.DialogueBoxController;
+import at.ac.hcw.kanuescape.controller.ui.StartScreenController;
 import at.ac.hcw.kanuescape.game.dialogue.DialogueManager;
 import at.ac.hcw.kanuescape.game.KochManager;
 import at.ac.hcw.kanuescape.game.dialogue.DialogueTexts;
@@ -119,12 +120,11 @@ public class GameController {
     //Overlayers für ui
     @FXML private StackPane dialogueOverlayLayer;
     @FXML private StackPane menuOverlayLayer;
-    @FXML private StackPane endOverlayLayer;
     private at.ac.hcw.kanuescape.ui.MenuOverlayManager menuManager;
     @FXML private StackPane startOverlayLayer;
+    private at.ac.hcw.kanuescape.ui.StartScreenOverlayManager startManager;
+    @FXML private StackPane endOverlayLayer;
     private at.ac.hcw.kanuescape.ui.EndScreenOverlayManager endManager;
-
-
 
 
     private StackPane dialogueNode;  // Node merken, um es zu entfernen
@@ -138,20 +138,24 @@ public class GameController {
 
 
 
-
-
-
-
-
-
-
-
     // Input/loop
     private final Map<KeyCode, Boolean> keys = new EnumMap(KeyCode.class);
     private AnimationTimer loop;
 
     @FXML
     private void initialize() throws Exception {
+
+        // StartScreen
+        startManager = new at.ac.hcw.kanuescape.ui.StartScreenOverlayManager(startOverlayLayer);
+        startManager.load();
+        setMenuButtonVisible(false);
+        startManager.setOnStart(() -> {
+            startManager.close();
+            root.requestFocus();
+            startIntro(); // menu bleibt aus, bis Intro fertig ist
+        });
+
+
 
         // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
         gameCanvas.widthProperty().bind(gameArea.widthProperty());
@@ -171,29 +175,19 @@ public class GameController {
         // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)
         Platform.runLater(this::render);
 
-        // --- DialogueBox ---
+        // DialogueBox
         loadDialogueBox();
-
-        //Game Intro
-        // in initialize(), nach loadDialogueBox();
-        Platform.runLater(this::startIntro);
-
 
         // Menu
         menuManager = new at.ac.hcw.kanuescape.ui.MenuOverlayManager(menuOverlayLayer);
         menuManager.load();
-
         menuManager.setOnNewGame(this::restartGame);
         menuManager.setOnExit(() -> Platform.exit());
 
         // EndScreen
         endManager = new at.ac.hcw.kanuescape.ui.EndScreenOverlayManager(endOverlayLayer);
         endManager.load();
-        // callbacks: DU entscheidest, was “New Game” und “Exit” tun soll
-        endManager.setOnNewGame(() -> {
-            // Option A: App/SceneManager kümmert sich drum (ideal)
-            // Option B: minimaler Reset hier (wenn ihr das so wollt)
-        });
+        setMenuButtonVisible(false);
         endManager.setOnExit(() -> {
             Platform.exit();
         });
@@ -342,6 +336,10 @@ public class GameController {
 
             @Override
             public void handle(long now) {
+
+                if (startManager != null && startManager.isOpen()) {
+                    return;
+                }
 
                 //no mvmt when text box open
                 if (dialogueOpen
@@ -938,10 +936,6 @@ public class GameController {
         menuButton.setManaged(visible);
     }
 
-    private void hideEndScreen() {
-        endManager.close();
-        setMenuButtonVisible(true);
-    }
 
 
 }

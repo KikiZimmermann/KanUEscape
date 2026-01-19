@@ -6,67 +6,50 @@
 <?import javafx.scene.text.*?>
 
 <StackPane fx:id="startRoot"
-           maxHeight="-Infinity"
-           maxWidth="-Infinity"
-           minHeight="-Infinity"
-           minWidth="-Infinity"
-           prefHeight="400.0"
-           prefWidth="600.0"
+           alignment="CENTER"
+           maxWidth="Infinity"
+           maxHeight="Infinity"
            xmlns="http://javafx.com/javafx/17.0.12"
-           xmlns:fx="http://javafx.com/fxml/1">
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="at.ac.hcw.kanuescape.controller.ui.StartScreenController">
 
    <children>
 
-      <Pane prefHeight="200.0"
-            prefWidth="200.0"
-            style="-fx-background-color: #4e4e4e;" />
+      <Pane maxWidth="Infinity" maxHeight="Infinity"
+            style="-fx-background-color: rgba(0,0,0,0.75);" />
 
-      <StackPane prefHeight="150.0"
-                 prefWidth="200.0">
+
+      <StackPane alignment="CENTER">
 
          <children>
 
-            <ImageView fitHeight="420.0"
-                       fitWidth="520.0"
-                       pickOnBounds="true"
+            <ImageView fitWidth="600.0"
                        preserveRatio="true"
                        smooth="false">
                <image>
                   <Image url="@../../assets/images/ui/menu.png" />
                </image></ImageView>
 
-            <VBox prefHeight="200.0"
-                  prefWidth="100.0">
+            <VBox alignment="CENTER" spacing="18">
+
+               <Label text="KanUEscape ?"
+                      textFill="WHITE"  translateY="-20">
+                  <font>
+                     <Font size="24.0"/>
+                  </font>
+               </Label>
 
                <children>
 
-                  <Region prefHeight="210.0"
-                          prefWidth="600.0" />
-
-                  <Label alignment="CENTER"
-                         contentDisplay="CENTER"
-                         prefHeight="35.0"
-                         prefWidth="606.0"
-                         text="KanUEscape ?"
-                         textFill="WHITE">
-                     <font>
-                        <Font size="24.0" />
-                     </font></Label>
-
-                  <Region prefHeight="95.0" prefWidth="600.0" />
-
-                  <Button alignment="CENTER"
-                          contentDisplay="CENTER"
+                  <Button text="Start"
+                          onAction="#onStartClicked"
+                          contentDisplay = "CENTER"
                           mnemonicParsing="false"
-                          prefHeight="30.0"
-                          prefWidth="601.0"
                           style="-fx-background-color: transparent; -fx-padding: 0;"
-                          text="Start"
                           textFill="WHITE">
                      <graphic>
                         <ImageView fitHeight="30.0"
-                                   fitWidth="122.0"
-                                   pickOnBounds="true"
+                                   fitWidth="200.0"
                                    preserveRatio="true"
                                    smooth="false">
                            <image>
@@ -78,8 +61,7 @@
                      </font>
                   </Button>
 
-                  <Region prefHeight="200.0"
-                          prefWidth="200.0" />
+
 
                </children></VBox>
          </children></StackPane>

@@ -6,69 +6,69 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane fx:id="root" style="-fx-background-color: #4e4e4e;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.kanuescape.controller.GameController">
+<StackPane fx:id="root" style="-fx-background-color: #4e4e4e;" xmlns="http://javafx.com/javafx/17.0.12"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.kanuescape.controller.GameController">
 
-   <BorderPane style="-fx-padding: 10;">
-      <center>
-         <StackPane fx:id="gameArea" style="-fx-background-color: #4e4e4e;">
+    <BorderPane style="-fx-padding: 10;">
+        <center>
+            <StackPane fx:id="gameArea" style="-fx-background-color: #4e4e4e;">
 
-            <Canvas fx:id="gameCanvas" />
+                <Canvas fx:id="gameCanvas"/>
 
-            <!-- für overlays -->
-            <StackPane fx:id="dialogueOverlayLayer"
-                       managed="false"
-                       pickOnBounds="true"
-                       visible="false" />
+                <!-- Startscreen Overlay (ganz oben) -->
+                <StackPane fx:id="startOverlayLayer"
+                           managed="false"
+                           pickOnBounds="true"
+                           visible="false"
+                           maxWidth="Infinity"
+                           maxHeight="Infinity"/>
 
-            <!-- Menu Overlay (nur Menü) -->
-            <StackPane fx:id="menuOverlayLayer"
-                       managed="false"
-                       pickOnBounds="true"
-                       visible="false"
-                       maxWidth="Infinity"
-                       maxHeight="Infinity" />
+                <!-- dialogue -->
+                <StackPane fx:id="dialogueOverlayLayer"
+                           managed="false"
+                           pickOnBounds="true"
+                           visible="false"/>
 
-            <!-- Endscreen Overlay (ganz oben) -->
-            <StackPane fx:id="endOverlayLayer"
-                       managed="false"
-                       pickOnBounds="true"
-                       visible="false"
-                       maxWidth="Infinity"
-                       maxHeight="Infinity" />
+                <!-- Menu Overlay (nur Menü) -->
+                <StackPane fx:id="menuOverlayLayer"
+                           managed="false"
+                           pickOnBounds="true"
+                           visible="false"
+                           maxWidth="Infinity"
+                           maxHeight="Infinity"/>
 
-            <!-- Startscreen Overlay (ganz oben) -->
-            <StackPane fx:id="startOverlayLayer"
-                       managed="false"
-                       pickOnBounds="true"
-                       visible="false"
-                       maxWidth="Infinity"
-                       maxHeight="Infinity" />
+                <!-- Endscreen Overlay (ganz oben) -->
+                <StackPane fx:id="endOverlayLayer"
+                           managed="false"
+                           pickOnBounds="true"
+                           visible="false"
+                           maxWidth="Infinity"
+                           maxHeight="Infinity"/>
 
+                <StackPane alignment="TOP_CENTER" pickOnBounds="false">
+                    <Button fx:id="menuButton"
+                            contentDisplay="CENTER"
+                            focusTraversable="false"
+                            mnemonicParsing="false"
+                            style="-fx-background-color: transparent;"
+                            text="MENU"
+                            textFill="WHITE"
+                            onAction="#onMenuClicked">
+                        <graphic>
+                            <ImageView fx:id="menuBtn" fitHeight="40.0" preserveRatio="true" smooth="false">
+                                <image>
+                                    <Image url="@../assets/images/ui/button.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <font>
+                            <Font name="System Bold" size="18.0"/>
+                        </font>
+                    </Button>
+                </StackPane>
 
-            <StackPane alignment="TOP_CENTER" pickOnBounds="false">
-               <Button fx:id="menuButton"
-                       contentDisplay="CENTER"
-                       focusTraversable="false"
-                       mnemonicParsing="false"
-                       style="-fx-background-color: transparent;"
-                       text="MENU"
-                       textFill="WHITE"
-                       onAction="#onMenuClicked">
-                  <graphic>
-                     <ImageView fx:id="menuBtn" fitHeight="40.0" preserveRatio="true" smooth="false">
-                        <image>
-                           <Image url="@../assets/images/ui/button.png" />
-                        </image>
-                     </ImageView>
-                  </graphic>
-                  <font>
-                     <Font name="System Bold" size="18.0" />
-                  </font>
-               </Button>
             </StackPane>
-
-         </StackPane>
-      </center>
-   </BorderPane>
+        </center>
+    </BorderPane>
 
 </StackPane>
