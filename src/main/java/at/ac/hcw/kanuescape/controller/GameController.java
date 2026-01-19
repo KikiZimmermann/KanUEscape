@@ -77,6 +77,9 @@ public class GameController {
     // GameIntro
     private boolean introRunning = false;
     private int introIndex = 0;
+    // GameEnd
+    private boolean endRunning = false;
+    private int endIndex = 0;
 
     //to DoListe
     private Stage todoStage;
@@ -511,6 +514,7 @@ public class GameController {
     private void handleMapClick(double mouseX, double mouseY) {
        // kein mapclick when intro oder dialogue
         if (introRunning) return;
+        if (endRunning) return;
         if (dialogueOpen) return;
         if (renderContext == null || interactionLayer == null) return;
 
@@ -671,11 +675,21 @@ public class GameController {
     }
 
     public void Win() {
-        if (Prog&&Mathe&&Kochen&&Buecher) {
-            setMenuButtonVisible(false);
-            endManager.open();
-            if (loop != null) loop.stop();
-        }
+        if (!(Prog && Mathe && Kochen && Buecher)) return;
+        if (won) return;           // verhindert mehrfach-trigger
+        if (endRunning) return;    // safety
+
+        won = true;
+
+        // während End-Text soll nichts mehr gehen
+        introRunning = false;      // nur falls du irgendwo intro noch true hättest
+        setMenuButtonVisible(false);
+
+        // End-Text starten (Endscreen kommt erst NACH Text)
+        startEnd();
+
+        // optional: loop stoppen, damit absolut nix mehr passiert im Hintergrund
+        if (loop != null) loop.stop();
 
     }
 
@@ -727,13 +741,12 @@ public class GameController {
             // Klick schließt (Handler ist ok, wirkt nur wenn sichtbar)
             dialogueOverlayLayer.setOnMouseClicked(e -> {
 
-                // 1) Wenn gerade getippt wird: Klick soll nur "skip typing" machen, NICHT schließen/weiter
                 if (dialogueController.onUserClick()) {
                     e.consume();
                     return;
                 }
 
-                // 2) INTRO: Zeile für Zeile, erst am Ende darf geschlossen werden
+                // Intro Text
                 if ("intro".equals(activeDialogueType)) {
                     introIndex++;
 
@@ -751,7 +764,28 @@ public class GameController {
                     e.consume();
                     return;
                 }
+                // End Text
+                if ("end".equals(activeDialogueType)) {
+                    endIndex++;
 
+                    if (endIndex < DialogueTexts.END_LINES.size()) {
+                        openDialogue(DialogueTexts.END_LINES.get(endIndex), "end");
+                    } else {
+                        endRunning = false;
+                        closeDialogue();
+
+                        // jetzt erst Endscreen zeigen
+                        endManager.open();
+
+                        // (optional) loop stoppen - du machst das eh in Win(), dann dort rausnehmen
+                        // if (loop != null) loop.stop();
+                    }
+
+                    e.consume();
+                    return;
+                }
+
+                // Special Case Picture
                 if ("picture".equals(activeDialogueType)) {
                     if (dialogueManager.isPictureFinished()) {
                         dialogueManager.resetPicture();
@@ -773,6 +807,7 @@ public class GameController {
         }
     }
 
+    //Intro und Ende Texte
     private void startIntro() {
         introRunning = true;
         introIndex = 0;
@@ -783,6 +818,16 @@ public class GameController {
         activeDialogueType = "intro";
         openDialogue(DialogueTexts.INTRO_LINES.get(introIndex), "intro");
     }
+    private void startEnd() {
+        endRunning = true;
+        endIndex = 0;
+
+        // während End-Text: Menu aus
+        setMenuButtonVisible(false);
+
+        openDialogue(DialogueTexts.END_LINES.get(endIndex), "end");
+    }
+
 
 
     private String activeDialogueType = null;
