@@ -518,10 +518,11 @@ public class GameController {
                 return;
             }
 
-            if (gid == 50) {
+            if (gid == 90) {
                 if (LaptopStage != null) {
                     LaptopStage.setX(rc.renderW() / 2);
                     LaptopStage.show();
+
                 }
             }
 
