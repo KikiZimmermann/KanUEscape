@@ -584,6 +584,12 @@ public class GameController {
         }
     }
 
+    public void Win() {
+        if (Prog=true&&Mathe==true&&Kochen==true&&Buecher==true) {
+            System.out.println("Win");
+        }
+    }
+
     private boolean isTileBlocked(int nextGridX, int nextGridY, boolean up, boolean down, boolean left, boolean right) {
         // Safety check: Layer oder RenderContext nicht verfügbar
         if (collisionLayer == null || renderContext == null) return false;
