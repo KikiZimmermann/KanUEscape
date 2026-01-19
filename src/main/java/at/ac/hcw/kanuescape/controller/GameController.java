@@ -669,23 +669,28 @@ public class GameController {
 
             // Klick schließt (Handler ist ok, wirkt nur wenn sichtbar)
             overlayLayer.setOnMouseClicked(e -> {
-                if ("picture".equals(activeDialogueType)) {
 
+                // 1) erster Klick: wenn noch tippt -> nur skip
+                // wenn noch tippt -> skip und NICHT schließen
+                if (dialogueController.onUserClick()) {
+                    e.consume();
+                    return;
+                }
+
+                // 2) erst wenn voll: darf "weiter" passieren
+                if ("picture".equals(activeDialogueType)) {
                     if (dialogueManager.isPictureFinished()) {
                         dialogueManager.resetPicture();
                         closeDialogue();
                     } else {
                         openDialogue(dialogueManager.nextPictureLine(), "picture");
                     }
-
                     e.consume();
                     return;
                 }
 
                 closeDialogue();
             });
-
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -709,6 +714,7 @@ public class GameController {
     }
 
     public void closeDialogue() {
+        if (dialogueController != null) dialogueController.stopTyping();
         overlayLayer.setVisible(false);
         overlayLayer.setManaged(false);
         dialogueOpen = false;

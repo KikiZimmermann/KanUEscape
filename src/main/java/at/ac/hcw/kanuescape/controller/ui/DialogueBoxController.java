@@ -1,13 +1,14 @@
 package at.ac.hcw.kanuescape.controller.ui;
 
 import javafx.animation.TranslateTransition;
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 public class DialogueBoxController {
@@ -31,6 +32,11 @@ public class DialogueBoxController {
     private StackPane arrowWrap;
 
     private TranslateTransition hop;
+    private Timeline typing;
+    private String fullText = "";
+    private int charIndex = 0;
+    private boolean typingInProgress = false;
+    private boolean textFullyShown = true; // wenn true: darf "weiter/close"
 
 
     @FXML
@@ -66,7 +72,56 @@ public class DialogueBoxController {
 
 
     public void setText(String text) {
-        dialogueText.setText(text);
+        startTypewriter(text);
     }
+
+
+    private void startTypewriter(String text) {
+        // stoppe alte Animation
+        if (typing != null) typing.stop();
+
+        fullText = (text == null) ? "" : text;
+        charIndex = 0;
+        typingInProgress = true;
+        textFullyShown = false;
+
+        dialogueText.setText("");
+
+        typing = new Timeline(new KeyFrame(Duration.millis(18), e -> { // speed
+            charIndex++;
+            if (charIndex >= fullText.length()) {
+                dialogueText.setText(fullText);
+                typingInProgress = false;
+                textFullyShown = true;
+                typing.stop();
+            } else {
+                dialogueText.setText(fullText.substring(0, charIndex));
+            }
+        }));
+        typing.setCycleCount(Timeline.INDEFINITE);
+        typing.playFromStart();
+    }
+
+    // returns true = text is fully shown AFTER this click
+    public boolean onUserClick() {
+        // 1) wenn gerade tippt -> sofort fertig anzeigen, NICHT schließen
+        if (typingInProgress) {
+            if (typing != null) typing.stop();
+            dialogueText.setText(fullText);
+            typingInProgress = false;
+            textFullyShown = true;
+            return true; // <-- skip happened
+        }
+
+        // 2) wenn schon voll -> "ready for next/close"
+        return false; // <-- no skip, so caller may close/advance
+    }
+
+    public void stopTyping() {
+        if (typing != null) typing.stop();
+        typingInProgress = false;
+        textFullyShown = true;
+    }
+
 
 }
