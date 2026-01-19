@@ -665,6 +665,7 @@ public class GameController {
             endManager.open();
             if (loop != null) loop.stop();
         }
+
     }
 
     private boolean isTileBlocked(int nextGridX, int nextGridY, boolean up, boolean down, boolean left, boolean right) {
