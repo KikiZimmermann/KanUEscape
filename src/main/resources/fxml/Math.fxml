@@ -11,7 +11,7 @@
 
     <top>
         <VBox spacing="6" BorderPane.alignment="CENTER">
-            <Label text="Math Quiz!" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            <Label text="Math Time! Answer all questions correctly!" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
             <Label fx:id="progressLabel" text="Question 1/6"/>
             <Separator/>
         </VBox>

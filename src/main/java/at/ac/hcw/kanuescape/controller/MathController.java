@@ -120,25 +120,20 @@ public class MathController {
         // B)
         // C)
         // D)
-        String[] imgOptions = new String[]{
-                "/assets/images/math/matrix1.png",
-                "/assets/images/math/matrix2.png",
-                "/assets/images/math/matrix3.png",
-                "/assets/images/math/matrix4.png"
-        };
-        questions.add(new Question(
-                "Which one is the identity matrix?",
-                new String[]{"", "", "", ""},
-                1, null, imgOptions
-        ));
 
-        // Area of Definition - For which values is f(x) = 1/x NOT defined?
-        // A) x > 0
-        // B) x < 0
-        // C) x = 0
-        // D) for any x
         questions.add(new Question(
-                "For which values is f(x) = 1/x NOT defined?",
+                "Identity Matrix - Which one is the identity matrix?",
+                new String[]{
+                        "( 1  0  0 )\n   ( 0  1  0 )\n   ( 0  0  1 )",
+                        " ( 1  2  0 )\n   ( 0  1  0 )\n   ( 1  0  0 )",
+                        " ( 1  2  3 )\n   ( 0  1  0 )\n   ( 1  0  0 )",
+                        " ( 1  0  1 )\n   ( 0  1  0 )\n   ( 1  0  1 )"
+                },
+                0,null,null));
+
+
+        questions.add(new Question(
+                "Area of Definition - For which values is f(x) = 1/x NOT defined?",
                 new String[]{"x > 0", "x < 0", "x = 0", "for any x"},
                 2, null, null
         ));
@@ -156,17 +151,28 @@ public class MathController {
         optC.setText("C) " + q.options[2]);
         optD.setText("D) " + q.options[3]);
 
-        if (q.optionImagePaths != null) {
-            optA.setGraphic(makeOptionImage(q.optionImagePaths[0]));
-            optB.setGraphic(makeOptionImage(q.optionImagePaths[1]));
-            optC.setGraphic(makeOptionImage(q.optionImagePaths[2]));
-            optD.setGraphic(makeOptionImage(q.optionImagePaths[3]));
-        } else {
-            optA.setGraphic(null);
-            optB.setGraphic(null);
-            optC.setGraphic(null);
-            optD.setGraphic(null);
-        }
+//        if (q.optionImagePaths != null) {
+//
+//            optA.setGraphic(makeOptionImage(q.optionImagePaths[0]));
+//            optB.setGraphic(makeOptionImage(q.optionImagePaths[1]));
+//            optC.setGraphic(makeOptionImage(q.optionImagePaths[2]));
+//            optD.setGraphic(makeOptionImage(q.optionImagePaths[3]));
+//
+//            optA.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+//            optB.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+//            optC.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+//            optD.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+//        } else {
+//            optA.setGraphic(null);
+//            optB.setGraphic(null);
+//            optC.setGraphic(null);
+//            optD.setGraphic(null);
+//
+//            optA.setContentDisplay(ContentDisplay.LEFT);
+//            optB.setContentDisplay(ContentDisplay.LEFT);
+//            optC.setContentDisplay(ContentDisplay.LEFT);
+//            optD.setContentDisplay(ContentDisplay.LEFT);
+//        }
 
         int sel = selected[index];
         if (sel == -1) group.selectToggle(null);
@@ -216,16 +222,21 @@ public class MathController {
         }
     }
 
-    private Image loadImg(String path) {
-        return new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
-    }
+//    private Image loadImg(String path) {
+//        return new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+//    }
+//
+//    private ImageView makeOptionImage(String path) {
+//        System.out.println("Loading image: " + path);
+//        Image img = new Image(Objects.requireNonNull(
+//                getClass().getResourceAsStream(path)
+//        ));
+//        ImageView iv = new ImageView(img);
+//        iv.setFitWidth(120);
+//        iv.setPreserveRatio(true);
+//        return iv;
+//    }
 
-    private ImageView makeOptionImage(String path) {
-        ImageView iv = new ImageView(loadImg(path));
-        iv.setFitWidth(120);
-        iv.setPreserveRatio(true);
-        return iv;
-    }
 
     private static class Question {
         final String prompt;
