@@ -112,28 +112,24 @@ public class LaptopController {
         gap.setUserData(correctAnswer);
 
         gap.setOnDragOver(e -> {
-            if (e.getDragboard().hasString()) {
-                e.acceptTransferModes(TransferMode.COPY, TransferMode.MOVE);
-            }
-            e.consume();
-        });
-
-        // Accept drop in gap
-        gap.setOnDragOver(e -> {
-            if (e.getDragboard().hasString()) {
-                e.acceptTransferModes(TransferMode.COPY, TransferMode.MOVE);
+            if (!e.getDragboard().hasString()) return;
+            boolean gapEmpty = gap.getText() == null || gap.getText().isBlank();
+            if (gapEmpty) {
+                e.acceptTransferModes(TransferMode.MOVE);
             }
             e.consume();
         });
 
         gap.setOnDragDropped(e -> {
             Dragboard db = e.getDragboard();
-            if (db.hasString()) {
-            gap.setText(db.getString());
-            e.setDropCompleted(true);
-            } else {
-                e.setDropCompleted(false);
+            boolean gapEmpty = gap.getText() == null || gap.getText().isBlank();
+
+            boolean success = false;
+            if (db.hasString() && gapEmpty) {
+                gap.setText(db.getString());
+                success = true;
             }
+            e.setDropCompleted(success);
             e.consume();
         });
 
