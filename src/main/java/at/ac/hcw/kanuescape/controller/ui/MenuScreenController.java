@@ -6,6 +6,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import at.ac.hcw.kanuescape.audio.AudioManager;
+
 
 public class MenuScreenController {
 
@@ -75,7 +77,10 @@ public class MenuScreenController {
     @FXML private void toggleMusic() {
         musicOn = !musicOn;
         refresh();
+
+        AudioManager.get().setMusicEnabled(musicOn);
     }
+
 
     @FXML private void toggleSfx() {
         sfxOn = !sfxOn;
