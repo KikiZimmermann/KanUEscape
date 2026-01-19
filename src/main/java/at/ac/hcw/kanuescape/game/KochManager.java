@@ -79,4 +79,7 @@ public class KochManager {
     public TortillaState getState() {
         return state;
     }
+    public TortillaState getFINISHED() {
+        return state.FINISHED;
+    }
 }

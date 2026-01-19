@@ -495,6 +495,9 @@ public class GameController {
             if (gid2 == 63) {//Schneidebrett
                 String Schneidebrett = KochManager.board();
                 System.out.println(Schneidebrett);
+                if(KochManager.getState()== KochManager.getFINISHED()){
+                    CheckKochen();
+                }
             }
             if (gid2 == 64) {//Wasserhahn
                 String Wasser = KochManager.water();
@@ -581,6 +584,12 @@ public class GameController {
         if (todoController != null) {
             todoController.CheckProg(true);
             Prog = true;
+        }
+    }
+
+    public void Win() {
+        if (Prog=true&&Mathe==true&&Kochen==true&&Buecher==true) {
+            System.out.println("Win");
         }
     }
 
