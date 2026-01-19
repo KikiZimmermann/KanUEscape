@@ -3,6 +3,7 @@ package at.ac.hcw.kanuescape.controller;
 import at.ac.hcw.kanuescape.controller.BuecherController;
 import at.ac.hcw.kanuescape.controller.LaptopController;
 import at.ac.hcw.kanuescape.controller.ToDoListeController;
+import at.ac.hcw.kanuescape.controller.MathController;
 import at.ac.hcw.kanuescape.controller.ui.DialogueBoxController;
 import at.ac.hcw.kanuescape.game.dialogue.DialogueManager;
 import at.ac.hcw.kanuescape.game.KochManager;
@@ -59,7 +60,6 @@ public class GameController {
     private static final Color BACKGROUND = Color.web("#4e4e4e");
     @FXML private StackPane gameArea;
 
-
     // Player
     private Player player;
     private Image playerSprite;
@@ -79,12 +79,14 @@ public class GameController {
     private Stage LaptopStage;
     private Stage SchrankStage;
     private Stage KuehlschrankStage;
+    private Stage MathStage;
+
     private ToDoListeController todoController;
     private BuecherController BuecherController;
     private LaptopController LaptopController;
     private SchrankController SchrankController;
     private KuehlschrankController KuehlschrankController;
-
+    private MathController MathController;
     private KochManager KochManager = new KochManager();
 
     // Render Context für Größen
@@ -113,10 +115,8 @@ public class GameController {
     // dialogue ausnahme für kochmanager
     private DialogueManager dialogueManager= new DialogueManager(KochManager);
 
-
     private DialogueBoxController dialogueController;
     private Runnable afterDialogueClose = null;             // Bücherrätsel nach Dialogue close
-
 
     // Input/loop
     private final Map<KeyCode, Boolean> keys = new EnumMap(KeyCode.class);
@@ -128,8 +128,6 @@ public class GameController {
         // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
         gameCanvas.widthProperty().bind(gameArea.widthProperty());
         gameCanvas.heightProperty().bind(gameArea.heightProperty());
-
-
 
         // Ressourcen laden (ohne UI-Logik)
         map = MapLoader.loadMap(MAP_PATH);
@@ -145,14 +143,8 @@ public class GameController {
         // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)
         Platform.runLater(this::render);
 
-
-
         // --- DialogueBox ---
         loadDialogueBox();
-
-
-
-
 
         // ToDoListe Laden
         FXMLLoader fxmlLoader = new FXMLLoader(GameController.class.getResource("/fxml/toDoListe.fxml"));
@@ -190,7 +182,6 @@ public class GameController {
         SchrankStage.setResizable(false);
         SchrankStage.initStyle(StageStyle.TRANSPARENT);
         SchrankStage.setScene(sceneSchrank);
-
 
         FXMLLoader fxmlLoaderKuehlschrank = new FXMLLoader(GameController.class.getResource("/fxml/Kuehlschrank.fxml"));
         Scene sceneKuehlschrank = new Scene(fxmlLoaderKuehlschrank.load());
@@ -239,10 +230,35 @@ public class GameController {
             }
         });
 
-//        // NEW: for checking result -- delete? Check-button no longer in use
-//        LaptopController.setOnSolved(() -> {
-//        CheckProg();
-//        });
+        FXMLLoader fxmlLoaderMath = new FXMLLoader(GameController.class.getResource("/fxml/Math.fxml"));
+        Scene sceneMath = new Scene(fxmlLoaderMath.load(), 720, 520);
+        MathController = fxmlLoaderMath.getController();
+
+        MathStage = new Stage();
+        MathStage.setTitle("Math");
+        MathStage.setAlwaysOnTop(true);
+        MathStage.setResizable(false);
+        MathStage.initStyle(StageStyle.DECORATED);
+        MathStage.setScene(sceneMath);
+        MathStage.sizeToScene();
+
+        // changes the icon of window
+        MathStage.getIcons().add(
+                new Image(GameController.class.getResourceAsStream("/assets/images/icon/icon.png"))
+        );
+
+        // Closing window via ESC
+        sceneMath.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                MathStage.close();
+                e.consume();
+            }
+        });
+
+        MathController.setOnSolved(() -> {
+            CheckMathe();
+            MathStage.close();
+        });
 
         // ! Adaptions until here!
 
@@ -254,8 +270,6 @@ public class GameController {
                 CheckBuecher(); // use to check to-do?
             }
         });
-
-
     }
 
     // Scene based init: key handling + game loop
@@ -280,7 +294,6 @@ public class GameController {
                     return;
                 }
 
-
                 if (last == 0) {
                     last = now;
                     return;
@@ -294,7 +307,6 @@ public class GameController {
                 boolean left = isDown(KeyCode.A);
                 boolean right = isDown(KeyCode.D);
 
-
                 if (!player.isMoving()) {
                     if (!isTileBlocked(player.getGridX(), player.getGridY(), up, down, left, right)) {
                         player.update(dt, up, down, left, right);
@@ -303,46 +315,36 @@ public class GameController {
                     player.update(dt, up, down, left, right);
                 }
 
-
                 player.animate(now, player.isMoving());
                 render();
-
-
             }
         };
         loop.start();
 
         gameCanvas.setOnMouseClicked(e -> handleMapClick(e.getX(), e.getY()));
-
     }
 
     private boolean isDown(KeyCode code) {
         return keys.getOrDefault(code, false);
     }
 
-    /**
-     * Rendert ein komplettes Frame: Background -> Map-Layer -> Player.
-     * (Kein Game-Loop, nur beim Start und beim Resize)
-     */
     private void render() {
         GraphicsContext gc = gameCanvas.getGraphicsContext2D();
-        gc.setImageSmoothing(false); // wichtig gegen "Seams" beim Skalieren
+        gc.setImageSmoothing(false);
 
         double w = gameCanvas.getWidth();
         double h = gameCanvas.getHeight();
 
-        // Background füllen (Rahmenfarbe innerhalb der Canvas)
         gc.setFill(BACKGROUND);
         gc.fillRect(0, 0, w, h);
 
         if (map == null || tsx == null || tilesetImage == null) {
-            return; // Assets noch nicht geladen
+            return;
         }
 
         int firstGid = map.tilesets().get(0).firstgid();
         int columns = tsx.columns();
 
-        // Sichtbare Tile-Layer in richtiger Reihenfolge
         renderLayerByName(gc, "floor", firstGid, columns);
         renderLayerByName(gc, "floor_help", firstGid, columns);
         renderLayerByName(gc, "objects_back", firstGid, columns);
@@ -350,19 +352,14 @@ public class GameController {
         renderLayerByName(gc, "objects_front", firstGid, columns);
         renderLayerByName(gc, "collision", firstGid, columns);
 
-        // Player darüber zeichnen
         renderPlayer(gc);
     }
 
-    /**
-     * Findet einen Layer anhand des Namens und rendert ihn, wenn es ein TileLayer ist.
-     */
     private void renderLayerByName(GraphicsContext gc, String layerName, int firstGid, int columns) {
         for (var layer : map.layers()) {
             if (layer.isTileLayer() && layerName.equals(layer.name())) {
                 rc = renderer.renderTileLayer(gc, map, layer, tilesetImage, firstGid, columns);
 
-                // Wir merken uns EINEN Layer für Interaktionen
                 if ("objects".equals(layerName)) {
                     renderContext = rc;
                     interactionLayer = layer;
@@ -373,18 +370,13 @@ public class GameController {
                 }
                 if ("collision".equals(layerName)) {
                     renderContext = rc;
-                    collisionLayer = layer; // Hier sagen wir dem Programm: Das ist die Ebene mit den Wänden!
+                    collisionLayer = layer;
                 }
                 return;
             }
         }
     }
 
-    /**
-     * Rendert den Player als EIN Frame aus dem Sprite Sheet.
-     * Position ist Tile-basiert und wird auf das gleiche Integer-Grid gelegt wie die Map,
-     * damit nichts "driftet".
-     */
     private void renderPlayer(GraphicsContext gc) {
         if (playerSprite == null || map == null || player == null) return;
 
@@ -397,7 +389,6 @@ public class GameController {
         double mapW = map.width() * tileW;
         double mapH = map.height() * tileH;
 
-        // Fit-to-window scale (Map bleibt komplett sichtbar)
         double scale = Math.min(canvasW / mapW, canvasH / mapH);
 
         double renderW = mapW * scale;
@@ -406,19 +397,16 @@ public class GameController {
         double offsetX = (canvasW - renderW) / 2.0;
         double offsetY = (canvasH - renderH) / 2.0;
 
-        // Integer-Grid (wie MapRenderer)
         int baseX = (int) Math.round(offsetX);
         int baseY = (int) Math.round(offsetY);
         int scaledTileW = (int) Math.round(tileW * scale);
         int scaledTileH = (int) Math.round(tileH * scale);
 
-        // Sprite-Frame (Quelle)
         double frameW = playerSprite.getWidth() / Player.SPRITE_COLS;
         double frameH = playerSprite.getHeight() / Player.SPRITE_ROWS;
         double sx = player.getFrameCol() * frameW;
         double sy = player.getFrameRow() * frameH;
 
-        // Zielgröße (1.2 Tiles hoch, proportional)
         double aspect = frameW / frameH;
         int targetH = (int) Math.round(scaledTileH * 1.2);
         int targetW = (int) Math.round(targetH * aspect);
@@ -428,19 +416,12 @@ public class GameController {
         int tilePxX = (int) Math.round(tileX * scaledTileW);
         int tilePxY = (int) Math.round(tileY * scaledTileH);
 
-        // Centered in tile
         int dx = baseX + tilePxX + (scaledTileW - targetW) / 2;
         int dy = baseY + tilePxY + (scaledTileH - targetH) / 2;
 
-        // Optical anchor towards top (against "bottom-heavy" impression - "centered")
         dy -= (int) Math.round(scaledTileH * PLAYER_Y_ANCHOR);
 
-        // Drawing (source: sx, sy, frameW, frameH -> destination: dx, dy, targetW, targetH)
         gc.drawImage(playerSprite, sx, sy, frameW, frameH, dx, dy, targetW, targetH);
-
-//        gameCanvas.setOnMouseClicked(e -> {
-//            handleMapClick(e.getX(), e.getY());
-//        });
     }
 
     public void stop() {
@@ -450,10 +431,8 @@ public class GameController {
     }
 
     private void handleMapClick(double mouseX, double mouseY) {
-
         if (renderContext == null || interactionLayer == null) return;
 
-        // Klick relativ zur Map
         double localX = mouseX - renderContext.baseX();
         double localY = mouseY - renderContext.baseY();
 
@@ -472,7 +451,6 @@ public class GameController {
         int gid = interactionLayer.data()[index];
         int gid2 = interactionLayer2.data()[index];
 
-        // nimm das "oberste" / relevante gid
         int clickedGid = (gid2 != 0) ? gid2 : gid;
 
         onTileClicked(tileX, tileY, clickedGid);
@@ -484,9 +462,9 @@ public class GameController {
         double tileX = player.getGridX();
         double tileY = player.getGridY();
 
-            System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
-            System.out.println("Tile geklickt: (" + x + "," + y);
-            System.out.println("Player geklickt: (" + tileX + "," + tileY );
+        System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
+        System.out.println("Tile geklickt: (" + x + "," + y);
+        System.out.println("Player geklickt: (" + tileX + "," + tileY );
 
         if (Math.abs(tileX - x) <= 2 && Math.abs(tileY - y) <= 2) {
 
@@ -497,104 +475,83 @@ public class GameController {
                     todoStage.show();
                 }
             }
+
             if (gid == 55||gid==56) {
                 if (SchrankStage != null) {
                     SchrankStage.setX((rc.gc().getCanvas().getWidth())/2);
                     SchrankStage.setY(50);
                     SchrankStage.show();
                 }
-//                String Schrank = KochManager.cabinet();
-//                System.out.println(Schrank);
             }
-//            if (gid == 58||gid==70) {//linkerSchrank
-//                String linkerSchrank = KochManager.shelf();
-//                System.out.println(linkerSchrank
-//                );
-//            }
-//            if (gid == 71||gid==59) {//Herd
-//                String Herd = KochManager.stove();
-//                System.out.println(Herd);
-//            }
 
-//            if (gid == 64) {//Wasserhahn
-//                String Wasser = KochManager.water();
-//                System.out.println(Wasser);
-//                System.out.println(KochManager.getState());
-//            }
             if (gid == 72) {
                 if (KuehlschrankStage != null) {
                     KuehlschrankStage.setX((rc.gc().getCanvas().getWidth())/2);
                     KuehlschrankStage.setY(50);
                     KuehlschrankStage.show();
                 }
-//                String Kuehlschrank = KochManager.fridge();
-//                System.out.println(Kuehlschrank);
             }
+
             if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
-                // erst text
                 String bookcaseText = DialogueTexts.VARIANTS.get("bookcase").get(0);
 
-                // danach erst rätsel
                 openDialogue(bookcaseText, "bookcase", () -> {
-                    // Check if the book stage is initialized before displaying it
                     if (BuecherStage != null) {
-                        // Apply a blur effect to the background root to focus the user's attention on the new window
                         root.setEffect(new GaussianBlur(20));
 
-                        // Display the stage and set its specific screen coordinates
                         BuecherStage.show();
                         BuecherStage.setX(470);
                         BuecherStage.setY(210);
 
-                        // Retrieve the root node of the stage's scene to apply animations
                         Parent content = BuecherStage.getScene().getRoot();
 
-                        // Create and play a smooth fade-in transition for the stage content
                         FadeTransition fadeIn = new FadeTransition(Duration.millis(500), content);
                         fadeIn.setFromValue(0.0);
                         fadeIn.setToValue(1.0);
                         fadeIn.play();
 
-                        // Ensure the controller is available to manage focus
                         if (BuecherController != null) {
-                            // Request focus on the main pane of the sub-scene to enable keyboard interactions immediately
                             BuecherController.getBuecherScene().requestFocus();
                         }
                     }
                 });
                 return;
             }
+
             if (gid == 50) {
                 if (LaptopStage != null) {
                     LaptopStage.setX(rc.renderW() / 2);
                     LaptopStage.show();
                 }
             }
-//            //Kiki
-//            if (gid == 66) {
-//                //sachen rein schreiben (Ali Code hier)
-//            }
 
-            // Dialogue fenster + Text
+            int MATH_GID = 112;
+            if (gid == MATH_GID) {
+                if (MathStage != null) {
+                    MathStage.setX(rc.renderW() / 2);
+                    MathStage.show();
+                }
+            }
+
             String type = dialogueManager.typeForGid(gid);
             if (type != null) {
 
                 if ("picture".equals(type)) {
-                    dialogueManager.resetPicture(); // immer bei Zeile 1 starten
+                    dialogueManager.resetPicture();
                     openDialogue(dialogueManager.nextPictureLine(), "picture");
                 } else {
                     openDialogue(dialogueManager.nextTextForType(type), type);
                 }
-                if (gid == 63) {//Schneidebrett
+                if (gid == 63) {
                     if(KochManager.getState() == KochManager.getFINISHED()){
                         CheckKochen();
                     }
                 }
                 return;
             }
-
         }
     }
+
     boolean Buecher = false;
     boolean Kochen = false;
     boolean Mathe = false;
@@ -635,13 +592,11 @@ public class GameController {
     }
 
     private boolean isTileBlocked(int nextGridX, int nextGridY, boolean up, boolean down, boolean left, boolean right) {
-        // Safety check: Layer oder RenderContext nicht verfügbar
         if (collisionLayer == null || renderContext == null) return false;
 
-        // Prüfe, ob die Koordinaten außerhalb der Map liegen
         if (nextGridX < 0 || nextGridY < 0 ||
                 nextGridX >= collisionLayer.width() || nextGridY >= collisionLayer.height()) {
-            return true; // außerhalb = blockiert
+            return true;
         }
         int index;
         if(up){
@@ -658,8 +613,6 @@ public class GameController {
         }
 
         System.out.println(index);
-        // Berechne den Index im Layer
-//        int index = nextGridY * 20 + nextGridX;
         int gid = collisionLayer.data()[index];
         System.out.println(player.getGridX()+" "+ player.getGridY());
 
@@ -667,10 +620,8 @@ public class GameController {
             Win();
             System.out.println("test");
         }
-        // GID 0 = kein Hindernis, alles andere = blockiert
         return gid != 0;
     }
-
 
     private void loadDialogueBox() {
         try {
@@ -678,25 +629,19 @@ public class GameController {
             dialogueNode = loader.load();
             dialogueController = loader.getController();
 
-            // nur einmal einhängen
             overlayLayer.getChildren().setAll(dialogueNode);
 
-            // ABER: nicht anzeigen beim Start
             overlayLayer.setVisible(false);
             overlayLayer.setManaged(false);
             dialogueOpen = false;
 
-            // Klick schließt (Handler ist ok, wirkt nur wenn sichtbar)
             overlayLayer.setOnMouseClicked(e -> {
 
-                // 1) erster Klick: wenn noch tippt -> nur skip
-                // wenn noch tippt -> skip und NICHT schließen
                 if (dialogueController.onUserClick()) {
                     e.consume();
                     return;
                 }
 
-                // 2) erst wenn voll: darf "weiter" passieren
                 if ("picture".equals(activeDialogueType)) {
                     if (dialogueManager.isPictureFinished()) {
                         dialogueManager.resetPicture();
@@ -732,12 +677,10 @@ public class GameController {
         dialogueOpen = true;
     }
 
-    // Overloaad für Bücherrätsel
     public void openDialogue(String text, String type, Runnable onClose) {
         afterDialogueClose = onClose;
         openDialogue(text, type);
     }
-
 
     public void closeDialogue() {
         if (dialogueController != null) dialogueController.stopTyping();
@@ -746,12 +689,10 @@ public class GameController {
         dialogueOpen = false;
         activeDialogueType = null;
 
-        // nur für Bücherrätsel!
         if (afterDialogueClose != null) {
             Runnable r = afterDialogueClose;
             afterDialogueClose = null;
             r.run();
         }
     }
-
 }
