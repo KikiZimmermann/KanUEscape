@@ -167,8 +167,13 @@ public class GameController {
         BuecherStage = new Stage();
         BuecherStage.setAlwaysOnTop(true);
         BuecherStage.setResizable(false);
-        BuecherStage.initStyle(StageStyle.TRANSPARENT);
+//        BuecherStage.initStyle(StageStyle.TRANSPARENT);
         BuecherStage.setScene(sceneBuecher);
+        BuecherStage.setTitle("Bücherregal");
+        // changes the icon of window
+        BuecherStage.getIcons().add(
+                new Image(GameController.class.getResourceAsStream("/assets/images/icon/icon.png"))
+        );
 
         FXMLLoader fxmlLoaderSchrank = new FXMLLoader(GameController.class.getResource("/fxml/Schrank.fxml"));
         Scene sceneSchrank = new Scene(fxmlLoaderSchrank.load());
@@ -216,6 +221,11 @@ public class GameController {
             }
         });
 
+        // changes the icon of window
+        LaptopStage.getIcons().add(
+                new Image(GameController.class.getResourceAsStream("/assets/images/icon/icon.png"))
+        );
+
         // Siegbedingung checked upon closing of laptop-window
         LaptopStage.setOnHiding(e -> {
             if (LaptopController != null && LaptopController.isSolved()) {
@@ -234,7 +244,12 @@ public class GameController {
         BuecherStage.setOnHiding(event -> {
             // Remove the blur or any other effect from the background immediately upon hiding
             root.setEffect(null);
+            if (BuecherController != null && BuecherController.isSolved()) {
+                CheckBuecher(); // use to check to-do?
+            }
         });
+
+
     }
 
     // Scene based init: key handling + game loop
