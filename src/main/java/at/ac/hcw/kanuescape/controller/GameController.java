@@ -661,22 +661,10 @@ public class GameController {
 
     public void Win() {
         if (Prog&&Mathe&&Kochen&&Buecher) {
-            System.out.println("Win");
+            setMenuButtonVisible(false);
+            endManager.open();
+            if (loop != null) loop.stop();
         }
-
-
-
-        //vorschlag
-//        if (won) return;
-//        if (Prog && Mathe && Kochen && Buecher) {
-//            won = true;
-//            setMenuButtonVisible(false);
-//            endManager.open();
-//            if (loop != null) loop.stop(); // optional
-//        }
-
-        //und dann am ende jeder check methode Win();
-
     }
 
     private boolean isTileBlocked(int nextGridX, int nextGridY, boolean up, boolean down, boolean left, boolean right) {
@@ -706,7 +694,6 @@ public class GameController {
 
         if(gid==92){
             Win();
-            System.out.println("test");
         }
         return gid != 0;
     }

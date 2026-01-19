@@ -19,38 +19,38 @@ public class KochManager {
     public String fridge() {
         if (state == TortillaState.START) {
             state = TortillaState.INGREDIENTS_COLLECTED;
-            return "Fleisch und Tomaten aus dem Kuehlschrank geholt.";
+            return "Meat and tomatoes taken from the fridge.";
         }
-        return "Du hast schon alles was du aus dem Kuehlschrank brauchst.";
+        return "You already took everything you need from the fridge.";
     }
 
     public String water() {
         if (state == TortillaState.INGREDIENTS_COLLECTED) {
             state = TortillaState.WASHED;
-            return "Tomaten gewaschen.";
+            return "Tomatoes washed.";
         } else if (state == TortillaState.START) {
-            return "Erst Zutaten holen.";
+            return "Get the ingredients first.";
         }
-        return "Du hast schon alles abgewaschen.";
+        return "Everything is already washed.";
     }
 
     public String board() {
         return switch (state) {
             case WASHED -> {
                 state = TortillaState.CUT;
-                yield "Tomaten geschnitten.";
+                yield "Tomatoes cut.";
             }
             case FILLED -> {
                 state = TortillaState.FINISHED;
-                yield "Tortillas fertig.";
+                yield "Tortillas are finished.";
             }
             case CUT,MEAT_FRIED,SEASONED,TORTILLAS_READY -> {
-                yield "Du musst gerade nichts mit den Tomaten hier machen.";
+                yield "There is nothing to do with the tomatoes right now.";
             }
             case FINISHED -> {
-                yield "Schneid dich lieber nicht.";
+                yield "Better not cut yourself.";
             }
-            default -> "Die Tomaten sind noch schmutzig.";
+            default -> "The tomatoes are still dirty.";
         };
     }
 
@@ -58,35 +58,35 @@ public class KochManager {
         return switch (state) {
             case CUT -> {
                 state = TortillaState.MEAT_FRIED;
-                yield "Fleisch angebraten.";
+                yield "Meat fried.";
             }
             case SEASONED,MEAT_FRIED -> {
-                yield "Du musst gerade nichts mit dem Fleisch hier machen.";
+                yield "There is nothing to do with the meat right now.";
             }
             case TORTILLAS_READY -> {
                 state = TortillaState.FILLED;
-                yield "Tortillas gefuellt.";
+                yield "Tortillas filled.";
             }
-            default -> "Der Herd ist gerade nutzlos.";
+            default -> "The stove is useless right now.";
         };
     }
 
     public String shelf() {
         if (state == TortillaState.MEAT_FRIED) {
             state = TortillaState.SEASONED;
-            return "Gewuerze hinzugefuegt.";
+            return "Spices added.";
         }
-        return "Kein Grund zu wuerzen.";
+        return "No reason to season anything.";
     }
 
     public String cabinet() {
         if (state == TortillaState.SEASONED) {
             state = TortillaState.TORTILLAS_READY;
-            return "Tortillas aus dem Schrank genommen.";
+            return "Tortillas taken from the cabinet.";
         } else if (state == TortillaState.TORTILLAS_READY||state == TortillaState.FILLED||state == TortillaState.FINISHED) {
-            return "Du hast dir schon eine Tortilla genommen.";
+            return "You already took a tortilla.";
         }
-        return "Du brauchst zuerst eine Füllung.";
+        return "You need a filling first.";
     }
 
     public TortillaState getState() {
