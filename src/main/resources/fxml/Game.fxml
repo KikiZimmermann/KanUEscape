@@ -15,10 +15,27 @@
             <Canvas fx:id="gameCanvas" />
 
             <!-- für overlays -->
-            <StackPane fx:id="overlayLayer" managed="false" pickOnBounds="true" visible="false" />
+            <StackPane fx:id="dialogueOverlayLayer"
+                       managed="false"
+                       pickOnBounds="true"
+                       visible="false" />
+
+            <!-- Menu Overlay (nur Menü) -->
+            <StackPane fx:id="menuOverlayLayer"
+                       managed="false"
+                       pickOnBounds="true"
+                       visible="false"
+                       maxWidth="Infinity"
+                       maxHeight="Infinity" />
 
             <StackPane alignment="TOP_CENTER" pickOnBounds="false">
-               <Button contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" style="-fx-background-color: transparent;" text="MENU" textFill="WHITE">
+               <Button contentDisplay="CENTER"
+                       focusTraversable="false"
+                       mnemonicParsing="false"
+                       style="-fx-background-color: transparent;"
+                       text="MENU"
+                       textFill="WHITE"
+                       onAction="#onMenuClicked">
                   <graphic>
                      <ImageView fx:id="menuBtn" fitHeight="40.0" preserveRatio="true" smooth="false">
                         <image>

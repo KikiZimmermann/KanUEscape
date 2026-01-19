@@ -12,7 +12,7 @@
         <StackPane fx:id="container" alignment="BOTTOM_CENTER" pickOnBounds="false">
 
             <!-- Box + Content overlay -->
-            <StackPane fx:id="boxWrap" alignment="BOTTOM_CENTER" pickOnBounds="false">
+            <StackPane fx:id="boxWrap" alignment="BOTTOM_CENTER" pickOnBounds="false" >
 
                 <children>
 

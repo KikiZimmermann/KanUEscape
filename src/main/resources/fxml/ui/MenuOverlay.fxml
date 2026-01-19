@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+
+<AnchorPane fx:id="overlay"
+            visible="false"
+            pickOnBounds="true"
+            style="-fx-background-color: rgba(0,0,0,0.6);"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="at.ac.hcw.kanuescape.controller.ui.MenuOverlayController">
+
+    <children>
+
+        <!-- ZENTRIERTER CONTAINER -->
+        <StackPane fx:id="menuOverlayLayer"
+                   visible="false"
+                   managed="false"
+                   pickOnBounds="true"
+                   maxWidth="Infinity"
+                   maxHeight="Infinity">
+
+            <VBox spacing="12"
+                  alignment="CENTER">
+
+                <ImageView fx:id="menuFrame"
+                           fitWidth="420"
+                           preserveRatio="true"/>
+
+                <Button text="Resume"/>
+                <Button text="Settings"/>
+                <Button text="Quit"/>
+
+            </VBox>
+
+        </StackPane>
+    </children>
+</AnchorPane>

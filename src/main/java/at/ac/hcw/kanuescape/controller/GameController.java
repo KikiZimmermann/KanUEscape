@@ -105,8 +105,9 @@ public class GameController {
     @FXML
     private Label menuLabel;
 
-    @FXML
-    private StackPane overlayLayer;
+    @FXML private StackPane dialogueOverlayLayer;
+    @FXML private StackPane menuOverlayLayer;
+
 
     private StackPane dialogueNode;  // Node merken, um es zu entfernen
     private boolean dialogueOpen = false;
@@ -116,6 +117,15 @@ public class GameController {
 
     private DialogueBoxController dialogueController;
     private Runnable afterDialogueClose = null;             // Bücherrätsel nach Dialogue close
+
+
+    //Menu
+    private at.ac.hcw.kanuescape.ui.MenuOverlayManager menuManager;
+
+
+
+
+
 
 
     // Input/loop
@@ -150,6 +160,13 @@ public class GameController {
         // --- DialogueBox ---
         loadDialogueBox();
 
+        // Menu
+        menuManager = new at.ac.hcw.kanuescape.ui.MenuOverlayManager(menuOverlayLayer);
+
+
+//        menuManager.setOnNewGame(this::startNewGame);
+//        menuManager.setOnExit(this::exitToEndScreen);
+        menuManager.load();
 
 
 
@@ -274,7 +291,7 @@ public class GameController {
             public void handle(long now) {
 
                 //no mvmt when text box open
-                if (dialogueOpen) {
+                if (dialogueOpen || (menuManager != null && menuManager.isPaused())) {
                     player.animate(now, false);
                     render();
                     return;
@@ -673,15 +690,15 @@ public class GameController {
             dialogueController = loader.getController();
 
             // nur einmal einhängen
-            overlayLayer.getChildren().setAll(dialogueNode);
+            dialogueOverlayLayer.getChildren().add(dialogueNode);
 
             // ABER: nicht anzeigen beim Start
-            overlayLayer.setVisible(false);
-            overlayLayer.setManaged(false);
+            dialogueOverlayLayer.setVisible(false);
+            dialogueOverlayLayer.setManaged(false);
             dialogueOpen = false;
 
             // Klick schließt (Handler ist ok, wirkt nur wenn sichtbar)
-            overlayLayer.setOnMouseClicked(e -> {
+            dialogueOverlayLayer.setOnMouseClicked(e -> {
 
                 // 1) erster Klick: wenn noch tippt -> nur skip
                 // wenn noch tippt -> skip und NICHT schließen
@@ -721,9 +738,10 @@ public class GameController {
         activeDialogueType = type;
         dialogueController.setText(text);
 
-        overlayLayer.setVisible(true);
-        overlayLayer.setManaged(true);
+        dialogueOverlayLayer.setVisible(true);
+        dialogueOverlayLayer.setManaged(true);
         dialogueOpen = true;
+
     }
 
     // Overloaad für Bücherrätsel
@@ -735,8 +753,10 @@ public class GameController {
 
     public void closeDialogue() {
         if (dialogueController != null) dialogueController.stopTyping();
-        overlayLayer.setVisible(false);
-        overlayLayer.setManaged(false);
+
+        dialogueOverlayLayer.setVisible(false);
+        dialogueOverlayLayer.setManaged(false);
+
         dialogueOpen = false;
         activeDialogueType = null;
 
@@ -747,5 +767,11 @@ public class GameController {
             r.run();
         }
     }
+
+    @FXML
+    private void onMenuClicked() {
+        if (menuManager != null) menuManager.toggle();
+    }
+
 
 }

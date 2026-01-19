@@ -5,22 +5,21 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane maxHeight="-Infinity"
-           maxWidth="-Infinity"
-           minHeight="-Infinity"
-           minWidth="-Infinity"
-           prefHeight="400.0"
-           prefWidth="600.0"
+<StackPane fx:id="menuRoot"
            xmlns="http://javafx.com/javafx/17.0.12"
-           xmlns:fx="http://javafx.com/fxml/1">
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="at.ac.hcw.kanuescape.controller.ui.MenuScreenController"
+           pickOnBounds="true"
+           alignment="CENTER">
 
    <children>
 
-      <Pane prefHeight="200.0"
-            prefWidth="200.0"
-            style="-fx-background-color: #4e4e4e;" />
+      <Region fx:id="dim"
+              maxWidth="Infinity"
+              maxHeight="Infinity"
+              style="-fx-background-color: rgba(0,0,0,0.18);" />
 
-      <StackPane prefHeight="420.0" prefWidth="520.0">
+      <StackPane fx:id="menuBox" prefHeight="420.0" prefWidth="520.0">
 
          <children>
 
@@ -35,14 +34,13 @@
             </ImageView>
 
             <VBox alignment="TOP_CENTER"
-                  prefHeight="200.0"
-                  prefWidth="100.0"
+                  prefWidth="520.0"
+                  maxWidth="520.0"
                   StackPane.alignment="CENTER">
 
                <children>
 
-                  <Region prefHeight="86.0"
-                          prefWidth="600.0" />
+                  <Region prefHeight="86.0"/>
 
                   <Label text="MENU"
                          textFill="WHITE">
@@ -51,26 +49,26 @@
                      </font></Label>
 
                   <HBox alignment="CENTER"
-                        prefHeight="55.0"
-                        prefWidth="600.0">
+                        prefHeight="55.0">
 
                      <children>
 
-                        <Region prefHeight="55.0"
-                                prefWidth="234.0" />
+                        <Region HBox.hgrow="ALWAYS" />
 
                         <HBox alignment="CENTER_LEFT"
-                              prefHeight="55.0"
-                              prefWidth="121.0">
+                              spacing="8">
 
                            <children>
 
-                              <StackPane prefHeight="24.0"
+                              <StackPane fx:id="musicToggle"
+                                         onMouseClicked="#toggleMusic"
+                                         prefHeight="24.0"
                                          prefWidth="24.0">
 
                                  <children>
 
-                                    <ImageView fitHeight="24.0"
+                                    <ImageView fx:id="musicCheckbox"
+                                               fitHeight="24.0"
                                                fitWidth="24.0"
                                                pickOnBounds="true"
                                                preserveRatio="true"
@@ -80,7 +78,8 @@
                                        </image>
                                     </ImageView>
 
-                                    <ImageView fitHeight="24.0" fitWidth="24.0"
+                                    <ImageView fx:id="musicCheckmark"
+                                               fitHeight="24.0" fitWidth="24.0"
                                                mouseTransparent="true"
                                                pickOnBounds="true"
                                                preserveRatio="true"
@@ -102,21 +101,22 @@
                            </children>
                         </HBox>
 
-                        <Region prefHeight="55.0"
-                                prefWidth="115.0" />
+                        <Region minWidth="40.0" />
 
                         <HBox alignment="CENTER_LEFT"
-                              prefHeight="55.0"
-                              prefWidth="125.0">
+                              spacing="8">
 
                            <children>
 
-                              <StackPane prefHeight="24.0"
+                              <StackPane fx:id="sfxToggle"
+                                         onMouseClicked="#toggleSfx"
+                                         prefHeight="24.0"
                                          prefWidth="24.0">
 
                                  <children>
 
-                                    <ImageView fitHeight="24.0"
+                                    <ImageView fx:id="sfxCheckbox"
+                                               fitHeight="24.0"
                                                fitWidth="24.0"
                                                pickOnBounds="true"
                                                preserveRatio="true"
@@ -126,7 +126,8 @@
                                        </image>
                                     </ImageView>
 
-                                    <ImageView fitHeight="150.0"
+                                    <ImageView fx:id="sfxCheckmark"
+                                               fitHeight="24.0"
                                                fitWidth="24.0"
                                                mouseTransparent="true"
                                                pickOnBounds="true"
@@ -147,8 +148,7 @@
                            </children>
                         </HBox>
 
-                        <Region prefHeight="200.0"
-                                prefWidth="200.0" />
+                        <Region HBox.hgrow="ALWAYS" />
 
                      </children>
                   </HBox>
@@ -162,14 +162,14 @@
                         <Image url="@../../assets/images/ui/separator.png" />
                      </image></ImageView>
 
-                  <Region prefHeight="19.0"
-                          prefWidth="600.0" />
+                  <Region prefHeight="19.0"/>
 
-                  <Button alignment="CENTER"
+                  <Button text="Continue"
+                          onAction="#onContinue"
+                          alignment="CENTER"
                           contentDisplay="CENTER"
                           mnemonicParsing="false"
                           style="-fx-background-color: transparent; -fx-padding: 0;"
-                          text="Continue"
                           textFill="WHITE">
                      <graphic>
                         <ImageView fitHeight="30.0"
@@ -183,11 +183,12 @@
                      </graphic>
                   </Button>
 
-                  <Button alignment="CENTER"
+                  <Button text="New Game"
+                          onAction="#onNewGame"
+                          alignment="CENTER"
                           contentDisplay="CENTER"
                           mnemonicParsing="false"
                           style="-fx-background-color: transparent; -fx-padding: 0;"
-                          text="New Game"
                           textFill="WHITE">
                      <graphic>
                         <ImageView fitHeight="30.0"
@@ -201,11 +202,12 @@
                      </graphic>
                   </Button>
 
-                  <Button alignment="CENTER"
+                  <Button text="Exit"
+                          onAction="#onExit"
+                          alignment="CENTER"
                           contentDisplay="CENTER"
                           mnemonicParsing="false"
                           style="-fx-background-color: transparent; -fx-padding: 0;"
-                          text="Exit"
                           textFill="WHITE">
                      <graphic>
                         <ImageView fitHeight="30.0"
