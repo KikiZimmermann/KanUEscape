@@ -110,7 +110,8 @@ public class MapRenderer {
                 baseY,
                 scaledTileW,
                 scaledTileH,
-                renderW
+                renderW,
+                renderH
         );
     }
 }

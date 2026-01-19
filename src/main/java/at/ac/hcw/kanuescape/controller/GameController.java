@@ -1,8 +1,5 @@
 package at.ac.hcw.kanuescape.controller;
 
-import at.ac.hcw.kanuescape.controller.BuecherController;
-import at.ac.hcw.kanuescape.controller.LaptopController;
-import at.ac.hcw.kanuescape.controller.ToDoListeController;
 import at.ac.hcw.kanuescape.tiled.MapLoader;
 import at.ac.hcw.kanuescape.tiled.MapRenderer;
 import at.ac.hcw.kanuescape.tiled.RenderContext;
@@ -22,7 +19,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import at.ac.hcw.kanuescape.game.Player; // Mvm
 import javafx.animation.AnimationTimer; // Mvm
-import at.ac.hcw.kanuescape.tiled.RenderContext;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.input.KeyCode; // Mvm
@@ -71,9 +67,13 @@ public class GameController {
     private Stage todoStage;
     private Stage BuecherStage;
     private Stage LaptopStage;
+    private Stage SchrankStage;
+    private Stage KuehlschrankStage;
     private ToDoListeController todoController;
     private BuecherController BuecherController;
     private LaptopController LaptopController;
+    private SchrankController SchrankController;
+    private KuehlschrankController KuehlschrankController;
 
     // Render Context für Größen
     private RenderContext renderContext;
@@ -138,6 +138,27 @@ private void initialize() throws Exception {
         BuecherStage.setResizable(false);
         BuecherStage.initStyle(StageStyle.TRANSPARENT);
         BuecherStage.setScene(sceneBuecher);
+
+        FXMLLoader fxmlLoaderSchrank = new FXMLLoader(GameController.class.getResource("/fxml/Schrank.fxml"));
+        Scene sceneSchrank = new Scene(fxmlLoaderSchrank.load());
+        SchrankController = fxmlLoaderSchrank.getController();
+        sceneSchrank.setFill(Color.BLACK);
+        SchrankStage = new Stage();
+        SchrankStage.setAlwaysOnTop(true);
+        SchrankStage.setResizable(false);
+        SchrankStage.initStyle(StageStyle.TRANSPARENT);
+        SchrankStage.setScene(sceneSchrank);
+
+
+        FXMLLoader fxmlLoaderKuehlschrank = new FXMLLoader(GameController.class.getResource("/fxml/Kuehlschrank.fxml"));
+        Scene sceneKuehlschrank = new Scene(fxmlLoaderKuehlschrank.load());
+        KuehlschrankController = fxmlLoaderKuehlschrank.getController();
+        sceneKuehlschrank.setFill(Color.BLACK);
+        KuehlschrankStage = new Stage();
+        KuehlschrankStage.setAlwaysOnTop(true);
+        KuehlschrankStage.setResizable(false);
+        KuehlschrankStage.initStyle(StageStyle.TRANSPARENT);
+        KuehlschrankStage.setScene(sceneKuehlschrank);
 
         // ! Adapted from here ...
 
@@ -405,75 +426,106 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
         System.out.println("Player geklickt: (" + pixelX + "," + pixelY + ") GID=" + gid);
 
         if (true/*Math.abs(tileX - x*32) <= x *32* 0.15*/) {
-                System.out.println("Spieler ist innerhalb von 10% des Ziels!");
+            System.out.println("Spieler ist innerhalb von 10% des Ziels!");
 
-                if (gid == 60 || gid == 72) {
-                    if (todoStage != null) {
-                        todoStage.setX(rc.renderW() / 2);
-                        todoStage.show();
-                    }
-                }
-                if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
-                    // Check if the book stage is initialized before displaying it
-                    if (BuecherStage != null) {
-                        // Apply a blur effect to the background root to focus the user's attention on the new window
-                        root.setEffect(new GaussianBlur(20));
-
-                        // Display the stage and set its specific screen coordinates
-                        BuecherStage.show();
-                        BuecherStage.setX(470);
-                        BuecherStage.setY(210);
-
-                        // Retrieve the root node of the stage's scene to apply animations
-                        Parent content = BuecherStage.getScene().getRoot();
-
-                        // Create and play a smooth fade-in transition for the stage content
-                        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), content);
-                        fadeIn.setFromValue(0.0);
-                        fadeIn.setToValue(1.0);
-                        fadeIn.play();
-
-                        // Ensure the controller is available to manage focus
-                        if (BuecherController != null) {
-                            // Request focus on the main pane of the sub-scene to enable keyboard interactions immediately
-                            BuecherController.getBuecherScene().requestFocus();
-                        }
-                    }
-                }
-                if (gid == 50) {
-                    if (LaptopStage != null) {
-                        LaptopStage.setX(rc.renderW() / 2);
-                        LaptopStage.show();
-                    }
-                }
-                //Kiki
-                if (gid == 66) {
-                    //sachen rein schreiben (Ali Code hier)
+            if (gid == 60) {
+                if (todoStage != null) {
+                    todoStage.setX(rc.renderW() / 2);
+                    todoStage.show();
                 }
             }
+
+            if (gid == 72) {
+                if (KuehlschrankStage != null) {
+                    KuehlschrankStage.setX(rc.renderW() / 2);
+                    KuehlschrankStage.show();
+                }
+            }
+            if (gid == 55||gid==56) {
+                if (SchrankStage != null) {
+                    SchrankStage.setX(rc.renderW()/2*1.2);
+                    SchrankStage.setY(rc.renderH()/2);
+                    SchrankStage.show();
+                }
+            }
+            if (gid == 58||gid==70) {
+
+            }
+            if (gid == 72) {
+                if (KuehlschrankStage != null) {
+                    KuehlschrankStage.setX(rc.renderW() / 2);
+                    KuehlschrankStage.show();
+                }
+            }
+            if (gid == 94 || gid == 93 || gid == 82 || gid == 81) {
+                // Check if the book stage is initialized before displaying it
+                if (BuecherStage != null) {
+                    // Apply a blur effect to the background root to focus the user's attention on the new window
+                    root.setEffect(new GaussianBlur(20));
+
+                    // Display the stage and set its specific screen coordinates
+                    BuecherStage.show();
+                    BuecherStage.setX(470);
+                    BuecherStage.setY(210);
+
+                    // Retrieve the root node of the stage's scene to apply animations
+                    Parent content = BuecherStage.getScene().getRoot();
+
+                    // Create and play a smooth fade-in transition for the stage content
+                    FadeTransition fadeIn = new FadeTransition(Duration.millis(500), content);
+                    fadeIn.setFromValue(0.0);
+                    fadeIn.setToValue(1.0);
+                    fadeIn.play();
+
+                    // Ensure the controller is available to manage focus
+                    if (BuecherController != null) {
+                        // Request focus on the main pane of the sub-scene to enable keyboard interactions immediately
+                        BuecherController.getBuecherScene().requestFocus();
+                    }
+                }
+            }
+            if (gid == 50) {
+                if (LaptopStage != null) {
+                    LaptopStage.setX(rc.renderW() / 2);
+                    LaptopStage.show();
+                }
+            }
+            //Kiki
+            if (gid == 66) {
+                //sachen rein schreiben (Ali Code hier)
+            }
+        }
     }
+    boolean Buecher = false;
+    boolean Kochen = false;
+    boolean Mathe = false;
+    boolean Prog = false;
 
     public void CheckBuecher() {
         if (todoController != null) {
             todoController.CheckBuecher(true);
+            Buecher = true;
         }
     }
     @FXML
     public void CheckKochen() {
         if (todoController != null) {
             todoController.CheckKochen(true);
+            Kochen = true;
         }
     }
     @FXML
     public void CheckMathe() {
         if (todoController != null) {
             todoController.CheckMathe(true);
+            Mathe = true;
         }
     }
     @FXML
     public void CheckProg() {
         if (todoController != null) {
             todoController.CheckProg(true);
+            Prog = true;
         }
     }
 

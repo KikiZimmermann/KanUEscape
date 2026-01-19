@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+
+<Pane xmlns:fx="http://javafx.com/fxml"
+      fx:controller="at.ac.hcw.kanuescape.controller.KuehlschrankController">
+
+    <ImageView fitWidth="341" fitHeight="513" preserveRatio="true" fx:id="exitImage" onMouseClicked="#Exit">
+        <Image url="@../assets/images/Kochen/Kuehlschrank.png"/>
+    </ImageView>
+
+</Pane>
