@@ -12,7 +12,7 @@ public class DialogueTexts {
     private DialogueTexts() {}
 
     // Start Text
-    public static final String[] INTRO_TEXT = {
+    private static final String[] INTRO_TEXT = {
             "07:32 AM.",
             "You have to get to university.",
             "Like... now.",
@@ -24,7 +24,7 @@ public class DialogueTexts {
     };
 
     // End Text
-    public static final String[] END_TEXT = {
+    private static final String[] END_TEXT = {
             "You open the door.",
             "Everything is done.",
             "Nothing is beeping.",
@@ -34,6 +34,9 @@ public class DialogueTexts {
             "Brain: mostly functional.",
             "University, here I come."
     };
+
+    public static final List<String> INTRO_LINES = List.of(INTRO_TEXT);
+    public static final List<String> END_LINES   = List.of(END_TEXT);
 
     //Variants pro Object
     public static final Map<String, List<String>> VARIANTS = Map.ofEntries(

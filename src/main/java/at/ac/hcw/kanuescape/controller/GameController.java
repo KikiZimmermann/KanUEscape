@@ -74,6 +74,10 @@ public class GameController {
     private TiledModel.TsxTileset tsx;
     private Image tilesetImage;
 
+    // GameIntro
+    private boolean introRunning = false;
+    private int introIndex = 0;
+
     //to DoListe
     private Stage todoStage;
     private Stage BuecherStage;
@@ -166,6 +170,11 @@ public class GameController {
 
         // --- DialogueBox ---
         loadDialogueBox();
+
+        //Game Intro
+        // in initialize(), nach loadDialogueBox();
+        Platform.runLater(this::startIntro);
+
 
         // Menu
         menuManager = new at.ac.hcw.kanuescape.ui.MenuOverlayManager(menuOverlayLayer);
@@ -500,6 +509,9 @@ public class GameController {
     }
 
     private void handleMapClick(double mouseX, double mouseY) {
+       // kein mapclick when intro oder dialogue
+        if (introRunning) return;
+        if (dialogueOpen) return;
         if (renderContext == null || interactionLayer == null) return;
 
         double localX = mouseX - renderContext.baseX();
@@ -714,7 +726,27 @@ public class GameController {
             // Klick schließt (Handler ist ok, wirkt nur wenn sichtbar)
             dialogueOverlayLayer.setOnMouseClicked(e -> {
 
+                // 1) Wenn gerade getippt wird: Klick soll nur "skip typing" machen, NICHT schließen/weiter
                 if (dialogueController.onUserClick()) {
+                    e.consume();
+                    return;
+                }
+
+                // 2) INTRO: Zeile für Zeile, erst am Ende darf geschlossen werden
+                if ("intro".equals(activeDialogueType)) {
+                    introIndex++;
+
+                    if (introIndex < DialogueTexts.INTRO_LINES.size()) {
+                        // nächste Zeile anzeigen
+                        openDialogue(DialogueTexts.INTRO_LINES.get(introIndex), "intro");
+                    } else {
+                        // Intro ist wirklich komplett fertig -> jetzt darf es schließen
+                        introRunning = false;
+                        closeDialogue();
+                        setMenuButtonVisible(true);
+                        root.requestFocus();
+                    }
+
                     e.consume();
                     return;
                 }
@@ -730,13 +762,27 @@ public class GameController {
                     return;
                 }
 
+                // 4) Standard
                 closeDialogue();
             });
+
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    private void startIntro() {
+        introRunning = true;
+        introIndex = 0;
+
+        // optional: Menu-Button verstecken, solange Intro läuft
+        setMenuButtonVisible(false);
+
+        activeDialogueType = "intro";
+        openDialogue(DialogueTexts.INTRO_LINES.get(introIndex), "intro");
+    }
+
 
     private String activeDialogueType = null;
     public void openDialogue(String text) {
