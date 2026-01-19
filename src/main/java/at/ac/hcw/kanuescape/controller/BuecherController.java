@@ -26,6 +26,9 @@ public class BuecherController {
     @FXML private HBox shelveThree;
     @FXML private Label winState;
     @FXML private Label escape_alert;
+    private boolean win = false;
+
+
 
     // Defined winning sequences for each shelf (based on ImageView IDs)
     private final List<String> target1 = List.of("image11", "image12", "image13", "image14", "image15");
@@ -44,9 +47,9 @@ public class BuecherController {
     private void initialize() {
         // Enable keyboard focus for the scene to detect the ESC key
         BuecherScene.setFocusTraversable(true);
-        BuecherScene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) Exit();
-        });
+//        BuecherScene.setOnKeyPressed(event -> {
+//            if (event.getCode() == KeyCode.ESCAPE) Exit();
+//        });
 
         // Randomize the position of books in each shelf at the start of the puzzle
         shuffleShelf(shelveOne);
@@ -107,8 +110,10 @@ public class BuecherController {
                 shelveList3.equals(target3)) {
 
             System.out.println("Win! All puzzles solved.");
+            win = true;
             BuecherScene.setStyle("-fx-background-color: lightgreen;");
             // gameController.CheckBuecher(); // Notify game logic of success
+
             winState.setOpacity(1);
             escape_alert.setOpacity(0);
         }
@@ -201,18 +206,22 @@ public class BuecherController {
         shelf.getChildren().setAll(books); // Re-add nodes in shuffled order
     }
 
-    /**
-     * Closes the book puzzle window.
-     */
-    @FXML protected void Exit() {
-        Stage stage = (Stage) BuecherScene.getScene().getWindow();
-        stage.close();
-    }
+//    /**
+//     * Closes the book puzzle window.
+//     */
+//    @FXML protected void Exit() {
+//        Stage stage = (Stage) BuecherScene.getScene().getWindow();
+//        stage.close();
+//    }
 
     /**
      * Returns the root pane of the scene.
      */
     public AnchorPane getBuecherScene() {
         return BuecherScene;
+    }
+
+    public boolean isSolved() {
+        return win;
     }
 }

@@ -101,7 +101,7 @@
          <padding>
             <Insets left="10.0" right="10.0" top="10.0" />
          </padding></VBox>
-      <Label fx:id="escape_alert" alignment="CENTER" layoutX="107.0" layoutY="21.0" text="P r e s s   e s c a p e   t o   c l o s e   t h e   b o o k s h e l v e " textFill="#00000033">
+      <Label fx:id="escape_alert" alignment="CENTER" layoutX="161.0" layoutY="21.0" text="T h e   b o o k s   a r e   a l l   m i x e d   u p !" textFill="#00000033">
          <font>
             <Font name="Roboto Bold" size="15.0" />
          </font>
