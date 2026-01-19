@@ -149,6 +149,21 @@ public class DialogueTexts {
                     "Bathroom’s closed. Emotionally, too.",
                     "Nope. Not a bathroom situation."
             ))
+//            entry("bookcase", List.of(
+//                    ""
+//            ))
+//            entry("kitchen_counter", List.of(
+//                    ""
+//            ))
+//            entry("stove", List.of(
+//                    ""
+//            ))
+//            entry("cabinet", List.of(
+//                    ""
+//            ))
+//            entry("fridge", List.of(
+//                    ""
+//            ))
     );
 
     //Klicke 4 - 9

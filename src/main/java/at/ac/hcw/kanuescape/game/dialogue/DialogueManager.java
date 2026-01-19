@@ -38,6 +38,11 @@ public class DialogueManager {
         register("couch", 104, 105, 106, 116, 117, 118);
         register("trash", 52);
         register("vase", 87);
+        //register("bookcase", );
+        register("kitchen_counter", 58, 70);
+        register("stove", 71, 59);
+        register("cabinet", 55, 56);
+        register("fridge", 72);
 //        register("exit", );
 //        register("bathroom", );
     }
