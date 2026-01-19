@@ -3,68 +3,43 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
-<StackPane prefHeight="640.0"
-           prefWidth="960.0"
-           xmlns="http://javafx.com/javafx/17.0.12"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="at.ac.hcw.kanuescape.controller.ui.DialogueBoxController">
+<StackPane fx:id="overlayRoot" pickOnBounds="false" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.kanuescape.controller.ui.DialogueBoxController">
 
     <children>
 
-        <Pane prefHeight="640.0" prefWidth="960.0" style="-fx-background-color: #4e4e4e;"/>
+        <!-- Container, bottom centered -->
+        <StackPane fx:id="container" alignment="BOTTOM_CENTER" pickOnBounds="false">
 
-        <StackPane alignment="BOTTOM_CENTER"
-                   layoutY="423.0"
-                   prefHeight="217.0"
-                   prefWidth="960.0">
+            <!-- Box + Content overlay -->
+            <StackPane fx:id="boxWrap" alignment="BOTTOM_CENTER" pickOnBounds="false">
 
-            <children>
+                <children>
 
-                <ImageView fitHeight="800.0"
-                           fitWidth="800.0"
-                           pickOnBounds="true"
-                           preserveRatio="true"
-                           smooth="false"
-                           StackPane.alignment="BOTTOM_CENTER">
+                    <!-- Box image -->
+                    <ImageView fx:id="boxImg"
+                               fitWidth="900"
+                               pickOnBounds="true"
+                               preserveRatio="true"
+                               smooth="false">
+                        <image>
+                            <Image url="@../../assets/images/ui/textbox.png" />
+                        </image>
+                    </ImageView>
 
-                    <image>
-                        <Image url="@../../assets/images/ui/textbox.png"/>
-                    </image>
-                </ImageView>
+                    <!-- Text in box -->
+                    <Label fx:id="dialogueText" alignment="TOP_LEFT" pickOnBounds="false" textFill="WHITE" wrapText="true" />
 
-                <Label contentDisplay="CENTER"
-                       prefHeight="63.0"
-                       prefWidth="154.0"
-                       style="-fx-text-fill: white;"
-                       text="Label"
-                       textFill="WHITE"
-                       wrapText="true"
-                       StackPane.alignment="BOTTOM_LEFT">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-
-                <StackPane prefHeight="150.0" prefWidth="200.0">
-
-                    <children>
-
-                        <ImageView fitHeight="22.0"
-                                   fitWidth="200.0"
-                                   pickOnBounds="true"
-                                   preserveRatio="true"
-                                   smooth="false"
-                                   StackPane.alignment="BOTTOM_RIGHT">
+                    <!-- Arrow WRAPPER (positioniert) -->
+                    <StackPane fx:id="arrowWrap" alignment="BOTTOM_RIGHT" pickOnBounds="false">
+                        <ImageView fx:id="arrowImg" fitHeight="128.0" fitWidth="120.0" pickOnBounds="false" preserveRatio="true" smooth="false">
                             <image>
-                                <Image url="@../../assets/images/ui/text_arrow.png"/>
+                                <Image url="@../../assets/images/ui/text_arrow.png" />
                             </image>
-
                         </ImageView>
-                    </children>
-                </StackPane>
-            </children>
+                    </StackPane>
+                </children>
+            </StackPane>
         </StackPane>
     </children>
 </StackPane>

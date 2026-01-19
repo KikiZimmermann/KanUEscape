@@ -1,5 +1,9 @@
 package at.ac.hcw.kanuescape.controller;
 
+import at.ac.hcw.kanuescape.controller.BuecherController;
+import at.ac.hcw.kanuescape.controller.LaptopController;
+import at.ac.hcw.kanuescape.controller.ToDoListeController;
+import at.ac.hcw.kanuescape.controller.ui.DialogueBoxController;
 import at.ac.hcw.kanuescape.tiled.MapLoader;
 import at.ac.hcw.kanuescape.tiled.MapRenderer;
 import at.ac.hcw.kanuescape.tiled.RenderContext;
@@ -12,8 +16,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -48,7 +54,9 @@ public class GameController {
 
     // Look & Layout
     private static final Color BACKGROUND = Color.web("#4e4e4e");
-    private static final double FRAME_PADDING = 25; // muss zum FXML -fx-padding passen
+    @FXML private StackPane gameArea;
+    private static final double FRAME_PADDING = 10; // muss zum FXML -fx-padding passen
+
 
     // Player
     private Player player;
@@ -87,35 +95,52 @@ public class GameController {
     private StackPane root;
     @FXML
     private Canvas gameCanvas;
+    @FXML
+    private ImageView menuBtn;
+    @FXML
+    private Label menuLabel;
+
+    @FXML
+    private StackPane overlayLayer;
+
+    private StackPane dialogueNode;  // Node merken, um es zu entfernen
+    private boolean dialogueOpen = false;
+
+
+    private DialogueBoxController dialogueController;
 
     // Input/loop
     private final Map<KeyCode, Boolean> keys = new EnumMap(KeyCode.class);
     private AnimationTimer loop;
 
     @FXML
-private void initialize() throws Exception {
+    private void initialize() throws Exception {
 
-    // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
-    gameCanvas.widthProperty().bind(root.widthProperty().subtract(FRAME_PADDING * 2));
-    gameCanvas.heightProperty().bind(root.heightProperty().subtract(FRAME_PADDING * 2));
+        // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
+        gameCanvas.widthProperty().bind(gameArea.widthProperty());
+        gameCanvas.heightProperty().bind(gameArea.heightProperty());
 
-    // Ressourcen laden (ohne UI-Logik)
-    map = MapLoader.loadMap(MAP_PATH);
-    tsx = MapLoader.loadTsxTileset(TSX_PATH);
-    tilesetImage = MapLoader.loadImage(TILESET_IMAGE_PATH);
-    playerSprite = new Image(getClass().getResourceAsStream(PLAYER_SPRITE_PATH));
 
-    // Start player
-    player = new Player(5, 4); // start tile
-    player.setSpeedTilesPerSecond(4.0);
-    player.setFrameDurationNs(120); // animation step (ms)
 
-    // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)
-    Platform.runLater(this::render);
+        // Ressourcen laden (ohne UI-Logik)
+        map = MapLoader.loadMap(MAP_PATH);
+        tsx = MapLoader.loadTsxTileset(TSX_PATH);
+        tilesetImage = MapLoader.loadImage(TILESET_IMAGE_PATH);
+        playerSprite = new Image(getClass().getResourceAsStream(PLAYER_SPRITE_PATH));
 
-    // Bei Resize neu rendern (wir machen kein Game-Loop, sondern "on demand")
-    gameCanvas.widthProperty().addListener((obs, oldV, newV) -> render());
-    gameCanvas.heightProperty().addListener((obs, oldV, newV) -> render());
+        // Start player
+        player = new Player(5, 4); // start tile
+        player.setSpeedTilesPerSecond(4.0);
+        player.setFrameDurationNs(120); // animation step (ms)
+
+        // Erst rendern, wenn Layout fertig ist (Canvas ist sonst oft 0x0)
+        Platform.runLater(this::render);
+
+
+
+        // --- DialogueBox ---
+        loadDialogueBox();
+
 
         // ToDoListe Laden
         FXMLLoader fxmlLoader = new FXMLLoader(GameController.class.getResource("/fxml/toDoListe.fxml"));
@@ -206,62 +231,64 @@ private void initialize() throws Exception {
         });
     }
 
-// Scene based init: key handling + game loop
-public void init(Scene scene) {
-    scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
-    scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
+    // Scene based init: key handling + game loop
+    public void init(Scene scene) {
+        scene.setOnKeyPressed(e -> keys.put(e.getCode(), true));
+        scene.setOnKeyReleased(e -> keys.put(e.getCode(), false));
 
-    root.setOnMouseClicked(e -> root.requestFocus());
-    Platform.runLater(() -> root.requestFocus());
+        root.setOnMouseClicked(e -> root.requestFocus());
+        Platform.runLater(() -> root.requestFocus());
 
-    // Game loop
-    loop = new AnimationTimer() {
-        long last = 0;
+        // Game loop
+        loop = new AnimationTimer() {
+            long last = 0;
 
-        @Override
-        public void handle(long now) {
-            if (last == 0) {
+            @Override
+            public void handle(long now) {
+
+                //no mvmt when text box open
+                if (dialogueOpen) {
+                    player.animate(now, false);
+                    render();
+                    return;
+                }
+
+
+                if (last == 0) {
+                    last = now;
+                    return;
+                }
+                double dt = (now - last) / 1_000_000_000.0;
                 last = now;
-                return;
-            }
-            double dt = (now - last) / 1_000_000_000.0;
-            last = now;
 
-            //Eingabe
-            boolean up = isDown(KeyCode.W);
-            boolean down = isDown(KeyCode.S);
-            boolean left = isDown(KeyCode.A);
-            boolean right = isDown(KeyCode.D);
+                //Eingabe
+                boolean up = isDown(KeyCode.W);
+                boolean down = isDown(KeyCode.S);
+                boolean left = isDown(KeyCode.A);
+                boolean right = isDown(KeyCode.D);
 
 
-
-
-
-            if (!player.isMoving()) {
-                if (!isTileBlocked(player.getGridX(), player.getGridY(), up, down, left, right)) {
+                if (!player.isMoving()) {
+                    if (!isTileBlocked(player.getGridX(), player.getGridY(), up, down, left, right)) {
+                        player.update(dt, up, down, left, right);
+                    }
+                } else {
                     player.update(dt, up, down, left, right);
                 }
-            } else {
-                player.update(dt, up, down, left, right);
+
+
+                player.animate(now, player.isMoving());
+                render();
+
+
             }
+        };
+        loop.start();
+    }
 
-
-            player.animate(now, player.isMoving());
-            render();
-
-
-//            up=false;
-//            down=false;
-//            left=false;
-//            right=false;
-
-
-        }
-    };
-    loop.start();
-}
-
-private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
+    private boolean isDown(KeyCode code) {
+        return keys.getOrDefault(code, false);
+    }
 
     /**
      * Rendert ein komplettes Frame: Background -> Map-Layer -> Player.
@@ -386,7 +413,11 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
         });
     }
 
-    public void stop() { if (loop != null) { loop.stop(); } }
+    public void stop() {
+        if (loop != null) {
+            loop.stop();
+        }
+    }
 
     private void handleMapClick(double mouseX, double mouseY) {
 
@@ -422,11 +453,11 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
         double pixelX = tileX * interactionLayer.width();
         double pixelY = tileY * interactionLayer.height();
 
-        System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
+        System.out.println("Tile geklickt: (" + x * 32 + "," + y * 32 + ") GID=" + gid);
         System.out.println("Player geklickt: (" + pixelX + "," + pixelY + ") GID=" + gid);
 
         if (true/*Math.abs(tileX - x*32) <= x *32* 0.15*/) {
-            System.out.println("Spieler ist innerhalb von 10% des Ziels!");
+                System.out.println("Spieler ist innerhalb von 10% des Ziels!");
 
             if (gid == 60) {
                 if (todoStage != null) {
@@ -507,6 +538,7 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
             Buecher = true;
         }
     }
+
     @FXML
     public void CheckKochen() {
         if (todoController != null) {
@@ -514,6 +546,7 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
             Kochen = true;
         }
     }
+
     @FXML
     public void CheckMathe() {
         if (todoController != null) {
@@ -521,6 +554,7 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
             Mathe = true;
         }
     }
+
     @FXML
     public void CheckProg() {
         if (todoController != null) {
@@ -529,7 +563,7 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
         }
     }
 
-    private boolean isTileBlocked(int nextGridX, int nextGridY, boolean up,boolean down,boolean left,boolean right) {
+    private boolean isTileBlocked(int nextGridX, int nextGridY, boolean up, boolean down, boolean left, boolean right) {
         // Safety check: Layer oder RenderContext nicht verfügbar
         if (collisionLayer == null || renderContext == null) return false;
 
@@ -560,6 +594,46 @@ private boolean isDown(KeyCode code) { return keys.getOrDefault(code, false); }
 
         // GID 0 = kein Hindernis, alles andere = blockiert
         return gid != 0;
+    }
+
+
+    private void loadDialogueBox() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ui/DialogueBox.fxml"));
+            dialogueNode = loader.load();
+            dialogueController = loader.getController();
+
+            // nur einmal einhängen
+            overlayLayer.getChildren().setAll(dialogueNode);
+
+            // ABER: nicht anzeigen beim Start
+            overlayLayer.setVisible(false);
+            overlayLayer.setManaged(false);
+            dialogueOpen = false;
+
+            // Klick schließt (Handler ist ok, wirkt nur wenn sichtbar)
+            overlayLayer.setOnMouseClicked(e -> closeDialogue());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void openDialogue(String text) {
+        if (dialogueController == null) return;
+
+        dialogueController.setText(text);
+
+        overlayLayer.setVisible(true);
+        overlayLayer.setManaged(true);
+        dialogueOpen = true;
+    }
+
+    public void closeDialogue() {
+        overlayLayer.setVisible(false);
+        overlayLayer.setManaged(false);
+        dialogueOpen = false;
     }
 
 }

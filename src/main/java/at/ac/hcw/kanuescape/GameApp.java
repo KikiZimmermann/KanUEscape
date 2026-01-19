@@ -26,11 +26,10 @@ public class GameApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         // FXML laden (UI + Controller werden hier initialisiert)
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/fxml/Game.fxml")
-        );
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Game.fxml"));
 
-        Scene scene = new Scene(loader.load());
+        //fixe Fenstergröße, kein resizing mehr
+        Scene scene = new Scene(loader.load(), 1200, 800);
 
         // Get and initialize controller (input + game loop); Mvm
         GameController controller = loader.getController();
@@ -41,9 +40,7 @@ public class GameApp extends Application {
         stage.setScene(scene);
 
         // Fenster- & Taskleisten-Icon setzen
-        stage.getIcons().add(
-                new Image(getClass().getResourceAsStream("/assets/images/icon/icon.png"))
-        );
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/images/icon/icon.png")));
 
         stage.show();
     }

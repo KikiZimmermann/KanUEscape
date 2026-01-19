@@ -1,21 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<StackPane fx:id="root"
-           maxHeight="-Infinity"
-           maxWidth="-Infinity"
-           minHeight="-Infinity"
-           minWidth="-Infinity"
-           prefHeight="640.0"
-           prefWidth="960.0"
-           style="-fx-background-color: #4e4e4e; -padding: 25;"
-           xmlns="http://javafx.com/javafx/17.0.12"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="at.ac.hcw.kanuescape.controller.GameController">
+<StackPane fx:id="root" style="-fx-background-color: #4e4e4e;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.hcw.kanuescape.controller.GameController">
 
-   <children>
-      <Canvas fx:id="gameCanvas" height="200.0" width="200.0" />
-   </children>
+   <BorderPane style="-fx-padding: 10;">
+      <center>
+         <StackPane fx:id="gameArea" style="-fx-background-color: #4e4e4e;">
+
+            <Canvas fx:id="gameCanvas" />
+
+            <StackPane fx:id="overlayLayer" managed="false" pickOnBounds="true" visible="false" />
+
+            <StackPane alignment="TOP_CENTER" pickOnBounds="false">
+               <Button contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" style="-fx-background-color: transparent;" text="MENU" textFill="WHITE">
+                  <graphic>
+                     <ImageView fx:id="menuBtn" fitHeight="40.0" preserveRatio="true" smooth="false">
+                        <image>
+                           <Image url="@../assets/images/ui/button.png" />
+                        </image>
+                     </ImageView>
+                  </graphic>
+                  <font>
+                     <Font name="System Bold" size="18.0" />
+                  </font>
+               </Button>
+            </StackPane>
+
+         </StackPane>
+      </center>
+   </BorderPane>
+
 </StackPane>
