@@ -1,26 +1,145 @@
-/* === SCHRIFTART LADEN === */
-@font-face {
-    font-family: "PixelFont";
-    src: url("../fonts/PixelOperator.ttf");
-}
+/* =========================================================
+   KanUEscape UI Styles (JavaFX CSS)
+   File: src/main/resources/css/ui.css
+   Font: "Press Start 2P" (load in Java with Font.loadFont)
+========================================================= */
 
-/* === STANDARD TEXT === */
-.label {
-    -fx-font-family: "PixelFont";
-    -fx-font-size: 16px;
-    -fx-text-fill: #e6e6e6;
-}
+/* ------------------------------
+   GLOBAL
+------------------------------ */
 
-/* === MENÜ TITEL === */
-.menu-title {
-    -fx-font-size: 28px;
-    -fx-text-fill: #ffffff;
-}
-
-/* === BUTTON TEXT === */
-.button {
-    -fx-font-family: "PixelFont";
+.root {
+    -fx-font-family: "Press Start 2P";
+    -fx-text-fill: white;
     -fx-font-size: 14px;
-    -fx-text-fill: #ffffff;
+}
+
+/* Remove desktop focus visuals */
+.root *:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+
+/* ------------------------------
+   LABELS
+------------------------------ */
+
+.label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+/* Headline */
+.label.title {
+    -fx-font-size: 18px;
+}
+
+/* Slightly quieter text (still white) */
+.label.muted {
+    -fx-opacity: 0.75;
+}
+
+/* ------------------------------
+   BUTTONS
+------------------------------ */
+
+.button {
     -fx-background-color: transparent;
+
+    -fx-border-color: white;
+    -fx-border-width: 2px;
+    -fx-border-radius: 0px;
+    -fx-background-radius: 0px;
+
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+
+    -fx-padding: 8px 14px;
+    -fx-cursor: hand;
+}
+
+/* Hover = stronger presence */
+.button:hover {
+    -fx-opacity: 1.0;
+}
+
+/* Pressed = subtle physical feedback */
+.button:pressed {
+    -fx-translate-y: 1px;
+    -fx-opacity: 0.85;
+}
+
+/* Disabled = faded white */
+.button:disabled {
+    -fx-opacity: 0.35;
+    -fx-cursor: default;
+}
+
+/* ------------------------------
+   TEXT INPUT (TextField)
+------------------------------ */
+
+.text-field {
+    -fx-background-color: transparent;
+
+    -fx-border-color: white;
+    -fx-border-width: 2px;
+
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.55);
+
+    -fx-padding: 8px 10px;
+}
+
+.text-field:hover,
+.text-field:focused {
+    -fx-opacity: 1.0;
+}
+
+/* ------------------------------
+   DIALOG TEXT (TextArea)
+   - Ideal for your DialogueBox overlay text
+------------------------------ */
+
+.text-area {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+
+    -fx-highlight-fill: rgba(255, 255, 255, 0.25);
+    -fx-highlight-text-fill: white;
+}
+
+.text-area .content {
+    -fx-background-color: transparent;
+    -fx-padding: 0px;
+}
+
+/* Hide scrollbars for dialogue-style text */
+.text-area .scroll-bar:vertical,
+.text-area .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+}
+
+/* ------------------------------
+   CHECKBOX
+------------------------------ */
+
+.check-box {
+    -fx-text-fill: white;
+}
+
+.check-box .box {
+    -fx-background-color: transparent;
+    -fx-border-color: white;
+    -fx-border-width: 2px;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
 }
