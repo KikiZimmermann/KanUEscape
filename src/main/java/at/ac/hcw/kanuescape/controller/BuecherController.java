@@ -213,10 +213,23 @@ public class BuecherController {
 
         // neu mischen
         shuffleShelf(shelveOne);
+        resetBookTransforms(shelveOne);
+
         shuffleShelf(shelveTwo);
+        resetBookTransforms(shelveTwo);
+
         shuffleShelf(shelveThree);
+        resetBookTransforms(shelveThree);
+
 
         refreshAllLists();
     }
+    private void resetBookTransforms(HBox shelf) {
+        for (Node n : shelf.getChildren()) {
+            n.setTranslateX(0);
+            n.setTranslateY(0);
+        }
+    }
+
 
 }

@@ -610,9 +610,9 @@ public class GameController {
         double tileX = player.getGridX();
         double tileY = player.getGridY();
 
-        System.out.println("Tile geklickt: (" + x * 32 + "," + y * 32 + ") GID=" + gid);
-        System.out.println("Tile geklickt: (" + x + "," + y);
-        System.out.println("Player geklickt: (" + tileX + "," + tileY);
+//        System.out.println("Tile geklickt: (" + x * 32 + "," + y * 32 + ") GID=" + gid);
+//        System.out.println("Tile geklickt: (" + x + "," + y);
+//        System.out.println("Player geklickt: (" + tileX + "," + tileY);
 
         if (Math.abs(tileX - x) <= 2 && Math.abs(tileY - y) <= 2) {
 
