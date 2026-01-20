@@ -26,14 +26,14 @@ public class DialogueManager {
 
         register("bed", 85, 86, 97, 98, 109, 110);
         register("picture_frame", 62);
-        register("window", 11, 23);
+        register("window", 12, 24);
         register("coffee_maker", 76);
-        register("chair",  65, 53);
+        register("chair",  65, 53, 95, 96);
         register("coffee", 75);
         register("dog_food", 79);
         register("tv", 83, 84);
         register("picture", 66);
-        register("lamp", 99, 100, 88);
+        register("lamp", 99, 100, 111, 88);
         register("plant", 80, 92);
         register("clock", 67);
         register("telephone", 54);
