@@ -126,7 +126,6 @@ public class GameController {
     @FXML
     private Button menuButton;
 
-
     //Overlayers für ui
     @FXML
     private StackPane dialogueOverlayLayer;
@@ -140,12 +139,10 @@ public class GameController {
     private StackPane endOverlayLayer;
     private at.ac.hcw.kanuescape.ui.EndScreenOverlayManager endManager;
 
-
     private StackPane dialogueNode;  // Node merken, um es zu entfernen
     private boolean dialogueOpen = false;
     // dialogue ausnahme für kochmanager
     private DialogueManager dialogueManager = new DialogueManager(KochManager);
-
 
     private DialogueBoxController dialogueController;
     private Runnable afterDialogueClose = null;             // Bücherrätsel nach Dialogue close
@@ -153,6 +150,13 @@ public class GameController {
     // Input/loop
     private final Map<KeyCode, Boolean> keys = new EnumMap(KeyCode.class);
     private AnimationTimer loop;
+
+
+    // verhindert Dialogue-Spam beim Gedrückthalten
+    private int exitLineIdx = 0;
+    private long lastDoorDialogueNs = 0;
+    private static final long DOOR_DIALOGUE_COOLDOWN_NS = 600_000_000L; // 600ms
+
 
     @FXML
     private void initialize() throws Exception {
@@ -767,6 +771,9 @@ public class GameController {
     private boolean isTileBlocked(int nextGridX, int nextGridY, boolean up, boolean down, boolean left, boolean right) {
         if (collisionLayer == null || renderContext == null) return false;
 
+        int targetX = nextGridX;
+        int targetY = nextGridY;
+
         if (nextGridX < 0 || nextGridY < 0 ||
                 nextGridX >= collisionLayer.width() || nextGridY >= collisionLayer.height()) {
             return true;
@@ -784,13 +791,27 @@ public class GameController {
             return false;
         }
 
-        System.out.println(index);
-        int gid = collisionLayer.data()[index];
-        System.out.println(player.getGridX() + " " + player.getGridY());
-
-        if (gid == 92) {
-            Win();
+        if (targetX < 0 || targetY < 0 || targetX >= 20 || targetY >= collisionLayer.height()) {
+            return true;
         }
+
+//        System.out.println(index);
+        int gid = collisionLayer.data()[index];
+//        System.out.println(player.getGridX() + " " + player.getGridY());
+
+        // EXIT: text bis win, dann Win()
+        if (gid == 92) {
+            if (Prog && Mathe && Kochen && Buecher) {
+                Win();
+            } else {
+                showDoorDialogue("exit");
+            }
+            return true;
+        }
+
+//        if (gid == 92) {
+//            Win();
+//        }
        //SFX Wall bump
         boolean blocked = gid != 0;
 
@@ -921,7 +942,7 @@ public class GameController {
 
         closeDialogue(); // stoppt typing + hides overlay
 
-        // 1) Alle Puzzle-Fenster zu (sonst bleiben die offen)
+        // Alle Puzzle-Fenster zu (sonst bleiben die offen)
         if (todoStage != null) todoStage.hide();
         if (BuecherStage != null) BuecherStage.hide();
         if (LaptopStage != null) LaptopStage.hide();
@@ -929,21 +950,22 @@ public class GameController {
         if (KuehlschrankStage != null) KuehlschrankStage.hide();
         if (MathStage != null) MathStage.hide();
 
-        // 2) State reset
+        // State reset
         won = false;
         endRunning = false;
         introRunning = false;
         endIndex = 0;
         introIndex = 0;
+        exitLineIdx = 0;
 
         Prog = Mathe = Kochen = Buecher = false;
 
-        // 3) to do reset
+        // to do reset
         if (todoController != null) {
             todoController.resetChecks();
         }
 
-        // 4) Puzzle Controller reset
+        // Puzzle Controller reset
         if (MathController != null) {
             MathController.resetQuiz();
         }
@@ -1028,5 +1050,25 @@ public class GameController {
         menuButton.setManaged(visible);
     }
 
+    private void showDoorDialogue(String key) {
+        long now = System.nanoTime();
+        if (now - lastDoorDialogueNs < DOOR_DIALOGUE_COOLDOWN_NS) return;
+        if (dialogueOpen || introRunning || endRunning) return;
 
+        var list = DialogueTexts.VARIANTS.get(key);
+        if (list == null || list.isEmpty()) return;
+
+        if ("exit".equals(key)) {
+            // nur 1-3 loopen
+            int n = Math.min(3, list.size());
+            String line = list.get(exitLineIdx % n);
+            exitLineIdx = (exitLineIdx + 1) % n;
+
+            openDialogue(line, key);
+        } else {
+            openDialogue(list.get(0), key);
+        }
+
+        lastDoorDialogueNs = now;
+    }
 }

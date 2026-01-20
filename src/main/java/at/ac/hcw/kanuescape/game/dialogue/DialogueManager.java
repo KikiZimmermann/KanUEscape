@@ -48,8 +48,6 @@ public class DialogueManager {
         register("stove", 71, 59);
         register("cabinet", 55, 56);
         register("fridge", 72);
-//        register("exit", );
-//        register("bathroom", );
     }
 
     private void register(String type, int... gids) {
