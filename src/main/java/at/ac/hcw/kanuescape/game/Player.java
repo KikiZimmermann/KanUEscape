@@ -50,7 +50,7 @@ public class Player {
     private final int[] moveSequence = {COL_MOVE1, COL_IDLE, COL_MOVE2, COL_IDLE};
     private int moveSeqIndex = 1; // start in idle
     private int frameCol = COL_IDLE; // current row
-    private long frameDurationNs = 120_000_000; // equals 120 ms
+    private long frameDurationNs = 120_000_000;
     private long lastFrameTimeNs = 0;
 
     public Player(int startGridX, int startGridY) {
