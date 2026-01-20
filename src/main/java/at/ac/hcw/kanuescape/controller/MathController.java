@@ -65,61 +65,29 @@ public class MathController {
 
         // 6 multiple choice questions; each 1 answer correct
 
-        // Irrational Numbers - Which one is NOT an imaginary number?
-        // A) 3i
-        // B) -7i
-        // C) 5    --> correct answer
-        // D) Wurzel aus -4
         questions.add(new Question(
                 "Imaginary Numbers - Which one is NOT an imaginary number?",
                 new String[]{"3i", "-7i", "5", "√(-4)"},
                 2, null, null
         ));
 
-        // Differentiation - What's the correct derivative of f(x) = 3x^2?
-        // A) 6x^2
-        // B) 6x
-        // C) 3x
-        // D) x^3
         questions.add(new Question(
                 "Differentiation - What's the correct derivative of f(x) = 3x² ?",
                 new String[]{"6x²", "6x", "3x", "x³"},
                 1, null, null
         ));
 
-        // Normal Vector - In R2, a normal vector to v = a, b) would be ...
-        // A) (-b, a)
-        // B) (a, b)
-        // C) (b, a)
-        // D) (-b, -a)
         questions.add(new Question(
                 "Normal Vector - In R², a normal vector to v = (a, b) is …",
                 new String[]{"(-b, a)", "(a, b)", "(b, a)", "(-b, -a)"},
                 0, null, null
         ));
 
-        // Limiting Value - ??? (images)
-        // A)
-        // B)
-        // C)
-        // D)
-
-        //Laws of Exponents - Which result is correct?
-        // A) (x^3)^2 = x^5
-        // B) 2^3 * 3^2 = 2^5
-        // C) x^4 / x^2 = x^6
-        // D) a^2 * a^3 = a^5 --> correct answer
         questions.add(new Question(
                 "Laws of exponents - Which result is correct?",
                 new String[]{"(x³)² = x⁵", "2³ · 3² = 2⁵", "x⁴ / x² = x⁶", "a² · a³ = a⁵"},
                 3, null, null
         ));
-
-        //  Identity Matrix - What does it look like? (images - already have them)
-        // A)
-        // B)
-        // C)
-        // D)
 
         questions.add(new Question(
                 "Identity Matrix - Which one is the identity matrix?",
@@ -128,10 +96,8 @@ public class MathController {
                                         "( 0  1 )\n     ( 1  0 )",
                                         "( 1  1 )\n     ( 0  1 )",
                                         "( 2  0 )\n     ( 0  2 )"
-
                         },
         0,null,null));
-
 
         questions.add(new Question(
                 "Area of Definition - For which values is f(x) = 1/x NOT defined?",
@@ -151,29 +117,6 @@ public class MathController {
         optB.setText("B) " + q.options[1]);
         optC.setText("C) " + q.options[2]);
         optD.setText("D) " + q.options[3]);
-
-//        if (q.optionImagePaths != null) {
-//
-//            optA.setGraphic(makeOptionImage(q.optionImagePaths[0]));
-//            optB.setGraphic(makeOptionImage(q.optionImagePaths[1]));
-//            optC.setGraphic(makeOptionImage(q.optionImagePaths[2]));
-//            optD.setGraphic(makeOptionImage(q.optionImagePaths[3]));
-//
-//            optA.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-//            optB.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-//            optC.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-//            optD.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-//        } else {
-//            optA.setGraphic(null);
-//            optB.setGraphic(null);
-//            optC.setGraphic(null);
-//            optD.setGraphic(null);
-//
-//            optA.setContentDisplay(ContentDisplay.LEFT);
-//            optB.setContentDisplay(ContentDisplay.LEFT);
-//            optC.setContentDisplay(ContentDisplay.LEFT);
-//            optD.setContentDisplay(ContentDisplay.LEFT);
-//        }
 
         int sel = selected[index];
         if (sel == -1) group.selectToggle(null);
@@ -223,22 +166,6 @@ public class MathController {
         }
     }
 
-//    private Image loadImg(String path) {
-//        return new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
-//    }
-//
-//    private ImageView makeOptionImage(String path) {
-//        System.out.println("Loading image: " + path);
-//        Image img = new Image(Objects.requireNonNull(
-//                getClass().getResourceAsStream(path)
-//        ));
-//        ImageView iv = new ImageView(img);
-//        iv.setFitWidth(120);
-//        iv.setPreserveRatio(true);
-//        return iv;
-//    }
-
-
     private static class Question {
         final String prompt;
         final String[] options;
@@ -269,5 +196,4 @@ public class MathController {
         if (statusLabel != null) statusLabel.setText("");
         showQuestion(0);
     }
-
 }
