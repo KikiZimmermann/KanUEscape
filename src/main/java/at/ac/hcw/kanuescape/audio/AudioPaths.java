@@ -11,9 +11,9 @@ public class AudioPaths {
     public static final String MUSIC_RIDDLE_COOKING     = "/assets/audio/music/cooking.mp3";
 
     // SFX
-    public static final String SFX_BTN_CLICK   = "/assets/audio/sfx/ui_click.wav";
-    public static final String SFX_BTN_HOVER   = "/assets/audio/sfx/ui_hover.wav";
-    public static final String SFX_WALL_BUMP   = "/assets/audio/sfx/wall_bump.wav";
-    public static final String SFX_RIDDLE_DONE = "/assets/audio/sfx/riddle_done.wav";
-    public static final String SFX_ALL_DONE    = "/assets/audio/sfx/all_done.wav";
+    public static final String SFX_BTN_CLICK   = "/assets/audio/sfx/click.mp3";
+    public static final String SFX_BTN_HOVER   = "/assets/audio/sfx/hover.mp3";
+    public static final String SFX_WALL_BUMP   = "/assets/audio/sfx/collision.mp3";
+    public static final String SFX_RIDDLE_DONE = "/assets/audio/sfx/success.mp3";
+    public static final String SFX_ALL_DONE    = "/assets/audio/sfx/done.mp3";
 }

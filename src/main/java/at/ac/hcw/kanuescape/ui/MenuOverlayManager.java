@@ -15,7 +15,7 @@ public class MenuOverlayManager {
 
     private boolean open = false;
 
-    // states (später an AudioManager weitergeben)
+    // states für AudioManager
     private boolean musicEnabled = true;
     private boolean sfxEnabled = true;
 

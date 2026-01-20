@@ -14,10 +14,11 @@ public final class AudioManager {
     private static final AudioManager INSTANCE = new AudioManager();
     public static AudioManager get() { return INSTANCE; }
     private boolean musicEnabled = true;
+    private boolean sfxEnabled = true;
 
     private MediaPlayer musicPlayer;
     private double musicVolume = 0.35;   // Default (0.0–1.0)
-    private double sfxVolume = 0.70;
+    private double sfxVolume = 0.20;
 
     // damit beim Re-Enable wieder start:
     private String lastMusicPath = null;
@@ -75,6 +76,7 @@ public final class AudioManager {
 
         Media media = new Media(url.toExternalForm());
         musicPlayer = new MediaPlayer(media);
+        musicPlayer.setVolume(musicVolume);
 
         if (loop) {
             musicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
@@ -83,8 +85,39 @@ public final class AudioManager {
         musicPlayer.play();
     }
 
-    // --- SFX (minimal, optional für später) ---
-    // Für SFX kann man auch AudioClip verwenden (leichter & schneller als MediaPlayer).
+    // --- SFX ---
+    public boolean isSfxEnabled() {
+        return sfxEnabled;
+    }
+
+    public void setSfxEnabled(boolean enabled) {
+        this.sfxEnabled = enabled;
+    }
+
+    public void playSfx(String resourcePath) {
+        if (!sfxEnabled) return;
+
+        var url = AudioManager.class.getResource(resourcePath);
+        if (url == null) {
+            System.out.println("SFX NOT FOUND: " + resourcePath);
+            return;
+        }
+
+        Media media = new Media(url.toExternalForm());
+        MediaPlayer p = new MediaPlayer(media);
+        p.setVolume(sfxVolume);
+
+        p.setOnEndOfMedia(() -> {
+            p.stop();
+            p.dispose();
+        });
+
+        p.play();
+    }
+
+
+
+
 
 
     // --- helpers ---

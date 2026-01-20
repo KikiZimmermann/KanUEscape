@@ -85,7 +85,10 @@ public class MenuScreenController {
     @FXML private void toggleSfx() {
         sfxOn = !sfxOn;
         refresh();
+
+        AudioManager.get().setSfxEnabled(sfxOn);  // <-- NEU
     }
+
 
     @FXML private void onContinue() {
         if (onContinue != null) onContinue.run();

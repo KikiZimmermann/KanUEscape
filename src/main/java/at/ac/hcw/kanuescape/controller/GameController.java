@@ -5,7 +5,6 @@ import at.ac.hcw.kanuescape.controller.LaptopController;
 import at.ac.hcw.kanuescape.controller.ToDoListeController;
 import at.ac.hcw.kanuescape.controller.MathController;
 import at.ac.hcw.kanuescape.controller.ui.DialogueBoxController;
-import at.ac.hcw.kanuescape.controller.ui.StartScreenController;
 import at.ac.hcw.kanuescape.game.dialogue.DialogueManager;
 import at.ac.hcw.kanuescape.game.KochManager;
 import at.ac.hcw.kanuescape.game.dialogue.DialogueTexts;
@@ -22,10 +21,8 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -43,11 +40,11 @@ import java.util.Map; // Mvm
 
 /**
  * GameController
- *
+ * <p>
  * - Lädt Map + Tileset + Player-Sprite aus /resources
  * - Bindet Canvas an das Fenster (resizable) mit Rahmen (Padding)
  * - Rendert Map-Layer + Player (noch ohne Bewegung)
- *
+ * <p>
  * Hinweis: Parsing & Tileset-Logik steckt in MapLoader/TiledModel.
  * Rendering der TileLayer steckt in MapRenderer.
  */
@@ -62,7 +59,8 @@ public class GameController {
 
     // Look & Layout
     private static final Color BACKGROUND = Color.web("#4e4e4e");
-    @FXML private StackPane gameArea;
+    @FXML
+    private StackPane gameArea;
 
     // Player
     private Player player;
@@ -83,6 +81,11 @@ public class GameController {
     // GameEnd
     private boolean endRunning = false;
     private int endIndex = 0;
+
+    //SFX
+    private long lastBumpSfxNs = 0;
+    private static final long BUMP_COOLDOWN_NS = 250_000_000L; // 250ms
+
 
     //to DoListe
     private Stage todoStage;
@@ -116,29 +119,32 @@ public class GameController {
     private StackPane root;
     @FXML
     private Canvas gameCanvas;
-    @FXML private Button menuButton;
+    @FXML
+    private Button menuButton;
 
 
     //Overlayers für ui
-    @FXML private StackPane dialogueOverlayLayer;
-    @FXML private StackPane menuOverlayLayer;
+    @FXML
+    private StackPane dialogueOverlayLayer;
+    @FXML
+    private StackPane menuOverlayLayer;
     private at.ac.hcw.kanuescape.ui.MenuOverlayManager menuManager;
-    @FXML private StackPane startOverlayLayer;
+    @FXML
+    private StackPane startOverlayLayer;
     private at.ac.hcw.kanuescape.ui.StartScreenOverlayManager startManager;
-    @FXML private StackPane endOverlayLayer;
+    @FXML
+    private StackPane endOverlayLayer;
     private at.ac.hcw.kanuescape.ui.EndScreenOverlayManager endManager;
 
 
     private StackPane dialogueNode;  // Node merken, um es zu entfernen
     private boolean dialogueOpen = false;
     // dialogue ausnahme für kochmanager
-    private DialogueManager dialogueManager= new DialogueManager(KochManager);
+    private DialogueManager dialogueManager = new DialogueManager(KochManager);
 
 
     private DialogueBoxController dialogueController;
     private Runnable afterDialogueClose = null;             // Bücherrätsel nach Dialogue close
-
-
 
     // Input/loop
     private final Map<KeyCode, Boolean> keys = new EnumMap(KeyCode.class);
@@ -158,7 +164,6 @@ public class GameController {
             AudioManager.get().playMusicLoop(AudioPaths.MUSIC_GAME);
             startIntro(); // menu bleibt aus, bis Intro fertig ist
         });
-
 
 
         // Canvas folgt der Größe des Containers, bleibt aber innen "kleiner" (Rahmen bleibt sichtbar)
@@ -195,9 +200,6 @@ public class GameController {
         endManager.setOnExit(() -> {
             Platform.exit();
         });
-
-
-
 
 
         // ToDoListe Laden
@@ -359,9 +361,22 @@ public class GameController {
         root.setOnMouseClicked(e -> root.requestFocus());
         Platform.runLater(() -> root.requestFocus());
 
+        //Button click SFX
+        scene.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED,e ->
+        {
+            javafx.scene.Node n = (javafx.scene.Node) e.getTarget();
+            while (n != null && !(n instanceof javafx.scene.control.Button)) {
+                n = n.getParent();
+            }
+            if (n instanceof javafx.scene.control.Button) {
+                AudioManager.get().playSfx(AudioPaths.SFX_BTN_CLICK);
+            }
+        });
+
         // Game loop
         loop = new AnimationTimer() {
             long last = 0;
+
 
             @Override
             public void handle(long now) {
@@ -528,7 +543,7 @@ public class GameController {
     }
 
     private void handleMapClick(double mouseX, double mouseY) {
-       // kein mapclick when intro oder dialogue
+        // kein mapclick when intro oder dialogue
         if (introRunning) return;
         if (endRunning) return;
         if (dialogueOpen) return;
@@ -569,23 +584,23 @@ public class GameController {
         double tileX = player.getGridX();
         double tileY = player.getGridY();
 
-        System.out.println("Tile geklickt: (" + x*32 + "," + y*32 + ") GID=" + gid);
+        System.out.println("Tile geklickt: (" + x * 32 + "," + y * 32 + ") GID=" + gid);
         System.out.println("Tile geklickt: (" + x + "," + y);
-        System.out.println("Player geklickt: (" + tileX + "," + tileY );
+        System.out.println("Player geklickt: (" + tileX + "," + tileY);
 
         if (Math.abs(tileX - x) <= 2 && Math.abs(tileY - y) <= 2) {
 
             if (gid == 60) {
                 if (todoStage != null) {
-                    todoStage.setX((rc.gc().getCanvas().getWidth())/2);
+                    todoStage.setX((rc.gc().getCanvas().getWidth()) / 2);
                     todoStage.setY(50);
                     todoStage.show();
                 }
             }
 
-            if (gid == 55||gid==56) {
+            if (gid == 55 || gid == 56) {
                 if (SchrankStage != null) {
-                    SchrankStage.setX((rc.gc().getCanvas().getWidth())/2);
+                    SchrankStage.setX((rc.gc().getCanvas().getWidth()) / 2);
                     SchrankStage.setY(50);
                     SchrankStage.show();
                 }
@@ -597,7 +612,7 @@ public class GameController {
                 if (!Kochen) AudioManager.get().playMusicLoop(AudioPaths.MUSIC_RIDDLE_COOKING, true);
 
                 if (KuehlschrankStage != null) {
-                    KuehlschrankStage.setX((rc.gc().getCanvas().getWidth())/2);
+                    KuehlschrankStage.setX((rc.gc().getCanvas().getWidth()) / 2);
                     KuehlschrankStage.setY(50);
                     KuehlschrankStage.show();
                 }
@@ -654,7 +669,7 @@ public class GameController {
                     openDialogue(dialogueManager.nextTextForType(type), type);
                 }
                 if (gid == 63) {
-                    if(KochManager.getState() == KochManager.getFINISHED()){
+                    if (KochManager.getState() == KochManager.getFINISHED()) {
                         CheckKochen();
                     }
                 }
@@ -672,30 +687,37 @@ public class GameController {
         if (todoController != null) {
             todoController.CheckBuecher(true);
             Buecher = true;
+            AudioManager.get().playSfx(AudioPaths.SFX_RIDDLE_DONE);     //SFX
         }
     }
+
     @FXML
     public void CheckKochen() {
         if (todoController != null) {
             todoController.CheckKochen(true);
             Kochen = true;
 
-            AudioManager.get().playMusicLoop(AudioPaths.MUSIC_GAME, true);
+            AudioManager.get().playMusicLoop(AudioPaths.MUSIC_GAME, true);  //zurück zu game musik
+            AudioManager.get().playSfx(AudioPaths.SFX_RIDDLE_DONE);     //SFX
 
         }
     }
+
     @FXML
     public void CheckMathe() {
         if (todoController != null) {
             todoController.CheckMathe(true);
             Mathe = true;
+            AudioManager.get().playSfx(AudioPaths.SFX_RIDDLE_DONE);     //SFX
         }
     }
+
     @FXML
     public void CheckProg() {
         if (todoController != null) {
             todoController.CheckProg(true);
             Prog = true;
+            AudioManager.get().playSfx(AudioPaths.SFX_RIDDLE_DONE);     //SFX
         }
     }
 
@@ -705,6 +727,8 @@ public class GameController {
         if (endRunning) return;    // safety
 
         won = true;
+
+        AudioManager.get().playSfx(AudioPaths.SFX_ALL_DONE); // <-- Erfolgssound
 
         // während End-Text soll nichts mehr gehen
         introRunning = false;      // nur falls du irgendwo intro noch true hättest
@@ -726,24 +750,23 @@ public class GameController {
             return true;
         }
         int index;
-        if(up){
-            index = (nextGridY-1) * 20 + nextGridX;
+        if (up) {
+            index = (nextGridY - 1) * 20 + nextGridX;
         } else if (down) {
-            index = (nextGridY+1) * 20 + nextGridX;
+            index = (nextGridY + 1) * 20 + nextGridX;
         } else if (left) {
-            index = nextGridY * 20 + nextGridX-1;
+            index = nextGridY * 20 + nextGridX - 1;
         } else if (right) {
-            index = nextGridY * 20 + nextGridX+1;
-        }
-        else{
+            index = nextGridY * 20 + nextGridX + 1;
+        } else {
             return false;
         }
 
         System.out.println(index);
         int gid = collisionLayer.data()[index];
-        System.out.println(player.getGridX()+" "+ player.getGridY());
+        System.out.println(player.getGridX() + " " + player.getGridY());
 
-        if(gid==92){
+        if (gid == 92) {
             Win();
         }
         return gid != 0;
@@ -844,6 +867,7 @@ public class GameController {
         activeDialogueType = "intro";
         openDialogue(DialogueTexts.INTRO_LINES.get(introIndex), "intro");
     }
+
     private void startEnd() {
         endRunning = true;
         endIndex = 0;
@@ -922,6 +946,7 @@ public class GameController {
     }
 
     private String activeDialogueType = null;
+
     public void openDialogue(String text) {
         openDialogue(text, null);
     }
@@ -969,7 +994,6 @@ public class GameController {
         menuButton.setVisible(visible);
         menuButton.setManaged(visible);
     }
-
 
 
 }
