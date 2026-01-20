@@ -55,7 +55,7 @@ public class MenuOverlayManager {
             // overlayLayer soll immer die ganze Fläche nehmen
             overlayLayer.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-// menuNode (menuRoot) soll auch die ganze Fläche nehmen (für dim + Zentrierung)
+            // menuNode (menuRoot) soll auch die ganze Fläche nehmen (für dim + Zentrierung)
             if (menuNode instanceof Region r) {
                 r.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             }

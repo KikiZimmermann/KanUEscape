@@ -1,9 +1,5 @@
 package at.ac.hcw.kanuescape.controller;
 
-import at.ac.hcw.kanuescape.controller.BuecherController;
-import at.ac.hcw.kanuescape.controller.LaptopController;
-import at.ac.hcw.kanuescape.controller.ToDoListeController;
-import at.ac.hcw.kanuescape.controller.MathController;
 import at.ac.hcw.kanuescape.controller.ui.DialogueBoxController;
 import at.ac.hcw.kanuescape.game.dialogue.DialogueManager;
 import at.ac.hcw.kanuescape.game.KochManager;
@@ -91,7 +87,7 @@ public class GameController {
     private long lastHoverSfxNs = 0;
     private static final long HOVER_COOLDOWN_NS = 120_000_000L; // 120ms
 
-    //to DoListe
+    //neue Stages
     private Stage todoStage;
     private Stage BuecherStage;
     private Stage LaptopStage;
@@ -99,6 +95,7 @@ public class GameController {
     private Stage KuehlschrankStage;
     private Stage MathStage;
 
+    //neue Controller
     private ToDoListeController todoController;
     private BuecherController BuecherController;
     private LaptopController LaptopController;
@@ -210,7 +207,7 @@ public class GameController {
         });
 
 
-        // ToDoListe Laden
+        // Stages laden um Sie später dann zu nützen
         FXMLLoader fxmlLoader = new FXMLLoader(GameController.class.getResource("/fxml/toDoListe.fxml"));
         Scene scenetodo = new Scene(fxmlLoader.load(), 339, 511);
         todoController = fxmlLoader.getController();
@@ -229,7 +226,7 @@ public class GameController {
         BuecherStage = new Stage();
         BuecherStage.setAlwaysOnTop(true);
         BuecherStage.setResizable(false);
-//        BuecherStage.initStyle(StageStyle.TRANSPARENT);
+        // BuecherStage.initStyle(StageStyle.TRANSPARENT);
         BuecherStage.setScene(sceneBuecher);
         BuecherStage.setTitle("Bücherregal");
         // changes the icon of window
@@ -261,23 +258,18 @@ public class GameController {
         KuehlschrankStage.initStyle(StageStyle.TRANSPARENT);
         KuehlschrankStage.setScene(sceneKuehlschrank);
 
-        // ! Adapted from here ...
 
         FXMLLoader fxmlLoaderLaptop = new FXMLLoader(GameController.class.getResource("/fxml/Laptop.fxml"));
         Scene sceneLaptop = new Scene(fxmlLoaderLaptop.load(), 977, 824);
         LaptopController = fxmlLoaderLaptop.getController();
-
         LaptopStage = new Stage();
         LaptopStage.setTitle("Programming");
         LaptopStage.setAlwaysOnTop(true);
         LaptopStage.setResizable(false);
-
         // for now/until debugged: regular window (non-transparent)
         LaptopStage.initStyle(StageStyle.DECORATED);
-
         LaptopStage.setScene(sceneLaptop);
         LaptopStage.sizeToScene();
-
         // Laptop Music
         LaptopStage.setOnShown(e ->
                 AudioManager.get().playMusicLoop(AudioPaths.MUSIC_RIDDLE_PROGRAMMING, true)
@@ -399,7 +391,7 @@ public class GameController {
         });
 
 
-        // Game loop
+        // Game loop (Bewegung)
         loop = new AnimationTimer() {
             long last = 0;
 
@@ -433,6 +425,7 @@ public class GameController {
                 boolean left = isDown(KeyCode.A);
                 boolean right = isDown(KeyCode.D);
 
+                //Collision
                 if (!player.isMoving()) {
                     if (!isTileBlocked(player.getGridX(), player.getGridY(), up, down, left, right)) {
                         player.update(dt, up, down, left, right);
@@ -791,10 +784,6 @@ public class GameController {
             return false;
         }
 
-        if (targetX < 0 || targetY < 0 || targetX >= 20 || targetY >= collisionLayer.height()) {
-            return true;
-        }
-
 //        System.out.println(index);
         int gid = collisionLayer.data()[index];
 //        System.out.println(player.getGridX() + " " + player.getGridY());
@@ -809,9 +798,6 @@ public class GameController {
             return true;
         }
 
-//        if (gid == 92) {
-//            Win();
-//        }
        //SFX Wall bump
         boolean blocked = gid != 0;
 
