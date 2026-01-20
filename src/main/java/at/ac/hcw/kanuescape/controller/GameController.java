@@ -16,6 +16,7 @@ import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -24,6 +25,7 @@ import javafx.scene.control.Button;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import at.ac.hcw.kanuescape.game.Player; // Mvm
@@ -82,10 +84,12 @@ public class GameController {
     private boolean endRunning = false;
     private int endIndex = 0;
 
-    //SFX
+    //SFX-wall bump
     private long lastBumpSfxNs = 0;
     private static final long BUMP_COOLDOWN_NS = 250_000_000L; // 250ms
-
+    //SFX - hover
+    private long lastHoverSfxNs = 0;
+    private static final long HOVER_COOLDOWN_NS = 120_000_000L; // 120ms
 
     //to DoListe
     private Stage todoStage;
@@ -362,16 +366,34 @@ public class GameController {
         Platform.runLater(() -> root.requestFocus());
 
         //Button click SFX
-        scene.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED,e ->
+        scene.addEventFilter(MouseEvent.MOUSE_PRESSED,e ->
         {
-            javafx.scene.Node n = (javafx.scene.Node) e.getTarget();
-            while (n != null && !(n instanceof javafx.scene.control.Button)) {
+            Node n = (Node) e.getTarget();
+            while (n != null && !(n instanceof Button)) {
                 n = n.getParent();
             }
-            if (n instanceof javafx.scene.control.Button) {
+            if (n instanceof Button) {
                 AudioManager.get().playSfx(AudioPaths.SFX_BTN_CLICK);
             }
         });
+        //SFX hover
+        scene.addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
+            Node n = (Node) e.getTarget();
+
+            // hochlaufen bis Button
+            while (n != null && !(n instanceof Button)) {
+                n = n.getParent();
+            }
+
+            if (n instanceof Button) {
+                long now = System.nanoTime();
+                if (now - lastHoverSfxNs > HOVER_COOLDOWN_NS) {
+                    AudioManager.get().playSfx(AudioPaths.SFX_BTN_HOVER);
+                    lastHoverSfxNs = now;
+                }
+            }
+        });
+
 
         // Game loop
         loop = new AnimationTimer() {
@@ -769,7 +791,18 @@ public class GameController {
         if (gid == 92) {
             Win();
         }
-        return gid != 0;
+       //SFX Wall bump
+        boolean blocked = gid != 0;
+
+        if (blocked) {
+            long now = System.nanoTime();
+            if (now - lastBumpSfxNs > BUMP_COOLDOWN_NS) {
+                AudioManager.get().playSfx(AudioPaths.SFX_WALL_BUMP);
+                lastBumpSfxNs = now;
+            }
+        }
+
+        return blocked;
     }
 
     private void loadDialogueBox() {
